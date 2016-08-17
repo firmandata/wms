@@ -70,9 +70,6 @@ function material_inventory_picklist_detail_full_list_load_table(table_id){
 			'Pallet',
 			'Carton No',
 			'Lot No',
-			'Length',
-			'Width',
-			'Height',
 			'Condition',
 			'Packed Date',
 			'Expired Date',
@@ -98,9 +95,6 @@ function material_inventory_picklist_detail_full_list_load_table(table_id){
 			{name:'pallet', index:'ipld.pallet', width:120, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			{name:'carton_no', index:'ipld.carton_no', width:80, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			{name:'lot_no', index:'ipld.lot_no', width:90, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
-			{name:'volume_length', index:'ipld.volume_length', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
-			{name:'volume_width', index:'ipld.volume_width', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
-			{name:'volume_height', index:'ipld.volume_height', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
 			{name:'condition', index:'ipld.condition', width:100,
 			 stype:'select', searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false, value:<?php echo json_encode($product_conditions);?>}
 			},
@@ -127,7 +121,7 @@ function material_inventory_picklist_detail_full_list_load_table(table_id){
 			},
 			{name:'c_orderout_code', index:'oo.code', width:90, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			jqgrid_column_date(table_id, {name:'c_orderout_date', index:'oo.orderout_date'}),
-			jqgrid_column_date(table_id, {name:'c_orderout_request_arrive_date', index:'oo.request_arrive_date'}),
+			jqgrid_column_date(table_id, {name:'request_arrive_date', index:'oo.request_arrive_date'}),
 			{name:'c_businesspartner_name', index:'bp.name', width:180, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			{name:'c_project_name', index:'prj.name', width:150, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}}
 		],
@@ -155,13 +149,6 @@ function material_inventory_picklist_detail_full_list_load_table(table_id){
 		multipleSearch: true, 
 		multipleGroup: true, 
 		showQuery: true
-	});
-	
-	jQuery("#" + table_id).jqGrid('setGroupHeaders', {
-		useColSpanStyle: true, 
-		groupHeaders:[
-			{startColumnName: 'volume_length', numberOfColumns: 3, titleText: 'Volume'}
-		]
 	});
 	
 	jQuery("#" + table_id).jqGrid('setFrozenColumns');

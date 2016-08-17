@@ -100,9 +100,8 @@ class MY_DB_sqlsrv_driver extends CI_DB_sqlsrv_driver
 	
 	function _cast_datetime_to_date($field)
 	{
-		// return "CAST(CONVERT(VARCHAR(10), ".$field.", 112) AS DATE)";
-		// return "CAST(".$field." AS DATE)";
-		return "CONVERT(VARCHAR(10), ".$field.", 120)";
+		//return "CAST(CONVERT(VARCHAR(10), ".$field.", 112) AS DATE)";
+		return "CAST(".$field." AS DATE)";
 	}
 	
 	function _getdate()

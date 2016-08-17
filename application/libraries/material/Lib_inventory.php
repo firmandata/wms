@@ -26,7 +26,6 @@ class Lib_inventory extends Lib_general
 		$m_product = new M_product();
 		$m_grid = new M_grid();
 		$c_project = new C_project();
-		$c_businesspartner = new C_businesspartner();
 		$quantity_per_box = 0;
 		$quantity_box = 0;
 		$quantity_box_allocated = 0;
@@ -42,6 +41,9 @@ class Lib_inventory extends Lib_general
 			$m_product = new M_product($data->m_product_id);
 			$inventory_relations['m_product'] = $m_product;
 			unset($data->m_product_id);
+			
+			if (!property_exists($data, 'price_buy'))
+				$data->price_buy = $m_product->price;
 		}
 		if (property_exists($data, 'm_grid_id'))
 		{
@@ -54,12 +56,6 @@ class Lib_inventory extends Lib_general
 			$c_project = new C_project($data->c_project_id);
 			$inventory_relations['c_project'] = $c_project;
 			unset($data->c_project_id);
-		}
-		if (property_exists($data, 'c_businesspartner_id'))
-		{
-			$c_businesspartner = new C_businesspartner($data->c_businesspartner_id);
-			$inventory_relations['c_businesspartner'] = $c_businesspartner;
-			unset($data->c_businesspartner_id);
 		}
 		if (property_exists($data, 'quantity_per_box'))
 		{
@@ -156,7 +152,6 @@ class Lib_inventory extends Lib_general
 		$m_grid = $m_inventory->m_grid->get();
 		
 		$c_project = $m_inventory->c_project->get();
-		$c_businesspartner = $m_inventory->c_businesspartner->get();
 		
 		$quantity_per_box_old = $m_inventory->quantity_per_box;
 		
@@ -186,6 +181,9 @@ class Lib_inventory extends Lib_general
 			$m_product = new M_product($data->m_product_id);
 			$inventory_relations['m_product'] = $m_product;
 			unset($data->m_product_id);
+			
+			if (!property_exists($data, 'price_buy'))
+				$data->price_buy = $m_product->price;
 		}
 		if (property_exists($data, 'm_grid_id'))
 		{
@@ -198,12 +196,6 @@ class Lib_inventory extends Lib_general
 			$c_project = new C_project($data->c_project_id);
 			$inventory_relations['c_project'] = $c_project;
 			unset($data->c_project_id);
-		}
-		if (property_exists($data, 'c_businesspartner_id'))
-		{
-			$c_businesspartner = new C_businesspartner($data->c_businesspartner_id);
-			$inventory_relations['c_businesspartner'] = $c_businesspartner;
-			unset($data->c_businesspartner_id);
 		}
 		if (property_exists($data, 'pallet'))
 		{
@@ -432,7 +424,6 @@ class Lib_inventory extends Lib_general
 		{
 			$m_product = $m_inventory->m_product->get();
 			$c_project = $m_inventory->c_project->get();
-			$c_businesspartner = $m_inventory->c_businesspartner->get();
 			
 			if ($m_inventory->quantity_per_box > 0 && $m_inventory->quantity_box > 0 && $m_inventory->quantity_per_box == ($m_inventory->quantity / $m_inventory->quantity_box))
 				$quantity = $m_inventory->quantity_per_box * $quantity_box;
@@ -444,39 +435,11 @@ class Lib_inventory extends Lib_general
 					$quantity = $m_inventory->quantity;
 			}
 			
-			if (!property_exists($data, 'm_product_id'))
-			{
-				$data->m_product_id = $m_product->id;
-			}
-			if (!property_exists($data, 'volume_length'))
-			{
-				$data->volume_length = $m_inventory->volume_length;
-			}
-			if (!property_exists($data, 'volume_width'))
-			{
-				$data->volume_width = $m_inventory->volume_width;
-			}
-			if (!property_exists($data, 'volume_height'))
-			{
-				$data->volume_height = $m_inventory->volume_height;
-			}
-			if (!property_exists($data, 'c_project_id'))
-			{
-				$data->c_project_id = $c_project->id;
-			}
-			if (!property_exists($data, 'c_businesspartner_id'))
-			{
-				$data->c_businesspartner_id = $c_businesspartner->id;
-			}
-			if (!property_exists($data, 'received_date'))
-			{
-				$data->received_date = $m_inventory->received_date;
-			}
+			$data->m_product_id = $m_product->id;
+			$data->c_project_id = $c_project->id;
+			$data->received_date = $m_inventory->received_date;
 			$data->m_grid_id = $m_grid_id;
-			if (!property_exists($data, 'quantity_per_box'))
-			{
-				$data->quantity_per_box = $m_inventory->quantity_box;
-			}
+			$data->quantity_per_box = $m_inventory->quantity_box;
 			$data->quantity = $quantity;
 			$data->quantity_box = $quantity_box;
 			$m_inventory_id_new = $this->add($data, $updated_by, $log);
@@ -623,7 +586,6 @@ class Lib_inventory extends Lib_general
 		$m_product = $m_inventory->m_product->get();
 		$m_grid = $m_inventory->m_grid->get();
 		$c_project = $m_inventory->c_project->get();
-		$c_businesspartner = $m_inventory->c_businesspartner->get();
 		
 		if ($data == NULL)
 			$data = new stdClass();
@@ -638,20 +600,16 @@ class Lib_inventory extends Lib_general
 		$data->barcode = $m_inventory->barcode;
 		$data->pallet = $m_inventory->pallet;
 		$data->condition = $m_inventory->condition;
-		$data->volume_length = $m_inventory->volume_length;
-		$data->volume_width = $m_inventory->volume_width;
-		$data->volume_height = $m_inventory->volume_height;
 		$data->created_by = $created_by;
 		
 		$m_inventorylog = new M_inventorylog();
 		$this->set_model_fields_values($m_inventorylog, $data);
 		$m_inventorylog_saved = $m_inventorylog->save(
 			array(
-				'm_inventory'		=> $m_inventory,
-				'm_product'			=> $m_product,
-				'm_grid'			=> $m_grid,
-				'c_project'			=> $c_project,
-				'c_businesspartner'	=> $c_businesspartner
+				'm_inventory'	=> $m_inventory,
+				'm_product'		=> $m_product,
+				'm_grid'		=> $m_grid,
+				'c_project'		=> $c_project
 			)
 		);
 		if (!$m_inventorylog_saved)

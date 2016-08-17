@@ -34,11 +34,10 @@ class Product extends MY_Controller
 		{
 			$table = $this->db
 				->select("pro.id, pro.code, pro.name")
-				->select("pro.uom, pro.pack, pro.origin, pro.netto, pro.minimum_stock")
+				->select("pro.uom, pro.casing, pro.pack, pro.origin, pro.netto, pro.minimum_stock")
 				->select("pro.m_productgroup_id, prog.code m_productgroup_code, prog.name m_productgroup_name")
 				->select("pro.brand, pro.type")
 				->select("pro.price")
-				->select("pro.volume_length, pro.volume_width, pro.volume_height")
 				->select("cpro.barcode_length c_barcode_length")
 				->select("cpro.quantity_start c_quantity_start, cpro.quantity_end c_quantity_end")
 				->select("cpro.quantity_point_start c_quantity_point_start, cpro.quantity_point_end c_quantity_point_end")
@@ -80,10 +79,9 @@ class Product extends MY_Controller
 		
 		$this->db
 			->select("pro.id, pro.code, pro.name")
-			->select("pro.uom, pro.pack, pro.origin, pro.netto, pro.minimum_stock")
+			->select("pro.uom, pro.casing, pro.pack, pro.origin, pro.netto, pro.minimum_stock")
 			->select("pro.brand, pro.type")
 			->select("pro.price")
-			->select("pro.volume_length, pro.volume_width, pro.volume_height")
 			->select("prog.code m_productgroup_code, prog.name m_productgroup_name")
 			->select("cpro.barcode_length c_barcode_length")
 			->select("cpro.quantity_start c_quantity_start, cpro.quantity_end c_quantity_end")
@@ -194,6 +192,7 @@ class Product extends MY_Controller
 		$data->code = $this->input->post('code');
 		$data->name = $this->input->post('name');
 		$data->uom = $this->input->post('uom');
+		$data->casing = $this->input->post('casing');
 		$data->pack = $this->input->post('pack');
 		$data->origin = $this->input->post('origin');
 		$data->type = $this->input->post('type');
@@ -201,9 +200,6 @@ class Product extends MY_Controller
 		$data->netto = $this->input->post('netto');
 		$data->minimum_stock = $this->input->post('minimum_stock');
 		$data->price = $this->input->post('price');
-		$data->volume_length = $this->input->post('volume_length');
-		$data->volume_width = $this->input->post('volume_width');
-		$data->volume_height = $this->input->post('volume_height');
 		$data->barcode_length = $this->input->post('barcode_length');
 		$data->quantity_start = $this->input->post('quantity_start');
 		$data->quantity_end = $this->input->post('quantity_end');
@@ -258,9 +254,6 @@ class Product extends MY_Controller
 				array('field' => 'netto', 'label' => 'Netto', 'rules' => 'numeric|required'),
 				array('field' => 'minimum_stock', 'label' => 'Minimum Stock', 'rules' => 'numeric|required'),
 				array('field' => 'price', 'label' => 'Price', 'rules' => 'numeric|required'),
-				array('field' => 'volume_length', 'label' => 'Volume Length', 'rules' => 'numeric'),
-				array('field' => 'volume_width', 'label' => 'Volume Width', 'rules' => 'numeric'),
-				array('field' => 'volume_height', 'label' => 'Volume Height', 'rules' => 'numeric'),
 				array('field' => 'barcode_length', 'label' => 'Barcode Length', 'rules' => 'integer|required'),
 				array('field' => 'quantity_start', 'label' => 'Quantity Start', 'rules' => 'integer|required'),
 				array('field' => 'quantity_end', 'label' => 'Quantity End', 'rules' => 'integer|required'),
@@ -287,6 +280,7 @@ class Product extends MY_Controller
 		$data->code = $this->input->post('code');
 		$data->name = $this->input->post('name');
 		$data->uom = $this->input->post('uom');
+		$data->casing = $this->input->post('casing');
 		$data->pack = $this->input->post('pack');
 		$data->origin = $this->input->post('origin');
 		$data->type = $this->input->post('type');
@@ -294,9 +288,6 @@ class Product extends MY_Controller
 		$data->netto = $this->input->post('netto');
 		$data->minimum_stock = $this->input->post('minimum_stock');
 		$data->price = $this->input->post('price');
-		$data->volume_length = $this->input->post('volume_length');
-		$data->volume_width = $this->input->post('volume_width');
-		$data->volume_height = $this->input->post('volume_height');
 		$data->barcode_length = $this->input->post('barcode_length');
 		$data->quantity_start = $this->input->post('quantity_start');
 		$data->quantity_end = $this->input->post('quantity_end');

@@ -30,8 +30,18 @@ $config['months'] = array(
 
 $config['filter_year_from'] = 2015;
 
-$config['inventory_default_warehouse'] = 'WHSYS';
-$config['inventory_default_grid'] = 'WHSYS000000';
+$config['inventory_default_warehouse'] = 'LOSYS';
+$config['inventory_default_grid'] = 'LOSYS000000';
+$config['inventory_default_grid_1'] = 'LOKOL000000';
+
+$config['product_group_default'] = array(
+	'code'	=> 'GUDANG',
+	'name'	=> 'GUDANG'
+);
+$config['product_group_default_1'] = array(
+	'code'	=> 'TAMBAK',
+	'name'	=> 'TAMBAK'
+);
 
 $config['business_partner_types'] = array(
 	'EMPLOYEE'	=> 'Employee',
@@ -45,13 +55,23 @@ $config['business_partner_models'] = array(
 );
 
 $config['product_uoms'] = array(
-	'BOX'	=> 'BOX',
-	'PCS'	=> 'PCS',
-	'GR'	=> 'GR',
 	'KG'	=> 'KG',
-	'LBR'	=> 'LBR',
-	'EA'	=> 'EA',
-	'UNIT'	=> 'UNIT'
+	'GRAM'	=> 'GRAM',
+	'ML'	=> 'ML',
+	'PCS'	=> 'PCS',
+	'EKOR'	=> 'EKOR',
+	'LT'	=> 'LT',
+	'LBS'	=> 'LBS',
+	'OTHER'	=> 'OTHER'
+);
+
+$config['product_casings'] = array(
+	'ZAK'	=> 'ZAK',
+	'BAG'	=> 'BAG',
+	'BTL'	=> 'BTL',
+	'DRUM'	=> 'DRUM',
+	'JC'	=> 'JC',
+	'OTHER'	=> 'OTHER'
 );
 
 $config['product_origins'] = array(
@@ -61,26 +81,30 @@ $config['product_origins'] = array(
 
 $config['product_conditions'] = array(
 	'OK'		=> 'OK',
-	'DEFECT'	=> 'DEFECT'
+	'NOT GOOD'	=> 'NOT GOOD'
 );
 
 $config['product_types'] = array(
-	'BD.05'				=> 'BD.05',
-	'BD.04'				=> 'BD.04',
-	'BD.0203'			=> 'BD.0203',
-	'BG.0104'			=> 'BG.0104',
-	'Polos'		 		=> 'Polos',
-	'KP.0203'			=> 'KP.0203'
-	);
+	'BENUR/BIBIT'	=> 'BENUR/BIBIT',
+	'UDANG'			=> 'UDANG',
+	'PAKAN'			=> 'PAKAN',
+	'VITAMIN'		=> 'VITAMIN',
+	'MATERIAL'		=> 'MATERIAL',
+	'OBAT'			=> 'OBAT',
+	'OTHER'			=> 'OTHER'
+);
 
 $config['grid_types'] = array(
-	'RACK'	=> 'Rack',
-	'STAGE'	=> 'Stage'
+	'STANDAR'			=> 'STANDAR',
+	'DIBAWAH STANDAR'	=> 'DIBAWAH STANDAR',
+	'DIATAS STANDAR'	=> 'DIATAS STANDAR',
+	'RACK'				=> 'RACK',
+	'STAGE'				=> 'STAGE'
 );
 
 $config['grid_statuses'] = array(
-	'OK'		=> 'Ok',
-	'DAMAGE'	=> 'Damage'
+	'ACTIVE'	=> 'ACTIVE',
+	'INACTIVE'	=> 'INACTIVE'
 );
 
 $config['project_categories'] = array(
@@ -97,7 +121,9 @@ $config['transport_modes'] = array(
 	'CD4'	=> 'CD4',
 	'CD6'	=> 'CD6',
 	'CNT'	=> 'CNT',
-	'BU'	=> 'BU'
+	'BU'	=> 'BU',
+	'FUSO'	=> 'FUSO',
+	'OTHER'	=> 'OTHER'
 );
 
 $config['inventory_log_types'] = array(
@@ -121,16 +147,28 @@ $config['inventory_adjust_types'] = array(
 	'OTHER'		=> 'OTHER'
 );
 
-$config['inventory_invoice_calculates'] = array(
-	'BOX'		=> 'BOX',
-	'PALLET'	=> 'PALLET',
-	'VOLUME'	=> 'VOLUME',
-	'WEIGHT'	=> 'WEIGHT'
-);
-
 $config['orderout_origins'] = array(
 	'LOCAL'		=> 'Local',
 	'IMPORT'	=> 'Import'
+);
+
+$config['inventory_picklist_schedule_phase'] = array(
+	'I-07:30'	=> 'I-07:30',
+	'II-11:00'	=> 'II-11:00',
+	'III-13:00'	=> 'III-13:00',
+	'IV-16:00'	=> 'IV-16:00'
+);
+
+$config['harvest_sequences'] = array(
+	'1'	=> '1',
+	'2'	=> '2',
+	'3'	=> '3',
+	'4'	=> '4',
+	'5'	=> '5',
+	'6'	=> '6',
+	'7'	=> '7',
+	'8'	=> '8',
+	'9'	=> '9',
 );
 
 $config['shipment_types'] = array(

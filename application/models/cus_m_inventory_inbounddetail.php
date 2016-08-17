@@ -2,11 +2,10 @@
 class Cus_m_inventory_inbounddetail extends DataMapper {
 	
 	var $has_one = array(
-		'm_inventory'		=> array('cascade_delete' => FALSE),
-		'm_product'			=> array('cascade_delete' => FALSE),
-		'm_grid'			=> array('cascade_delete' => FALSE),
-		'c_project'			=> array('cascade_delete' => FALSE),
-		'c_businesspartner'	=> array('cascade_delete' => FALSE)
+		'm_inventory'	=> array('cascade_delete' => FALSE),
+		'm_product'		=> array('cascade_delete' => FALSE),
+		'm_grid'		=> array('cascade_delete' => FALSE),
+		'c_project'		=> array('cascade_delete' => FALSE)
 	);
 	
     var $validation = array(

@@ -10,7 +10,7 @@ echo form_open($form_action.(!empty($record) ? '/'.$record->id : ''),
 	<table class="form-table">
 		<thead>
 			<tr>
-				<td colspan="2" class="form-table-title">Warehouse</td>
+				<td colspan="2" class="form-table-title">Location</td>
 			</tr>
 		</thead>
 		<tbody>
@@ -43,6 +43,34 @@ echo form_input(
 				</td>
 			</tr>
 			<tr>
+				<th><label for="material_warehouse_form_address">Address</label></th>
+				<td>
+<?php 
+echo form_textarea(
+	array(
+		'name' 	=> 'address',
+		'id' 	=> 'material_warehouse_form_address',
+		'rows'	=> 3, 'cols' => 30,
+		'value'	=> (!empty($record) ? $record->address : '')
+	)
+);?>
+				</td>
+			</tr>
+			<tr>
+				<th><label for="material_warehouse_form_notes">Notes</label></th>
+				<td>
+<?php 
+echo form_textarea(
+	array(
+		'name' 	=> 'notes',
+		'id' 	=> 'material_warehouse_form_notes',
+		'rows'	=> 3, 'cols' => 30,
+		'value'	=> (!empty($record) ? $record->notes : '')
+	)
+);?>
+				</td>
+			</tr>
+			<tr>
 				<th>&nbsp;</th>
 				<td>
 <?php 
@@ -54,7 +82,7 @@ echo form_checkbox(
 		'checked'	=> (!empty($record) ? FALSE : TRUE)
 	)
 );?>
-					<label for="material_warehouse_form_is_generate_grid"><?php echo (!empty($record) ? 'Regenerate' : 'Generate');?> Grid</label>
+					<label for="material_warehouse_form_is_generate_grid"><?php echo (!empty($record) ? 'Regenerate' : 'Generate');?> Detail</label>
 				</td>
 			</tr>
 		</tbody>
@@ -62,7 +90,7 @@ echo form_checkbox(
 	<table id="material_warehouse_form_generate_grid" class="form-table">
 		<thead>
 			<tr>
-				<td colspan="2" class="form-table-title">Grid</td>
+				<td colspan="2" class="form-table-title">Detail</td>
 			</tr>
 		</thead>
 		<tbody>
@@ -108,7 +136,6 @@ echo form_input(
 );?>
 				</td>
 			</tr>
-			
 			<tr>
 				<th><label for="material_warehouse_form_types">Type</label></th>
 				<td>
@@ -116,6 +143,18 @@ echo form_input(
 echo form_dropdown('types', $grid_types, (!empty($record->grid_scalar) ? $record->grid_scalar->types : ''), 'id="material_warehouse_form_types"');?>
 				</td>
 			</tr>
+			<tr>
+				<th><label for="material_warehouse_form_statuses">Status</label></th>
+				<td>
+<?php 
+echo form_dropdown('statuses', $grid_statuses, (!empty($record->grid_scalar) ? $record->grid_scalar->statuses : ''), 'id="material_warehouse_form_statuses"');?>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" align="center">
+					<strong>Size</strong>
+				</td>
+			<tr>
 			<tr>
 				<th><label for="material_warehouse_form_lengths">Length</label></th>
 				<td>
@@ -128,6 +167,7 @@ echo form_input(
 		'value'	=> (!empty($record->grid_scalar) ? $record->grid_scalar->lengths : '0')
 	)
 );?>
+					Meter
 				</td>
 			</tr>
 			<tr>
@@ -142,6 +182,23 @@ echo form_input(
 		'value'	=> (!empty($record->grid_scalar) ? $record->grid_scalar->widths : '0')
 	)
 );?>
+					Meter
+				</td>
+			</tr>
+			<tr>
+				<th><label for="material_warehouse_form_sizes">Size</label></th>
+				<td>
+<?php 
+echo form_input(
+	array(
+		'name' 		=> 'sizes',
+		'id' 		=> 'material_warehouse_form_sizes',
+		'readonly'	=> 'readonly',
+		'class'		=> 'number',
+		'value'		=> (!empty($record->grid_scalar) ? $record->grid_scalar->lengths * $record->grid_scalar->widths : '0')
+	)
+);?>
+					Meter
 				</td>
 			</tr>
 			<tr>
@@ -156,13 +213,7 @@ echo form_input(
 		'value'	=> (!empty($record->grid_scalar) ? $record->grid_scalar->heights : '0')
 	)
 );?>
-				</td>
-			</tr>
-			<tr>
-				<th><label for="material_warehouse_form_statuses">Status</label></th>
-				<td>
-<?php 
-echo form_dropdown('statuses', $grid_statuses, (!empty($record->grid_scalar) ? $record->grid_scalar->statuses : ''), 'id="material_warehouse_form_statuses"');?>
+					Meter
 				</td>
 			</tr>
 		</tbody>
@@ -197,6 +248,11 @@ jQuery(function(){
 	});
 	
 	material_warehouse_form_generate_grid();
+	
+	jQuery("#material_warehouse_form_lengths,#material_warehouse_form_widths").change(function() {
+		var size = parseFloat(jQuery("#material_warehouse_form_lengths").val()) * parseFloat(jQuery("#material_warehouse_form_widths").val());
+		jQuery("#material_warehouse_form_sizes").val(size.toFixed(4));
+	});
 });
 
 function material_warehouse_form_generate_grid(){

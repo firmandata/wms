@@ -1,6 +1,10 @@
 <?php
 class M_inventory_picklist extends DataMapper {
 	
+	var $has_one = array(
+		'm_grid'		=> array('cascade_delete' => FALSE)
+	);
+	
     var $has_many = array(
 		'm_inventory_picklistdetail'	=> array('cascade_delete' => FALSE)
 	);

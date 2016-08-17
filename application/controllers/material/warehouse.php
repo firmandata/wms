@@ -16,7 +16,7 @@ class Warehouse extends MY_Controller
 		);
 		
 		$content = array(
-			'title'		=> "Warehouse",
+			'title'		=> "Location",
 			'content' 	=> $this->load->view('material/warehouse/index', $data, TRUE)
 		);
 		$this->_load_layout($content);
@@ -43,7 +43,7 @@ class Warehouse extends MY_Controller
 				$record->grid_scalar = $this->lib_material->warehouse_get_grid_scalar($record->id);
 			}
 			else
-				show_error("Warehouse not found", 400);
+				show_error("Location not found", 400);
 		}
 		
 		$data = array(
@@ -59,7 +59,7 @@ class Warehouse extends MY_Controller
 			access_denied();
 		
 		$this->db
-			->select("wh.id, wh.code, wh.name")
+			->select("wh.id, wh.code, wh.name, wh.address, wh.notes")
 			->from('m_warehouses wh');
 		
 		parent::_get_list_json();
@@ -82,7 +82,7 @@ class Warehouse extends MY_Controller
 		
 		parent::_execute('this', 'insert_warehouse', 
 			array(
-				$this->input->post('code'), $this->input->post('name'), 
+				$this->input->post('code'), $this->input->post('name'), $this->input->post('address'), $this->input->post('notes'), 
 				$is_generate_grid, $this->input->post('rows'), $this->input->post('cols'), $this->input->post('levels'), 
 				$this->input->post('types'), $this->input->post('lengths'), $this->input->post('widths'), $this->input->post('heights'), $this->input->post('statuses'),
 				$user_id
@@ -95,7 +95,7 @@ class Warehouse extends MY_Controller
 	}
 	
 	protected function insert_warehouse(
-		$code, $name, 
+		$code, $name, $address, $notes,
 		$is_generate_grid = FALSE, $grid_rows = 0, $grid_cols = 0, $grid_levels = 0, $grid_types = NULL, $grid_lengths = 0, $grid_widths = 0, $grid_heights = 0, $grid_statuses = NULL,
 		$user_id
 	)
@@ -105,6 +105,8 @@ class Warehouse extends MY_Controller
 		$data = new stdClass();
 		$data->code = $code;
 		$data->name = $name;
+		$data->address = $address;
+		$data->notes = $notes;
 		$m_warehouse_id = $this->lib_material->warehouse_add($data, $user_id);
 		
 		if ($is_generate_grid == TRUE)
@@ -137,7 +139,7 @@ class Warehouse extends MY_Controller
 		
 		parent::_execute('this', 'update_warehouse', 
 			array(
-				$id, $this->input->post('code'), $this->input->post('name'), 
+				$id, $this->input->post('code'), $this->input->post('name'), $this->input->post('address'), $this->input->post('notes'), 
 				$is_generate_grid, $this->input->post('rows'), $this->input->post('cols'), $this->input->post('levels'), 
 				$this->input->post('types'), $this->input->post('lengths'), $this->input->post('widths'), $this->input->post('heights'), $this->input->post('statuses'),
 				$user_id
@@ -150,7 +152,7 @@ class Warehouse extends MY_Controller
 	}
 	
 	protected function update_warehouse(
-		$id, $code, $name, 
+		$id, $code, $name, $address, $notes,
 		$is_generate_grid = FALSE, $grid_rows = 0, $grid_cols = 0, $grid_levels = 0, $grid_types = NULL, $grid_lengths = 0, $grid_widths = 0, $grid_heights = 0, $grid_statuses = NULL,
 		$user_id
 	)
@@ -160,6 +162,8 @@ class Warehouse extends MY_Controller
 		$data = new stdClass();
 		$data->code = $code;
 		$data->name = $name;
+		$data->address = $address;
+		$data->notes = $notes;
 		$m_warehouse_id = $this->lib_material->warehouse_update($id, $data, $user_id);
 		
 		if ($is_generate_grid == TRUE)

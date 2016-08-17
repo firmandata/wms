@@ -43,7 +43,7 @@ class Orderout extends MY_Controller
 		$to_year = $this->input->get_post('to_year');
 		
 		$this->db
-			->select("oo.id, oo.code, oo.orderout_date, oo.request_arrive_date")
+			->select("oo.id, oo.code, oo.orderout_date, oo.request_arrive_date, oo.estimation_harvest_time")
 			->select("oo.c_businesspartner_id, bp.name c_businesspartner_name")
 			->select("oo.c_project_id, prj.name c_project_name")
 			->select("oo.origin, oo.marketing_unit, oo.external_no, oo.no_surat_jalan")
@@ -53,7 +53,7 @@ class Orderout extends MY_Controller
 			->join('c_projects prj', "prj.id = oo.c_project_id", 'left');
 		$this->db->where("oo.orderout_date >=", date('Y-m-d', mktime(0, 0, 0, $from_month, 1, $from_year)));
 		$this->db->where("oo.orderout_date <=", add_date(date('Y-m-d', mktime(0, 0, 0, $to_month, 1, $to_year)), -1, 1));
-		
+		$this->db->where("oo.orderout_type", 0);
 		$this->lib_custom->project_query_filter('oo.c_project_id', $this->c_project_ids);
 		
 		parent::_get_list_json();
@@ -70,7 +70,7 @@ class Orderout extends MY_Controller
 		if ($id !== NULL)
 		{
 			$this->db
-				->select("oo.id, oo.code, oo.orderout_date, oo.request_arrive_date")
+				->select("oo.id, oo.code, oo.orderout_date, oo.request_arrive_date, oo.estimation_harvest_time")
 				->select("oo.c_businesspartner_id, bp.code c_businesspartner_code, bp.name c_businesspartner_name")
 				->select_concat(array("bp.name", "' ('", "bp.code", "')'"), 'c_businesspartner_text')
 				->select("oo.c_project_id, prj.name c_project_name")
@@ -97,8 +97,9 @@ class Orderout extends MY_Controller
 		if ($id !== NULL)
 		{
 			$this->db
-				->select("ood.id, ood.quantity_box, ood.quantity, ood.notes")
-				->select("ood.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.netto m_product_netto")
+				->select("ood.id, ood.quantity_box, ood.quantity, ood.size, ood.price, ood.notes")
+				->select("ood.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.netto m_product_netto, pro.pack m_product_pack")
+				->select("pro.type m_product_type, pro.casing m_product_casing, pro.uom m_product_uom")
 				->select_concat(array("pro.name", "' ('", "pro.code", "')'"), 'm_product_text')
 				->from('c_orderoutdetails ood')
 				->join('m_products pro', "pro.id = ood.m_product_id")
@@ -136,7 +137,7 @@ class Orderout extends MY_Controller
 		
 		$id = $this->input->get_post('id');
 		$this->db
-			->select("oo.id, oo.code, oo.orderout_date, oo.request_arrive_date")
+			->select("oo.id, oo.code, oo.orderout_date, oo.request_arrive_date, oo.estimation_harvest_time")
 			->select("oo.c_businesspartner_id, bp.code c_businesspartner_code, bp.name c_businesspartner_name")
 			->select_concat(array("bp.name", "' ('", "bp.code", "')'"), 'c_businesspartner_text')
 			->select("oo.c_project_id, prj.name c_project_name")
@@ -156,8 +157,9 @@ class Orderout extends MY_Controller
 			show_error("Order out not found", 400);
 		
 		$this->db
-			->select("ood.id, ood.quantity_box, ood.quantity_box, ood.quantity, ood.notes")
-			->select("ood.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.uom m_product_uom")
+			->select("ood.id, ood.quantity_box, ood.quantity_box, ood.quantity, ood.size, ood.price, ood.notes")
+			->select("ood.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.netto m_product_netto, pro.pack m_product_pack")
+			->select("pro.type m_product_type, pro.casing m_product_casing, pro.uom m_product_uom")
 			->select_if_null('ipld.quantity_box', 0, 'quantity_box_used')
 			->select_if_null('ipld.quantity', 0, 'quantity_used')
 			->select("ood.status_inventory_picklist")
@@ -234,8 +236,10 @@ class Orderout extends MY_Controller
 			->select("id")
 			->select_concat(array("name", "' ('", "code", "')'"), 'value')
 			->select_concat(array("name", "' ('", "code", "')'"), 'label')
-			->select("netto")
-			->from('m_products');
+			->select("netto, pack")
+			->select("type, casing, uom, price")
+			->from('m_products')
+			->where_in('type', array('UDANG'));
 		
 		if ($keywords)
 			$this->db->where($this->db->concat(array("name", "' ('", "code", "')'")) . " LIKE '%" . $this->db->escape_like_str($keywords) . "%'", NULL, FALSE);
@@ -251,7 +255,6 @@ class Orderout extends MY_Controller
 		parent::_execute('this', 'add_orderout_and_details', 
 			array(),
 			array(
-				array('field' => 'code', 'label' => 'No', 'rules' => 'required'),
 				array('field' => 'c_businesspartner_id', 'label' => 'Business Partner', 'rules' => 'required'),
 				array('field' => 'orderout_date', 'label' => 'Date', 'rules' => 'required')
 			)
@@ -265,15 +268,13 @@ class Orderout extends MY_Controller
 		$user_id = $this->session->userdata('user_id');
 		
 		$data_header = new stdClass();
-		$data_header->code = $this->input->post('code');
+		$data_header->code = generate_code_number("DO". date('ymd-'), NULL, 3);
 		$data_header->c_businesspartner_id = $this->input->post('c_businesspartner_id');
 		$data_header->orderout_date = $this->input->post('orderout_date');
-		$data_header->origin = $this->input->post('origin');
-		$data_header->marketing_unit = $this->input->post('marketing_unit');
 		$data_header->c_project_id = $this->input->post('c_project_id');
+		$data_header->orderout_type = 0;
 		$data_header->external_no = $this->input->post('external_no');
-		$data_header->request_arrive_date = $this->input->post('request_arrive_date');
-		$data_header->no_surat_jalan = $this->input->post('no_surat_jalan');
+		$data_header->estimation_harvest_time = $this->input->post('estimation_harvest_time');
 		$data_header->notes = $this->input->post('notes');
 		$id = $this->lib_order->orderout_add($data_header, $user_id);
 		
@@ -289,8 +290,9 @@ class Orderout extends MY_Controller
 				$data_detail = new stdClass();
 				$data_detail->c_orderout_id = $id;
 				$data_detail->m_product_id = $c_orderoutdetail['m_product_id'];
-				$data_detail->quantity_box = $c_orderoutdetail['quantity_box'];
+				$data_detail->size = $c_orderoutdetail['size'];
 				$data_detail->quantity = $c_orderoutdetail['quantity'];
+				$data_detail->price = $c_orderoutdetail['price'];
 				$data_detail->notes = $c_orderoutdetail['notes'];
 				$this->lib_order->orderoutdetail_add($data_detail, $user_id);
 			}
@@ -324,12 +326,10 @@ class Orderout extends MY_Controller
 		$data_header->code = $this->input->post('code');
 		$data_header->c_businesspartner_id = $this->input->post('c_businesspartner_id');
 		$data_header->orderout_date = $this->input->post('orderout_date');
-		$data_header->origin = $this->input->post('origin');
-		$data_header->marketing_unit = $this->input->post('marketing_unit');
+		$data_header->orderout_type = 0;
 		$data_header->c_project_id = $this->input->post('c_project_id');
 		$data_header->external_no = $this->input->post('external_no');
-		$data_header->request_arrive_date = $this->input->post('request_arrive_date');
-		$data_header->no_surat_jalan = $this->input->post('no_surat_jalan');
+		$data_header->estimation_harvest_time = $this->input->post('estimation_harvest_time');
 		$data_header->notes = $this->input->post('notes');
 		$updated_result = $this->lib_order->orderout_update($id, $data_header, $user_id);
 		
@@ -358,8 +358,9 @@ class Orderout extends MY_Controller
 			}
 			$data_detail = new stdClass();
 			$data_detail->m_product_id = $c_orderoutdetail['m_product_id'];
-			$data_detail->quantity_box = $c_orderoutdetail['quantity_box'];
+			$data_detail->size = $c_orderoutdetail['size'];
 			$data_detail->quantity = $c_orderoutdetail['quantity'];
+			$data_detail->price = $c_orderoutdetail['price'];
 			$data_detail->notes = $c_orderoutdetail['notes'];
 			if ($is_found_new == TRUE)
 			{
@@ -455,9 +456,7 @@ class Orderout extends MY_Controller
 					{
 						$c_order = new stdClass();
 						
-						$c_order->code = $this->excel->read_value($excel_sheet, 3, 2);
-						
-						$c_businesspartner_code = $this->excel->read_value($excel_sheet, 4, 2);
+						$c_businesspartner_code = $this->excel->read_value($excel_sheet, 3, 2);
 						$table = $this->db
 							->select('id')
 							->from('c_businesspartners')
@@ -468,9 +467,8 @@ class Orderout extends MY_Controller
 						$table_record = $table->first_row();
 						$c_order->c_businesspartner_id = $table_record->id;
 						
-						$c_order->orderout_date = $this->excel->read_value($excel_sheet, 5, 2, 'date');
-						$c_order->request_arrive_date = $this->excel->read_value($excel_sheet, 6, 2, 'date');
-						$c_order->notes = $this->excel->read_value($excel_sheet, 7, 2);
+						$c_order->orderout_date = $this->excel->read_value($excel_sheet, 4, 2, 'date');
+						$c_order->notes = $this->excel->read_value($excel_sheet, 5, 2);
 						
 						$c_project_code = $this->excel->read_value($excel_sheet, 3, 6);
 						$table = $this->db
@@ -483,22 +481,21 @@ class Orderout extends MY_Controller
 						$table_record = $table->first_row();
 						$c_order->c_project_id = $table_record->id;
 						
-						$c_order->origin = $this->excel->read_value($excel_sheet, 4, 6);
+						$c_order->estimation_harvest_time = $this->excel->read_value($excel_sheet, 4, 6, 'date');
 						$c_order->external_no = $this->excel->read_value($excel_sheet, 5, 6);
-						$c_order->no_surat_jalan = $this->excel->read_value($excel_sheet, 6, 6);
-						$c_order->marketing_unit = $this->excel->read_value($excel_sheet, 7, 6);
 						
 						$c_order->c_orderoutdetails = array();
-						for ($c_orderoutdetail_count = 12; $c_orderoutdetail_count < count($excel_sheet); $c_orderoutdetail_count++)
+						for ($c_orderoutdetail_count = 10; $c_orderoutdetail_count < count($excel_sheet); $c_orderoutdetail_count++)
 						{
 							$c_orderoutdetail = new stdClass();
 							
 							$m_product_code = $this->excel->read_value($excel_sheet, $c_orderoutdetail_count, 1);
-							$c_orderoutdetail->quantity_box = $this->excel->read_value($excel_sheet, $c_orderoutdetail_count, 3);
+							$c_orderoutdetail->size = $this->excel->read_value($excel_sheet, $c_orderoutdetail_count, 3);
+							$c_orderoutdetail->price = $this->excel->read_value($excel_sheet, $c_orderoutdetail_count, 5);
 							$c_orderoutdetail->quantity = $this->excel->read_value($excel_sheet, $c_orderoutdetail_count, 4);
 							$c_orderoutdetail->notes = $this->excel->read_value($excel_sheet, $c_orderoutdetail_count, 6);
 							
-							if (empty($m_product_code) && empty($c_orderoutdetail->quantity_box) && empty($c_orderoutdetail->quantity))
+							if (empty($m_product_code) && empty($c_orderoutdetail->quantity))
 								continue;
 							
 							$table = $this->db
@@ -540,13 +537,10 @@ class Orderout extends MY_Controller
 							$data_header = new stdClass();
 							$data_header->c_businesspartner_id = $c_order->c_businesspartner_id;
 							$data_header->c_project_id = $c_order->c_project_id;
-							$data_header->code = $c_order->code;
+							$data_header->code = generate_code_number("SPK". date('ymd-'), NULL, 3);
 							$data_header->orderout_date = $c_order->orderout_date;
-							$data_header->request_arrive_date = $c_order->request_arrive_date;
-							$data_header->origin = $c_order->origin;
+							$data_header->estimation_harvest_time = $c_order->estimation_harvest_time;
 							$data_header->external_no = $c_order->external_no;
-							$data_header->no_surat_jalan = $c_order->no_surat_jalan;
-							$data_header->marketing_unit = $c_order->marketing_unit;
 							$data_header->notes = $c_order->notes;
 							$id = $this->lib_order->orderout_add($data_header, $user_id);
 							
@@ -555,8 +549,9 @@ class Orderout extends MY_Controller
 								$data_detail = new stdClass();
 								$data_detail->c_orderout_id = $id;
 								$data_detail->m_product_id = $c_orderoutdetail->m_product_id;
-								$data_detail->quantity_box = $c_orderoutdetail->quantity_box;
+								$data_detail->size = $c_orderoutdetail->size;
 								$data_detail->quantity = $c_orderoutdetail->quantity;
+								$data_detail->price = $c_orderoutdetail->price;
 								$data_detail->notes = $c_orderoutdetail->notes;
 								$this->lib_order->orderoutdetail_add($data_detail, $user_id);
 							}

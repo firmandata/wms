@@ -86,9 +86,6 @@ function material_inventory_inbound_detail_full_list_load_table(table_id){
 			'Pallet',
 			'Grid',
 			'Lot No',
-			'Length',
-			'Width',
-			'Height',
 			'Condition',
 			'Pack',
 			'Scan Date',
@@ -118,9 +115,6 @@ function material_inventory_inbound_detail_full_list_load_table(table_id){
 			{name:'pallet', index:'iid.pallet', width:120, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			{name:'grid_code', index:'gri.code', width:80, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			{name:'lot_no', index:'iid.lot_no', width:90, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
-			{name:'volume_length', index:'iid.volume_length', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
-			{name:'volume_width', index:'iid.volume_width', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
-			{name:'volume_height', index:'iid.volume_height', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
 			{name:'condition', index:'iid.condition', width:100,
 			 stype:'select', searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false, value:<?php echo json_encode($product_conditions);?>}
 			},
@@ -162,13 +156,6 @@ function material_inventory_inbound_detail_full_list_load_table(table_id){
 		multipleSearch: true, 
 		multipleGroup: true, 
 		showQuery: true
-	});
-	
-	jQuery("#" + table_id).jqGrid('setGroupHeaders', {
-		useColSpanStyle: true, 
-		groupHeaders:[
-			{startColumnName: 'volume_length', numberOfColumns: 3, titleText: 'Volume'}
-		]
 	});
 	
 	jQuery("#" + table_id).jqGrid('setFrozenColumns');

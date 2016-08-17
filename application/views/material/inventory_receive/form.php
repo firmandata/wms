@@ -25,9 +25,10 @@ echo form_input(
 	array(
 		'name' 	=> 'code',
 		'id' 	=> 'material_inventory_receive_form_code',
-		'class'	=> 'required',
+		'class'	=> (!empty($record) ? 'required' : ''),
 		'style'	=> 'width:120px;',
-		'value'	=> (!empty($record) ? $record->code : '')
+		'value'	=> (!empty($record) ? $record->code : ''),
+		'placeholder'	=> '## Auto ##'
 	)
 );?>
 						</td>
@@ -116,16 +117,20 @@ echo form_dropdown('transport_mode', $transport_modes, (!empty($record) ? $recor
 		<tr>
 			<th class="ui-state-default ui-corner-tl" width="22px">&nbsp;</th>
 			<th class="ui-state-default">Order In Product</th>
-			<th class="ui-state-default">Box</th>
-			<th class="ui-state-default">Quantity</th>
+			<th class="ui-state-default">Qty Case</th>
+			<th class="ui-state-default">Netto / Pack</th>
+			<th class="ui-state-default">Qty Total</th>
+			<th class="ui-state-default">UOM</th>
 			<th class="ui-state-default">Condition</th>
+			<th class="ui-state-default">Location</th>
+			<th class="ui-state-default">Supervisor</th>
 			<th class="ui-state-default">Notes</th>
 		</tr>
 	</thead>
 	<tbody></tbody>
 	<tfoot>
 		<tr>
-			<td colspan="6" class="ui-state-default ui-corner-bl ui-corner-br">
+			<td colspan="10" class="ui-state-default ui-corner-bl ui-corner-br">
 				<button id="material_inventory_receive_receivedetail_list_table_add" class="table-data-button">Add</button>
 			</td>
 		</tr>
@@ -168,7 +173,11 @@ jQuery(function(){
 	.click(function(e){
 		e.preventDefault();
 		material_inventory_receive_form_receivedetail_add(
-			null, null, null, 0, 1, 1, null, null
+			  null, null
+			, null, null, 0, 0
+			, 1, 1
+			, null, null
+			, null, null
 		);
 		
 		jQuery('#material_inventory_receive_form_detail_c_orderindetail_id_' + material_inventory_receive_receivedetail_row_id.toString() + '_caption').focus();
@@ -176,7 +185,11 @@ jQuery(function(){
 	
 	jQuery.each(<?php echo !empty($m_inventory_receivedetails) ? json_encode($m_inventory_receivedetails) : '[]';?>, function(receivedetail_idx, receivedetail){
 		material_inventory_receive_form_receivedetail_add(
-			receivedetail.id, receivedetail.c_orderindetail_id, receivedetail.m_product_text, receivedetail.m_product_netto, receivedetail.quantity_box, receivedetail.quantity, receivedetail.condition, receivedetail.notes
+			  receivedetail.id, receivedetail.c_orderindetail_id
+			, receivedetail.m_product_text, receivedetail.m_product_uom, receivedetail.m_product_netto, receivedetail.m_product_pack
+			, receivedetail.quantity_box, receivedetail.quantity
+			, receivedetail.condition, receivedetail.m_grid_code
+			, receivedetail.supervisor, receivedetail.notes
 		);
 	});
 	
@@ -184,14 +197,22 @@ jQuery(function(){
 if (empty($m_inventory_receivedetails))
 {?>
 	material_inventory_receive_form_receivedetail_add(
-		null, null, null, 0, 1, 1, null, null
+		  null, null
+		, null, null, 0, 0
+		, 1, 1
+		, null, null
+		, null, null
 	);
 <?php
 }?>
 });
 
 function material_inventory_receive_form_receivedetail_add(
-	id, c_orderindetail_id, m_product_text, m_product_netto, quantity_box, quantity, condition, notes
+	  id, c_orderindetail_id
+	, m_product_text, m_product_uom, m_product_netto, m_product_pack
+	, quantity_box, quantity
+	, condition, m_grid_code
+	, supervisor, notes
 ){
 	material_inventory_receive_receivedetail_row_id++;
 	
@@ -216,6 +237,9 @@ function material_inventory_receive_form_receivedetail_add(
 			).append(
 				$("<input>", {type:'hidden', name:'m_inventory_receivedetails[' + material_inventory_receive_receivedetail_row_id.toString() + '][m_product_netto]', id:'material_inventory_receive_form_detail_m_product_netto_' + material_inventory_receive_receivedetail_row_id.toString()})
 					.val(m_product_netto)
+			).append(
+				$("<input>", {type:'hidden', name:'m_inventory_receivedetails[' + material_inventory_receive_receivedetail_row_id.toString() + '][m_product_pack]', id:'material_inventory_receive_form_detail_m_product_pack_' + material_inventory_receive_receivedetail_row_id.toString()})
+					.val(m_product_pack)
 			)
 		).append(
 			$("<td>", {'class':'ui-widget-content', 'align':'center'}).append(
@@ -227,14 +251,30 @@ function material_inventory_receive_form_receivedetail_add(
 					})
 			)
 		).append(
+			$("<td>", {'class':'ui-widget-content', 'align':'right', id:'material_inventory_receive_form_detail_m_product_netto_pack_' + material_inventory_receive_receivedetail_row_id.toString()})
+				.text(m_product_netto > 0 ? m_product_netto : m_product_pack)
+		).append(
 			$("<td>", {'class':'ui-widget-content', 'align':'center'}).append(
 				$("<input>", {type:'text', name:'m_inventory_receivedetails[' + material_inventory_receive_receivedetail_row_id.toString() + '][quantity]', id:'material_inventory_receive_form_detail_quantity_' + material_inventory_receive_receivedetail_row_id.toString(), 'class':'required number'})
 					.width(40).val(quantity).css('text-align', 'right')
 			)
 		).append(
+			$("<td>", {'class':'ui-widget-content', 'align':'center', id:'material_inventory_receive_form_detail_m_product_uom_' + material_inventory_receive_receivedetail_row_id.toString()})
+				.text(m_product_uom)
+		).append(
 			$("<td>", {'class':'ui-widget-content', 'align':'center'}).append(
 				$("<select>", {name:'m_inventory_receivedetails[' + material_inventory_receive_receivedetail_row_id.toString() + '][condition]', id:'material_inventory_receive_form_detail_condition_' + material_inventory_receive_receivedetail_row_id.toString(), 'class':'required'})
-					.width(100)
+					.width(70)
+			)
+		).append(
+			$("<td>", {'class':'ui-widget-content', 'align':'center'}).append(
+				$("<input>", {type:'text', name:'m_inventory_receivedetails[' + material_inventory_receive_receivedetail_row_id.toString() + '][m_grid_code]', id:'material_inventory_receive_form_detail_m_grid_code_' + material_inventory_receive_receivedetail_row_id.toString(), 'class':'required'})
+					.width(80).val(m_grid_code)
+			)
+		).append(
+			$("<td>", {'class':'ui-widget-content', 'align':'center'}).append(
+				$("<input>", {type:'text', name:'m_inventory_receivedetails[' + material_inventory_receive_receivedetail_row_id.toString() + '][supervisor]', id:'material_inventory_receive_form_detail_supervisor_' + material_inventory_receive_receivedetail_row_id.toString()})
+					.width(100).val(supervisor)
 			)
 		).append(
 			$("<td>", {'class':'ui-widget-content', 'align':'center'}).append(
@@ -260,21 +300,27 @@ function material_inventory_receive_form_receivedetail_add(
 
 function material_inventory_receive_form_select(idx){
 	jquery_autocomplete_build('#material_inventory_receive_form_detail_c_orderindetail_id_' + idx.toString(), "<?php echo site_url('material/inventory_receive/get_product_autocomplete_list_json');?>", {
-		width : 350
+		width : 300
 	}, {
 		change: function(event, ui){
 			if (ui.item == null)
 			{
 				$(this).val('');
 				$('#material_inventory_receive_form_detail_c_orderindetail_id_' + idx.toString()).val('');
+				$('#material_inventory_receive_form_detail_m_product_uom_' + idx.toString()).text('');
 				$('#material_inventory_receive_form_detail_m_product_netto_' + idx.toString()).val(0);
+				$('#material_inventory_receive_form_detail_m_product_pack_' + idx.toString()).val(0);
+				$('#material_inventory_receive_form_detail_m_product_netto_pack_' + idx.toString()).text(0);
 				$('#material_inventory_receive_form_detail_quantity_box_' + idx.toString()).val(1);
 				$('#material_inventory_receive_form_detail_quantity_' + idx.toString()).val(1);
 			}
 			else
 			{
 				$('#material_inventory_receive_form_detail_c_orderindetail_id_' + idx.toString()).val(ui.item.id);
+				$('#material_inventory_receive_form_detail_m_product_uom_' + idx.toString()).text(ui.item.uom);
 				$('#material_inventory_receive_form_detail_m_product_netto_' + idx.toString()).val(ui.item.netto);
+				$('#material_inventory_receive_form_detail_m_product_pack_' + idx.toString()).val(ui.item.pack);
+				$('#material_inventory_receive_form_detail_m_product_netto_pack_' + idx.toString()).text(ui.item.netto > 0 ? ui.item.netto : ui.item.pack);
 				$('#material_inventory_receive_form_detail_quantity_box_' + idx.toString()).val(ui.item.quantity_box);
 				$('#material_inventory_receive_form_detail_quantity_' + idx.toString()).val(ui.item.quantity);
 			}
@@ -285,10 +331,20 @@ function material_inventory_receive_form_select(idx){
 
 function material_inventory_receive_form_quantity_calculate(idx){
 	var netto = parseFloat($('#material_inventory_receive_form_detail_m_product_netto_' + idx.toString()).val());
+	var pack = parseFloat($('#material_inventory_receive_form_detail_m_product_pack_' + idx.toString()).val());
+	
+	var quantity_box = parseFloat($('#material_inventory_receive_form_detail_quantity_box_' + idx.toString()).val());
+	if (quantity_box == 0) {
+		$('#material_inventory_receive_form_detail_quantity_box_' + idx.toString()).val(1);
+	}
+	
 	if (netto > 0)
 	{
-		var quantity_box = parseFloat($('#material_inventory_receive_form_detail_quantity_box_' + idx.toString()).val());
 		$('#material_inventory_receive_form_detail_quantity_' + idx.toString()).val(netto * quantity_box);
+	}
+	else if (pack > 0)
+	{
+		$('#material_inventory_receive_form_detail_quantity_' + idx.toString()).val(pack * quantity_box);
 	}
 }
 

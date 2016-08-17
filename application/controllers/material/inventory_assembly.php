@@ -93,11 +93,9 @@ class Inventory_assembly extends MY_Controller
 				->select("SUM(iad.id) sum_id", FALSE)
 				->select("SUM(iad.m_inventory_id) sum_m_inventory_id", FALSE)
 				->select("iad.c_project_id, prj.code c_project_code, prj.name c_project_name")
-				->select("iad.c_businesspartner_id, bp.code c_businesspartner_code, bp.name c_businesspartner_name")
 				->select("iad.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.netto m_product_netto")
 				->select("iad.m_grid_id, gri.code m_grid_code")
 				->select("iad.pallet, iad.barcode, iad.carton_no, iad.lot_no")
-				->select("iad.volume_length, iad.volume_width, iad.volume_height")
 				->select_if_null("SUM(iad.quantity_from)", 0, 'quantity_from')
 				->select_if_null("SUM(iad.quantity_box_from)", 0, 'quantity_box_from')
 				->select_if_null("SUM(iad.quantity_to)", 0, 'quantity_to')
@@ -106,16 +104,13 @@ class Inventory_assembly extends MY_Controller
 				->join('m_products pro', "pro.id = iad.m_product_id")
 				->join('m_grids gri', "gri.id = iad.m_grid_id")
 				->join('c_projects prj', "prj.id = iad.c_project_id", 'left')
-				->join('c_businesspartners bp', "bp.id = iad.c_businesspartner_id", 'left')
 				->where('iad.m_inventory_assembly_id', $id)
 				->group_by(
 					array(
 						'iad.c_project_id', 'prj.code', 'prj.name',
-						'iad.c_businesspartner_id', 'bp.code', 'bp.name',
 						'iad.m_product_id', 'pro.code', 'pro.name', 'pro.netto',
 						'iad.m_grid_id', 'gri.code',
-						'iad.pallet', 'iad.barcode', 'iad.carton_no', 'iad.lot_no',
-						'iad.volume_length', 'iad.volume_width', 'iad.volume_height'
+						'iad.pallet', 'iad.barcode', 'iad.carton_no', 'iad.lot_no'
 					)
 				);
 			$table = $this->db->get();
@@ -134,8 +129,6 @@ class Inventory_assembly extends MY_Controller
 				->select("iat.id")
 				->select("iat.c_project_id, prj.code c_project_code, prj.name c_project_name")
 				->select("prj.name c_project_text")
-				->select("iat.c_businesspartner_id, bp.code c_businesspartner_code, bp.name c_businesspartner_name")
-				->select_concat(array("bp.name", "' ('", "bp.code", "')'"), 'c_businesspartner_text')
 				->select("iat.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.netto m_product_netto")
 				->select_concat(array("pro.name", "' ('", "pro.code", "')'"), 'm_product_text')
 				->select("iat.m_grid_id, gri.code m_grid_code")
@@ -143,13 +136,11 @@ class Inventory_assembly extends MY_Controller
 				->select("iat.pallet, iat.barcode, iat.carton_no, iat.lot_no")
 				->select("iat.packed_date, iat.expired_date")
 				->select("iat.condition")
-				->select("iat.volume_length, iat.volume_width, iat.volume_height")
 				->select("iat.quantity, iat.quantity_box")
 				->from('m_inventory_assemblytargets iat')
 				->join('m_products pro', "pro.id = iat.m_product_id")
 				->join('m_grids gri', "gri.id = iat.m_grid_id")
 				->join('c_projects prj', "prj.id = iat.c_project_id", 'left')
-				->join('c_businesspartners bp', "bp.id = iat.c_businesspartner_id", 'left')
 				->where('iat.m_inventory_assembly_id', $id);
 			$table = $this->db->get();
 			$m_inventory_assemblytargets = $table->result();
@@ -186,9 +177,8 @@ class Inventory_assembly extends MY_Controller
 			access_denied();
 		
 		$inventory_sql = 
-			 "(SELECT	  inv.m_product_id, inv.m_grid_id, inv.c_project_id, inv.c_businesspartner_id "
+			 "(SELECT	  inv.m_product_id, inv.m_grid_id, inv.c_project_id "
 			."			, inv.barcode, inv.pallet, inv.carton_no, inv.lot_no "
-			."			, inv.volume_length, inv.volume_width, inv.volume_height "
 			."			, ".$this->db->if_null("SUM(inv.quantity_box)", 0)." quantity_box_exist "
 			."			, ".$this->db->if_null("SUM(inv.quantity_box_allocated)", 0)." quantity_box_allocated "
 			."			, ".$this->db->if_null("SUM(inv.quantity_box_picked)", 0)." quantity_box_picked "
@@ -202,9 +192,8 @@ class Inventory_assembly extends MY_Controller
 			."			AND inv.quantity > 0 "
 			."			AND ". $this->lib_custom->project_sql_filter('inv.c_project_id', $this->c_project_ids)
 			." GROUP	BY "
-			."			  inv.m_product_id, inv.m_grid_id, inv.c_project_id, inv.c_businesspartner_id "
+			."			  inv.m_product_id, inv.m_grid_id, inv.c_project_id "
 			."			, inv.barcode, inv.pallet, inv.carton_no, inv.lot_no "
-			."			, inv.volume_length, inv.volume_width, inv.volume_height "
 			.") inv ";
 		
 		$this->db
@@ -213,9 +202,7 @@ class Inventory_assembly extends MY_Controller
 			->select("wh.id m_warehouse_id, wh.code m_warehouse_code, wh.name m_warehouse_name")
 			->select("prog.id m_productgroup_id, prog.code m_productgroup_code, prog.name m_productgroup_name")
 			->select("inv.barcode, inv.pallet, inv.carton_no, inv.lot_no")
-			->select("inv.volume_length, inv.volume_width, inv.volume_height")
 			->select("prj.id c_project_id, prj.name c_project_name")
-			->select("bp.id c_businesspartner_id, bp.name c_businesspartner_name")
 			->select("inv.quantity_box_exist, inv.quantity_box_allocated, inv.quantity_box_picked, inv.quantity_box_onhand")
 			->select("inv.quantity_exist, inv.quantity_allocated, inv.quantity_picked, inv.quantity_onhand")
 			->from($inventory_sql, FALSE)
@@ -223,8 +210,7 @@ class Inventory_assembly extends MY_Controller
 			->join('m_grids grd', "grd.id = inv.m_grid_id")
 			->join('m_warehouses wh', "wh.id = grd.m_warehouse_id")
 			->join('m_productgroups prog', "prog.id = grd.m_productgroup_id", 'left')
-			->join('c_projects prj', "prj.id = inv.c_project_id", 'left')
-			->join('c_businesspartners bp', "bp.id = inv.c_businesspartner_id", 'left');
+			->join('c_projects prj', "prj.id = inv.c_project_id", 'left');
 		
 		parent::_get_list_json();
 	}
@@ -251,11 +237,9 @@ class Inventory_assembly extends MY_Controller
 		{
 			$this->db
 				->select("iad.c_project_id, prj.code c_project_code, prj.name c_project_name")
-				->select("iad.c_businesspartner_id, bp.code c_businesspartner_code, bp.name c_businesspartner_name")
 				->select("iad.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.netto m_product_netto")
 				->select("iad.m_grid_id, gri.code m_grid_code")
 				->select("iad.pallet, iad.barcode, iad.carton_no, iad.lot_no")
-				->select("iad.volume_length, iad.volume_width, iad.volume_height")
 				->select_if_null("SUM(iad.quantity_from)", 0, 'quantity_from')
 				->select_if_null("SUM(iad.quantity_box_from)", 0, 'quantity_box_from')
 				->select_if_null("SUM(iad.quantity_to)", 0, 'quantity_to')
@@ -264,16 +248,13 @@ class Inventory_assembly extends MY_Controller
 				->join('m_products pro', "pro.id = iad.m_product_id")
 				->join('m_grids gri', "gri.id = iad.m_grid_id")
 				->join('c_projects prj', "prj.id = iad.c_project_id", 'left')
-				->join('c_businesspartners bp', "bp.id = iad.c_businesspartner_id", 'left')
 				->where('iad.m_inventory_assembly_id', $id)
 				->group_by(
 					array(
 						'iad.c_project_id', 'prj.code', 'prj.name',
-						'iad.c_businesspartner_id', 'bp.code', 'bp.name',
 						'iad.m_product_id', 'pro.code', 'pro.name', 'pro.netto',
 						'iad.m_grid_id', 'gri.code',
-						'iad.pallet', 'iad.barcode', 'iad.carton_no', 'iad.lot_no',
-						'iad.volume_length', 'iad.volume_width', 'iad.volume_height'
+						'iad.pallet', 'iad.barcode', 'iad.carton_no', 'iad.lot_no'
 					)
 				);
 			$table = $this->db->get();
@@ -291,19 +272,16 @@ class Inventory_assembly extends MY_Controller
 			$this->db
 				->select("iat.id")
 				->select("iat.c_project_id, prj.code c_project_code, prj.name c_project_name")
-				->select("iat.c_businesspartner_id, bp.code c_businesspartner_code, bp.name c_businesspartner_name")
 				->select("iat.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.netto m_product_netto")
 				->select("iat.m_grid_id, gri.code m_grid_code")
 				->select("iat.pallet, iat.barcode, iat.carton_no, iat.lot_no")
 				->select("iat.packed_date, iat.expired_date")
 				->select("iat.condition")
-				->select("iat.volume_length, iat.volume_width, iat.volume_height")
 				->select("iat.quantity, iat.quantity_box")
 				->from('m_inventory_assemblytargets iat')
 				->join('m_products pro', "pro.id = iat.m_product_id")
 				->join('m_grids gri', "gri.id = iat.m_grid_id")
 				->join('c_projects prj', "prj.id = iat.c_project_id", 'left')
-				->join('c_businesspartners bp', "bp.id = iat.c_businesspartner_id", 'left')
 				->where('iat.m_inventory_assembly_id', $id);
 			$table = $this->db->get();
 			$m_inventory_assemblytargets = $table->result();
@@ -368,16 +346,12 @@ class Inventory_assembly extends MY_Controller
 				$data_detail = new stdClass();
 				$data_detail->m_inventory_assembly_id = $id;
 				$data_detail->c_project_id = $m_inventory_assemblysource['c_project_id'];
-				$data_detail->c_businesspartner_id = $m_inventory_assemblysource['c_businesspartner_id'];
 				$data_detail->m_product_id = $m_inventory_assemblysource['m_product_id'];
 				$data_detail->m_grid_id = $m_inventory_assemblysource['m_grid_id'];
 				$data_detail->pallet = $m_inventory_assemblysource['pallet'];
 				$data_detail->barcode = $m_inventory_assemblysource['barcode'];
 				$data_detail->carton_no = $m_inventory_assemblysource['carton_no'];
 				$data_detail->lot_no = $m_inventory_assemblysource['lot_no'];
-				$data_detail->volume_length = $m_inventory_assemblysource['volume_length'];
-				$data_detail->volume_width = $m_inventory_assemblysource['volume_width'];
-				$data_detail->volume_height = $m_inventory_assemblysource['volume_height'];
 				$data_detail->quantity = $m_inventory_assemblysource['quantity'];
 				$this->lib_inventory_operation->assemblysource_add_by_properties($data_detail, $user_id);
 			}
@@ -391,7 +365,6 @@ class Inventory_assembly extends MY_Controller
 				$data_detail = new stdClass();
 				$data_detail->m_inventory_assembly_id = $id;
 				$data_detail->c_project_id = $m_inventory_assemblytarget['c_project_id'];
-				$data_detail->c_businesspartner_id = $m_inventory_assemblytarget['c_businesspartner_id'];
 				$data_detail->m_product_id = $m_inventory_assemblytarget['m_product_id'];
 				$data_detail->m_grid_id = $m_inventory_assemblytarget['m_grid_id'];
 				$data_detail->pallet = $m_inventory_assemblytarget['pallet'];
@@ -401,9 +374,6 @@ class Inventory_assembly extends MY_Controller
 				$data_detail->condition = $m_inventory_assemblytarget['condition'];
 				$data_detail->packed_date = $m_inventory_assemblytarget['packed_date'];
 				$data_detail->expired_date = $m_inventory_assemblytarget['expired_date'];
-				$data_detail->volume_length = $m_inventory_assemblytarget['volume_length'];
-				$data_detail->volume_width = $m_inventory_assemblytarget['volume_width'];
-				$data_detail->volume_height = $m_inventory_assemblytarget['volume_height'];
 				$data_detail->quantity_box = $m_inventory_assemblytarget['quantity_box'];
 				$data_detail->quantity = $m_inventory_assemblytarget['quantity'];
 				$this->lib_inventory_operation->assemblytarget_add($data_detail, $user_id);
@@ -458,9 +428,7 @@ class Inventory_assembly extends MY_Controller
 			->select("m_product_id")
 			->select("m_grid_id")
 			->select("c_project_id")
-			->select("c_businesspartner_id")
 			->select("pallet, barcode, carton_no, lot_no")
-			->select("volume_length, volume_width, volume_height")
 			->from('m_inventory_assemblysources')
 			->where('m_inventory_assembly_id', $id)
 			->group_by(
@@ -468,9 +436,7 @@ class Inventory_assembly extends MY_Controller
 					  "m_product_id"
 					, "m_grid_id"
 					, "c_project_id"
-					, "c_businesspartner_id"
 					, "pallet", "barcode", "carton_no", "lot_no"
-					, "volume_length", "volume_width", "volume_height"
 				)
 			);
 		$this->lib_custom->project_query_filter('c_project_id', $this->c_project_ids);
@@ -512,16 +478,12 @@ class Inventory_assembly extends MY_Controller
 				$data_detail = new stdClass();
 				$data_detail->m_inventory_assembly_id = $id;
 				$data_detail->c_project_id = $m_inventory_assemblysource['c_project_id'];
-				$data_detail->c_businesspartner_id = $m_inventory_assemblysource['c_businesspartner_id'];
 				$data_detail->m_product_id = $m_inventory_assemblysource['m_product_id'];
 				$data_detail->m_grid_id = $m_inventory_assemblysource['m_grid_id'];
 				$data_detail->pallet = $m_inventory_assemblysource['pallet'];
 				$data_detail->barcode = $m_inventory_assemblysource['barcode'];
 				$data_detail->carton_no = $m_inventory_assemblysource['carton_no'];
 				$data_detail->lot_no = $m_inventory_assemblysource['lot_no'];
-				$data_detail->volume_length = $m_inventory_assemblysource['volume_length'];
-				$data_detail->volume_width = $m_inventory_assemblysource['volume_width'];
-				$data_detail->volume_height = $m_inventory_assemblysource['volume_height'];
 				$data_detail->quantity = $m_inventory_assemblysource['quantity'];
 				$this->lib_inventory_operation->assemblysource_add_by_properties($data_detail, $user_id);
 			}
@@ -571,7 +533,6 @@ class Inventory_assembly extends MY_Controller
 				$data_detail = new stdClass();
 				$data_detail->m_inventory_assembly_id = $id;
 				$data_detail->c_project_id = $m_inventory_assemblytarget['c_project_id'];
-				$data_detail->c_businesspartner_id = $m_inventory_assemblytarget['c_businesspartner_id'];
 				$data_detail->m_product_id = $m_inventory_assemblytarget['m_product_id'];
 				$data_detail->m_grid_id = $m_inventory_assemblytarget['m_grid_id'];
 				$data_detail->pallet = $m_inventory_assemblytarget['pallet'];
@@ -581,9 +542,6 @@ class Inventory_assembly extends MY_Controller
 				$data_detail->condition = $m_inventory_assemblytarget['condition'];
 				$data_detail->packed_date = $m_inventory_assemblytarget['packed_date'];
 				$data_detail->expired_date = $m_inventory_assemblytarget['expired_date'];
-				$data_detail->volume_length = $m_inventory_assemblytarget['volume_length'];
-				$data_detail->volume_width = $m_inventory_assemblytarget['volume_width'];
-				$data_detail->volume_height = $m_inventory_assemblytarget['volume_height'];
 				$data_detail->quantity_box = $m_inventory_assemblytarget['quantity_box'];
 				$data_detail->quantity = $m_inventory_assemblytarget['quantity'];
 				$this->lib_inventory_operation->assemblytarget_add($data_detail, $user_id);
@@ -684,25 +642,6 @@ class Inventory_assembly extends MY_Controller
 			$this->db->like('prj.name', $keywords);
 		
 		$this->lib_custom->project_query_filter('prj.id', $this->c_project_ids);
-		
-		parent::_get_list_autocomplete_json();
-	}
-	
-	public function get_businesspartner_autocomplete_list_json()
-	{
-		if (!is_authorized('material/inventory_assembly', 'insert') && !is_authorized('material/inventory_assembly', 'update')) 
-			access_denied();
-		
-		$keywords = $this->input->get_post('term');
-		
-		$this->db
-			->select("bp.id")
-			->select_concat(array("bp.name", "' ('", "bp.code", "')'"), 'value')
-			->select_concat(array("bp.name", "' ('", "bp.code", "')'"), 'label')
-			->from('c_businesspartners bp');
-		
-		if ($keywords)
-			$this->db->where($this->db->concat(array("bp.name", "' ('", "bp.code", "')'")) . " LIKE '%" . $this->db->escape_like_str($keywords) . "%'", NULL, FALSE);
 		
 		parent::_get_list_autocomplete_json();
 	}

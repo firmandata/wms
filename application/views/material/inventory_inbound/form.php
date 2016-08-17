@@ -20,9 +20,10 @@ echo form_input(
 	array(
 		'name' 	=> 'code',
 		'id' 	=> 'material_inventory_inbound_form_code',
-		'class'	=> 'required',
+		'class'	=> (!empty($record) ? 'required' : ''),
 		'style'	=> 'width:120px;',
-		'value'	=> (!empty($record) ? $record->code : '')
+		'value'	=> (!empty($record) ? $record->code : ''),
+		'placeholder'	=> '## Auto ##'
 	)
 );?>
 			</td>

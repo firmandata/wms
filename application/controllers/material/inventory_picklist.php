@@ -66,7 +66,7 @@ class Inventory_picklist extends MY_Controller
 		$this->db->where("ipl.picklist_date >=", date('Y-m-d', mktime(0, 0, 0, $from_month, 1, $from_year)));
 		$this->db->where("ipl.picklist_date <=", add_date(date('Y-m-d', mktime(0, 0, 0, $to_month, 1, $to_year)), -1, 1));
 		
-		$this->lib_custom->project_query_filter('ipld.c_project_id', $this->c_project_ids);
+		$this->lib_custom->project_query_filter('oo.c_project_id', $this->c_project_ids);
 		
 		parent::_get_list_json();
 	}
@@ -166,19 +166,18 @@ class Inventory_picklist extends MY_Controller
 			->select("ipld.m_grid_id, gri.code m_grid_code")
 			->select("ipld.pallet, ipld.barcode, ipld.condition")
 			->select("ipld.carton_no, ipld.lot_no")
-			->select("ipld.volume_length, ipld.volume_width, ipld.volume_height")
 			->select("ipld.packed_date, ipld.expired_date")
 			->select("ipld.received_date")
 			->select_datediff_day('ipld.received_date', $this->db->getdate(), 'inventory_age')
 			->select("ipld.c_project_id, prj.name c_project_name")
-			->select("ipld.c_businesspartner_id, bp.name c_businesspartner_name")
 			->select("SUM(ipld.quantity_box) quantity_box", FALSE)
 			->select("SUM(ipld.quantity) quantity", FALSE)
 			->from('m_inventory_picklistdetails ipld')
+			->join('c_orderoutdetails ood', "ood.id = ipld.c_orderoutdetail_id", 'left')
+			->join('c_orderouts oo', "oo.id = ood.c_orderout_id", 'left')
 			->join('m_grids gri', "gri.id = ipld.m_grid_id")
 			->join('m_products pro', "pro.id = ipld.m_product_id", 'left')
 			->join('c_projects prj', "prj.id = ipld.c_project_id", 'left')
-			->join('c_businesspartners bp', "bp.id = ipld.c_businesspartner_id", 'left')
 			->group_by(
 				array(
 					'ipld.m_inventory_picklist_id', 'ipld.c_orderoutdetail_id', 
@@ -186,11 +185,9 @@ class Inventory_picklist extends MY_Controller
 					'ipld.m_grid_id', 'gri.code',
 					'ipld.pallet', 'ipld.barcode', 'ipld.condition',
 					'ipld.carton_no', 'ipld.lot_no',
-					'ipld.volume_length', 'ipld.volume_width', 'ipld.volume_height',
 					'ipld.packed_date', 'ipld.expired_date',
 					'ipld.received_date',
-					'ipld.c_project_id', 'prj.name',
-					'ipld.c_businesspartner_id', 'bp.name'
+					'ipld.c_project_id', 'prj.name'
 				)
 			);
 		
@@ -198,7 +195,7 @@ class Inventory_picklist extends MY_Controller
 		if ($id !== '')
 			$this->db->where("ipld.m_inventory_picklist_id", $id);
 		
-		$this->lib_custom->project_query_filter('ipld.c_project_id', $this->c_project_ids);
+		$this->lib_custom->project_query_filter('oo.c_project_id', $this->c_project_ids);
 		
 		parent::_get_list_json();
 	}
@@ -212,9 +209,8 @@ class Inventory_picklist extends MY_Controller
 		$c_project_id = $this->input->get_post('c_project_id');
 		
 		$inventory_sql = 
-			 "(SELECT	  inv.m_product_id, inv.m_grid_id, inv.c_project_id, inv.c_businesspartner_id "
+			 "(SELECT	  inv.m_product_id, inv.m_grid_id, inv.c_project_id "
 			."			, inv.barcode, inv.pallet, inv.carton_no, inv.packed_date, inv.expired_date, inv.condition, inv.lot_no "
-			."			, inv.volume_length, inv.volume_width, inv.volume_height "
 			."			, inv.received_date "
 			."			, inv.quantity_per_box "
 			."			, ".$this->db->if_null("SUM(inv.quantity_box)", 0)." quantity_box_exist "
@@ -241,9 +237,8 @@ class Inventory_picklist extends MY_Controller
 			$inventory_sql .= " WHERE ". implode(" AND ", $criterias);
 		$inventory_sql .= 
 			 " GROUP	BY "
-			."			  inv.m_product_id, inv.m_grid_id, inv.c_project_id, inv.c_businesspartner_id "
+			."			  inv.m_product_id, inv.m_grid_id, inv.c_project_id "
 			."			, inv.barcode, inv.pallet, inv.carton_no, inv.packed_date, inv.expired_date, inv.condition, inv.lot_no "
-			."			, inv.volume_length, inv.volume_width, inv.volume_height "
 			."			, inv.received_date "
 			."			, inv.quantity_per_box "
 			.") inv ";
@@ -253,9 +248,7 @@ class Inventory_picklist extends MY_Controller
 			->select("grd.id m_grid_id, grd.code m_grid_code")
 			->select("wh.id m_warehouse_id, wh.code m_warehouse_code, wh.name m_warehouse_name")
 			->select("inv.barcode, inv.pallet, inv.carton_no, inv.packed_date, inv.expired_date, inv.condition, inv.lot_no, inv.quantity_per_box")
-			->select("inv.volume_length, inv.volume_width, inv.volume_height")
 			->select("prj.id c_project_id, prj.name c_project_name")
-			->select("bp.id c_businesspartner_id, bp.name c_businesspartner_name")
 			->select("inv.received_date")
 			->select_datediff_day('inv.received_date', $this->db->getdate(), 'inventory_age')
 			->select("inv.quantity_box_exist, inv.quantity_box_allocated, inv.quantity_box_picked, inv.quantity_box_onhand")
@@ -263,8 +256,7 @@ class Inventory_picklist extends MY_Controller
 			->from($inventory_sql, FALSE)
 			->join('m_grids grd', "grd.id = inv.m_grid_id")
 			->join('m_warehouses wh', "wh.id = grd.m_warehouse_id")
-			->join('c_projects prj', "prj.id = inv.c_project_id", 'left')
-			->join('c_businesspartners bp', "bp.id = inv.c_businesspartner_id", 'left');
+			->join('c_projects prj', "prj.id = inv.c_project_id", 'left');
 		
 		parent::_get_list_json();
 	}
@@ -302,7 +294,6 @@ class Inventory_picklist extends MY_Controller
 			->select("ipld.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.uom m_product_uom")
 			->select("ipld.m_grid_id, gri.code m_grid_code")
 			->select("ipld.pallet, ipld.barcode, ipld.carton_no, ipld.lot_no, ipld.condition")
-			->select("ipld.volume_length, ipld.volume_width, ipld.volume_height")
 			->select("ipld.packed_date, ipld.expired_date")
 			->select("ipld.received_date")
 			->select_datediff_day('ipld.received_date', $this->db->getdate(), 'inventory_age')
@@ -312,15 +303,15 @@ class Inventory_picklist extends MY_Controller
 			->select_if_null('SUM(ipgd.quantity_box)', 0, 'quantity_box_used')
 			->select_if_null('SUM(ipgd.quantity)', 0, 'quantity_used')
 			->select("oo.code c_orderout_code, oo.orderout_date c_orderout_date, oo.request_arrive_date c_orderout_request_arrive_date")
-			->select("ipld.c_businesspartner_id, bp.name c_businesspartner_name")
+			->select("oo.c_businesspartner_id, bp.name c_businesspartner_name")
 			->select("ipld.status_inventory_picking")
 			->from('m_inventory_picklistdetails ipld')
 			->join('c_orderoutdetails ood', "ood.id = ipld.c_orderoutdetail_id")
 			->join('m_grids gri', "gri.id = ipld.m_grid_id")
 			->join('c_orderouts oo', "oo.id = ood.c_orderout_id")
+			->join('c_businesspartners bp', "bp.id = oo.c_businesspartner_id")
 			->join('m_products pro', "pro.id = ipld.m_product_id", 'left')
 			->join('c_projects prj', "prj.id = ipld.c_project_id", 'left')
-			->join('c_businesspartners bp', "bp.id = ipld.c_businesspartner_id", 'left')
 			->join(
 				 "(SELECT m_inventory_picklistdetail_id, "
 				."		  " . $this->db->if_null("SUM(quantity_box)", 0) . " quantity_box, "
@@ -335,11 +326,10 @@ class Inventory_picklist extends MY_Controller
 					'ipld.m_product_id', 'pro.code', 'pro.name', 'pro.uom',
 					'ipld.m_grid_id', 'gri.code',
 					'ipld.pallet', 'ipld.barcode', 'ipld.carton_no', 'ipld.lot_no', 'ipld.condition',
-					'ipld.volume_length', 'ipld.volume_width', 'ipld.volume_height',
 					'ipld.packed_date', 'ipld.expired_date',
 					'ipld.received_date',
 					'oo.code', 'oo.orderout_date', 'oo.request_arrive_date',
-					'ipld.c_businesspartner_id', 'bp.name',
+					'oo.c_businesspartner_id', 'bp.name',
 					'ipld.c_project_id', 'prj.name',
 					'ipld.status_inventory_picking'
 				)
@@ -349,7 +339,7 @@ class Inventory_picklist extends MY_Controller
 		if ($id !== '')
 			$this->db->where("ipld.m_inventory_picklist_id", $id);
 		
-		$this->lib_custom->project_query_filter('ipld.c_project_id', $this->c_project_ids);
+		$this->lib_custom->project_query_filter('oo.c_project_id', $this->c_project_ids);
 		
 		parent::_get_list_json();
 	}
@@ -448,14 +438,10 @@ class Inventory_picklist extends MY_Controller
 				$data->c_orderoutdetail_id = $this->input->post('c_orderoutdetail_id');
 				$data->m_product_id = $record['m_product_id'];
 				$data->m_grid_id = $record['m_grid_id'];
-				$data->c_businesspartner_id = $record['c_businesspartner_id'];
 				$data->pallet = $record['pallet'];
 				$data->barcode = $record['barcode'];
 				$data->carton_no = $record['carton_no'];
 				$data->lot_no = $record['lot_no'];
-				$data->volume_length = $record['volume_length'];
-				$data->volume_width = $record['volume_width'];
-				$data->volume_height = $record['volume_height'];
 				$data->condition = $record['condition'];
 				$data->packed_date = $record['packed_date'];
 				$data->expired_date = $record['expired_date'];
@@ -622,21 +608,6 @@ class Inventory_picklist extends MY_Controller
 			$data->lot_no = $lot_no;
 		else
 			$data->lot_no = NULL;
-		$volume_length = $this->input->post('volume_length');
-		if ($volume_length !== '')
-			$data->volume_length = $volume_length;
-		else
-			$data->volume_length = NULL;
-		$volume_width = $this->input->post('volume_width');
-		if ($volume_width !== '')
-			$data->volume_width = $volume_width;
-		else
-			$data->volume_width = NULL;
-		$volume_height = $this->input->post('volume_height');
-		if ($volume_height !== '')
-			$data->volume_height = $volume_height;
-		else
-			$data->volume_height = NULL;
 		$packed_date = $this->input->post('packed_date');
 		if ($packed_date !== '')
 			$data->packed_date = $packed_date;
@@ -657,11 +628,6 @@ class Inventory_picklist extends MY_Controller
 			$data->c_project_id = $c_project_id;
 		else
 			$data->c_project_id = NULL;
-		$c_businesspartner_id = $this->input->post('c_businesspartner_id');
-		if ($c_businesspartner_id !== '')
-			$data->c_businesspartner_id = $c_businesspartner_id;
-		else
-			$data->c_businesspartner_id = NULL;
 		
 		parent::_execute('lib_inventory_out', 'picklistdetail_remove_by_properties', 
 			array($data, $user_id),
@@ -686,19 +652,19 @@ class Inventory_picklist extends MY_Controller
 			->select("ipld.m_inventory_picklist_id, ipl.code m_inventory_picklist_code, ipl.picklist_date m_inventory_picklist_date")
 			->select("ood.c_orderout_id, oo.code c_orderout_code, oo.orderout_date c_orderout_date, oo.request_arrive_date c_orderout_request_arrive_date")
 			->select("oo.c_businesspartner_id, bp.name c_businesspartner_name")
-			->select("ipld.c_project_id, prj.name c_project_name")
+			->select("oo.c_project_id, prj.name c_project_name")
 			->from('m_inventory_picklistdetails ipld')
 			->join('m_inventory_picklists ipl', "ipl.id = ipld.m_inventory_picklist_id")
 			->join('c_orderoutdetails ood', "ood.id = ipld.c_orderoutdetail_id")
 			->join('c_orderouts oo', "oo.id = ood.c_orderout_id")
 			->join('c_businesspartners bp', "bp.id = oo.c_businesspartner_id")
-			->join('c_projects prj', "prj.id = ipld.c_project_id", 'left')
+			->join('c_projects prj', "prj.id = oo.c_project_id", 'left')
 			->where("ipld.m_inventory_picklist_id", $id);
 		if ($c_orderout_id)
 			$this->db
 				->where("ood.c_orderout_id", $c_orderout_id);
 		
-		$this->lib_custom->project_query_filter('ipld.c_project_id', $this->c_project_ids);
+		$this->lib_custom->project_query_filter('oo.c_project_id', $this->c_project_ids);
 		
 		$table = $this->db
 			->get();
@@ -713,13 +679,14 @@ class Inventory_picklist extends MY_Controller
 				->select("SUM(ipld.quantity) quantity", FALSE)
 				->from('m_inventory_picklistdetails ipld')
 				->join('c_orderoutdetails ood', "ood.id = ipld.c_orderoutdetail_id")
+				->join('c_orderouts oo', "oo.id = ood.c_orderout_id")
 				->join('m_products pro', "pro.id = ipld.m_product_id", 'left')
 				->where('ipld.m_inventory_picklist_id', $document->m_inventory_picklist_id)
 				->where('ood.c_orderout_id', $document->c_orderout_id);
 			if (!empty($document->c_project_id))
-				$this->db->where('ipld.c_project_id', $document->c_project_id);
+				$this->db->where('oo.c_project_id', $document->c_project_id);
 			else
-				$this->db->where("ipld.c_project_id IS NULL", NULL, FALSE);
+				$this->db->where("oo.c_project_id IS NULL", NULL, FALSE);
 			$table = $this->db
 				->group_by(
 					array(
@@ -743,13 +710,14 @@ class Inventory_picklist extends MY_Controller
 				->from('m_inventory_picklistdetails ipld')
 				->join('c_orderoutdetails ood', "ood.id = ipld.c_orderoutdetail_id")
 				->join('m_grids gri', "gri.id = ipld.m_grid_id")
+				->join('c_orderouts oo', "oo.id = ood.c_orderout_id")
 				->join('m_products pro', "pro.id = ipld.m_product_id", 'left')
 				->where('ipld.m_inventory_picklist_id', $document->m_inventory_picklist_id)
 				->where('ood.c_orderout_id', $document->c_orderout_id);
 			if (!empty($document->c_project_id))
-				$this->db->where('ipld.c_project_id', $document->c_project_id);
+				$this->db->where('oo.c_project_id', $document->c_project_id);
 			else
-				$this->db->where("ipld.c_project_id IS NULL", NULL, FALSE);
+				$this->db->where("oo.c_project_id IS NULL", NULL, FALSE);
 			$table = $this->db
 				->group_by(
 					array(
@@ -799,7 +767,7 @@ class Inventory_picklist extends MY_Controller
 			->select("oo.code c_orderout_code, oo.orderout_date c_orderout_date, oo.request_arrive_date c_orderout_request_arrive_date")
 			->select("oo.external_no c_orderout_external_no")
 			->select("oo.c_businesspartner_id, bp.name c_businesspartner_name")
-			->select("ipld.c_project_id, prj.name c_project_name")
+			->select("oo.c_project_id, prj.name c_project_name")
 			->select("ipld.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.uom m_product_uom, pro.pack m_product_pack")
 			->select("ipld.pallet, ipld.barcode, ipld.carton_no")
 			->select("ipld.m_grid_id, gri.code m_grid_code")
@@ -811,9 +779,9 @@ class Inventory_picklist extends MY_Controller
 			->join('c_businesspartners bp', "bp.id = oo.c_businesspartner_id")
 			->join('m_grids gri', "gri.id = ipld.m_grid_id")
 			->join('m_products pro', "pro.id = ipld.m_product_id", 'left')
-			->join('c_projects prj', "prj.id = ipld.c_project_id", 'left')
+			->join('c_projects prj', "prj.id = oo.c_project_id", 'left')
 			->where("ipld.m_inventory_picklist_id", $id);
-		$this->lib_custom->project_query_filter('ipld.c_project_id', $this->c_project_ids);
+		$this->lib_custom->project_query_filter('oo.c_project_id', $this->c_project_ids);
 		$table = $this->db
 			->order_by('c_orderout_id', 'asc')
 			->order_by('c_businesspartner_id', 'asc')

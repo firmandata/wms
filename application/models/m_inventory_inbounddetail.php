@@ -5,10 +5,7 @@ class M_inventory_inbounddetail extends DataMapper {
 		'm_inventory_inbound'		=> array('cascade_delete' => FALSE),
 		'm_inventory_receivedetail'	=> array('cascade_delete' => FALSE),
 		'm_inventory'				=> array('cascade_delete' => FALSE),
-		'm_grid'					=> array('cascade_delete' => FALSE),
-		'c_businesspartner'			=> array('cascade_delete' => FALSE),
-		'c_project'					=> array('cascade_delete' => FALSE),
-		'm_product'					=> array('cascade_delete' => FALSE)
+		'm_grid'					=> array('cascade_delete' => FALSE)
 	);
 	
     var $validation = array(

@@ -27,17 +27,17 @@ if (is_authorized('material/inventory_receive', 'delete')){?>
 	</button>
 <?php 
 }
+if (is_authorized('material/inventory_inbound', 'insert')){?>
+	<button id="material_inventory_receive_inbound_btn" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" role="button">
+		<span class="ui-button-icon-primary ui-icon ui-icon-plus"></span>
+		<span class="ui-button-text">Set Inbound</span>
+	</button>
+<?php
+}
 if (is_authorized('material/inventory_receive', 'insert')){?>
 	<button id="material_inventory_receive_upload_btn" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" role="button">
 		<span class="ui-button-icon-primary ui-icon ui-icon-arrowthickstop-1-n"></span>
 		<span class="ui-button-text">Upload</span>
-	</button>
-<?php 
-}
-if (is_authorized('material/inventory_receive', 'insert') && is_authorized('material/inventory_receive', 'update') && is_authorized('material/inventory_receive', 'delete')){?>
-	<button id="material_inventory_receive_forecast_btn" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" role="button">
-		<span class="ui-button-icon-primary ui-icon ui-icon-document"></span>
-		<span class="ui-button-text">Forecast</span>
 	</button>
 <?php 
 }?>
@@ -104,8 +104,8 @@ jQuery(document).ready(function(){
 			});
 		},
 		{
-			title : "Create Receive", 
-			width : 830,
+			title : "Create ASN", 
+			width : 1100,
 			height: 550
 		});
 	});
@@ -132,8 +132,8 @@ jQuery(document).ready(function(){
 				});
 			},
 			{
-				title : "Edit Receive", 
-				width : 830,
+				title : "Edit ASN", 
+				width : 1100,
 				height: 550
 			});
 		}
@@ -176,6 +176,38 @@ jQuery(document).ready(function(){
 			jquery_show_message("Please select the row data !", null, "ui-icon-alert");
 	});
 	
+	jQuery("#material_inventory_receive_inbound_btn").click(function(){
+		var id = jQuery("#material_inventory_receive_list_table").getGridParam("selrow");
+		if (id)
+		{
+			var row_data = jQuery("#material_inventory_receive_list_table").getRowData(id);
+			
+			var _submit_url = "material/inventory_receive/inbound/@id";
+			_submit_url = _submit_url.replace(/@id/g, row_data.id);
+			
+			jquery_dialog_form_open('material_inventory_inbound_form_container', "<?php echo site_url('material/inventory_inbound/form');?>", {
+				form_action	: _submit_url
+			}, 
+			function(form_dialog){
+				material_inventory_inbound_form_submit(function(data, textStatus, jqXHR){
+					if (data.response == false)
+						jquery_show_message(data.value, null, "ui-icon-close");
+					else
+					{
+						form_dialog.dialog("close");
+						jQuery("#material_inventory_receive_list_table").trigger("reloadGrid", [{current:true}]);
+					}
+				});
+			},
+			{
+				title : "Create Inbound", 
+				width : 460
+			});
+		}
+		else
+			jquery_show_message("Please select the row data !", null, "ui-icon-alert");
+	});
+	
 	jQuery("#material_inventory_receive_upload_btn").click(function(){
 		jquery_dialog_form_open('material_inventory_receive_upload_form_container', "<?php echo site_url('material/inventory_receive/form_upload');?>", {
 			form_action : "material/inventory_receive/upload"
@@ -202,7 +234,7 @@ jQuery(document).ready(function(){
 			});
 		},
 		{
-			title : "Upload Receive"
+			title : "Upload ASN"
 		});
 	});
 	
@@ -411,8 +443,8 @@ function material_inventory_receive_list_detail(id){
 		id : id
 	}, null,
 	{
-		title : "Receive", 
-		width : 1020
+		title : "ASN", 
+		width : 1100
 	});
 }
 </script>

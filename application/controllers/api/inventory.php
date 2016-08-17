@@ -24,7 +24,6 @@ class Inventory extends REST_Controller
 		$inventory_sql = 
 			 "(SELECT	  inv.m_product_id, inv.m_grid_id, inv.c_project_id "
 			."			, inv.barcode, inv.pallet, inv.carton_no, inv.packed_date, inv.expired_date, inv.condition, inv.lot_no "
-			."			, inv.volume_length, inv.volume_width, inv.volume_height "
 			."			, inv.received_date "
 			."			, ".$this->db->if_null("SUM(inv.quantity_box)", 0)." quantity_box_exist "
 			."			, ".$this->db->if_null("SUM(inv.quantity_box_allocated)", 0)." quantity_box_allocated "
@@ -45,7 +44,6 @@ class Inventory extends REST_Controller
 			 " GROUP	BY "
 			."			  inv.m_product_id, inv.m_grid_id, inv.c_project_id "
 			."			, inv.barcode, inv.pallet, inv.carton_no, inv.packed_date, inv.expired_date, inv.condition, inv.lot_no "
-			."			, inv.volume_length, inv.volume_width, inv.volume_height "
 			."			, inv.received_date "
 			.") inv ";
 		
@@ -55,7 +53,6 @@ class Inventory extends REST_Controller
 			->select("wh.id m_warehouse_id, wh.code m_warehouse_code, wh.name m_warehouse_name")
 			->select("prog.id m_productgroup_id, prog.code m_productgroup_code, prog.name m_productgroup_name")
 			->select("inv.barcode, inv.pallet, inv.carton_no, inv.packed_date, inv.expired_date, inv.condition, inv.lot_no")
-			->select("inv.volume_length, inv.volume_width, inv.volume_height")
 			->select("prj.id c_project_id, prj.name c_project_name")
 			->select_datediff_day('inv.received_date', $this->db->getdate(), 'inventory_age')
 			->select("inv.quantity_box_exist, inv.quantity_box_allocated, inv.quantity_box_picked, inv.quantity_box_onhand")

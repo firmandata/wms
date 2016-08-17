@@ -70,7 +70,7 @@ class Inventory_picking extends MY_Controller
 		$this->db->where("ipg.picking_date >=", date('Y-m-d', mktime(0, 0, 0, $from_month, 1, $from_year)));
 		$this->db->where("ipg.picking_date <=", add_date(date('Y-m-d', mktime(0, 0, 0, $to_month, 1, $to_year)), -1, 1));
 		
-		$this->lib_custom->project_query_filter('ipld.c_project_id', $this->c_project_ids);
+		$this->lib_custom->project_query_filter('oo.c_project_id', $this->c_project_ids);
 		
 		parent::_get_list_json();
 	}
@@ -164,7 +164,7 @@ class Inventory_picking extends MY_Controller
 				)
 			);
 		
-		$this->lib_custom->project_query_filter('ipld.c_project_id', $this->c_project_ids);
+		$this->lib_custom->project_query_filter('oo.c_project_id', $this->c_project_ids);
 		
 		parent::_get_list_json();
 	}
@@ -186,6 +186,8 @@ class Inventory_picking extends MY_Controller
 			->from('m_inventory_pickingdetails ipgd')
 			->join('m_inventory_picklistdetails ipld', "ipld.id = ipgd.m_inventory_picklistdetail_id")
 			->join('m_inventory_picklists ipl', "ipl.id = ipld.m_inventory_picklist_id")
+			->join('c_orderoutdetails ood', "ood.id = ipld.c_orderoutdetail_id", 'left')
+			->join('c_orderouts oo', "oo.id = ood.c_orderout_id", 'left')
 			->join('m_grids gri', "gri.id = ipld.m_grid_id")
 			->join('m_products pro', "pro.id = ipld.m_product_id", 'left')
 			->group_by(
@@ -202,7 +204,7 @@ class Inventory_picking extends MY_Controller
 		if ($id !== '')
 			$this->db->where("ipgd.m_inventory_picking_id", $id);
 		
-		$this->lib_custom->project_query_filter('ipld.c_project_id', $this->c_project_ids);
+		$this->lib_custom->project_query_filter('oo.c_project_id', $this->c_project_ids);
 		
 		parent::_get_list_json();
 	}
@@ -238,8 +240,8 @@ class Inventory_picking extends MY_Controller
 			->select("MAX(ipgd.id) id", FALSE)
 			->select("ipld.m_inventory_picklist_id, ipgd.packed_group, ipl.code m_inventory_picklist_code, ipl.picklist_date m_inventory_picklist_date")
 			->select("oo.code c_orderout_code, oo.orderout_date c_orderout_date, oo.request_arrive_date c_orderout_request_arrive_date")
-			->select("ipld.c_businesspartner_id, bp.name c_businesspartner_name")
-			->select("ipld.c_project_id, prj.name c_project_name")
+			->select("oo.c_businesspartner_id, bp.name c_businesspartner_name")
+			->select("oo.c_project_id, prj.name c_project_name")
 			->select("ipld.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.uom m_product_uom")
 			->select("ipld.m_grid_id, gri.code m_grid_code")
 			->select("ipld.pallet, ipld.barcode, ipld.carton_no, ipld.lot_no, ipld.condition")
@@ -253,10 +255,10 @@ class Inventory_picking extends MY_Controller
 			->join('m_inventory_picklists ipl', "ipl.id = ipld.m_inventory_picklist_id")
 			->join('c_orderoutdetails ood', "ood.id = ipld.c_orderoutdetail_id")
 			->join('c_orderouts oo', "oo.id = ood.c_orderout_id")
+			->join('c_businesspartners bp', "bp.id = oo.c_businesspartner_id")
 			->join('m_grids gri', "gri.id = ipld.m_grid_id")
 			->join('m_products pro', "pro.id = ipld.m_product_id", 'left')
-			->join('c_businesspartners bp', "bp.id = ipld.c_businesspartner_id", 'left')
-			->join('c_projects prj', "prj.id = ipld.c_project_id", 'left')
+			->join('c_projects prj', "prj.id = oo.c_project_id", 'left')
 			->join(
 				 "(SELECT m_inventory_pickingdetail_id, "
 				."		  ". $this->db->if_null("SUM(quantity_box)", 0) . " quantity_box, "
@@ -269,8 +271,8 @@ class Inventory_picking extends MY_Controller
 				array(
 					'ipld.m_inventory_picklist_id', 'ipgd.packed_group', 'ipl.code', 'ipl.picklist_date',
 					'oo.code', 'oo.orderout_date', 'oo.request_arrive_date',
-					'ipld.c_businesspartner_id', 'bp.name',
-					'ipld.c_project_id', 'prj.name',
+					'oo.c_businesspartner_id', 'bp.name',
+					'oo.c_project_id', 'prj.name',
 					'ipld.m_product_id', 'pro.code', 'pro.name', 'pro.uom',
 					'ipld.m_grid_id', 'gri.code',
 					'ipld.pallet', 'ipld.barcode', 'ipld.carton_no', 'ipld.lot_no', 'ipld.condition',
@@ -282,7 +284,7 @@ class Inventory_picking extends MY_Controller
 		if ($id !== '')
 			$this->db->where("ipgd.m_inventory_picking_id", $id);
 		
-		$this->lib_custom->project_query_filter('ipld.c_project_id', $this->c_project_ids);
+		$this->lib_custom->project_query_filter('oo.c_project_id', $this->c_project_ids);
 		
 		parent::_get_list_json();
 	}

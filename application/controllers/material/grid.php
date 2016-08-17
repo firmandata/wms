@@ -27,7 +27,7 @@ class Grid extends MY_Controller
 		else
 		{
 			$content = array(
-				'title'		=> "Grid",
+				'title'		=> "Kolam",
 				'content' 	=> $this->load->view('material/grid/index', $data, TRUE)
 			);
 			$this->_load_layout($content);
@@ -52,6 +52,7 @@ class Grid extends MY_Controller
 				->select("grd.m_warehouse_id")
 				->select("grd.m_productgroup_id, prog.code m_productgroup_code, prog.name m_productgroup_name")
 				->select_concat(array("prog.name", "' ('", "prog.code", "')'"), 'm_productgroup_text')
+				->select("grd.notes")
 				->from('m_grids grd')
 				->join('m_productgroups prog', "prog.id = grd.m_productgroup_id", 'left')
 				->where('grd.id', $id)
@@ -59,7 +60,7 @@ class Grid extends MY_Controller
 			if ($table->num_rows() > 0)
 				$record = $table->first_row();
 			else
-				show_error("Grid not found", 400);
+				show_error("Kolam not found", 400);
 		}
 		
 		$data = array(
@@ -80,6 +81,7 @@ class Grid extends MY_Controller
 			->select("grd.type, grd.length, grd.width, grd.height, grd.status")
 			->select("grd.m_warehouse_id, wh.code m_warehouse_code, wh.name m_warehouse_name")
 			->select("grd.m_productgroup_id, prog.code m_productgroup_code, prog.name m_productgroup_name")
+			->select("grd.notes")
 			->from('m_grids grd')
 			->join('m_warehouses wh', "wh.id = grd.m_warehouse_id")
 			->join('m_productgroups prog', "prog.id = grd.m_productgroup_id", 'left');
@@ -156,13 +158,14 @@ class Grid extends MY_Controller
 		$width = $this->input->post('width');
 		$height = $this->input->post('height');
 		$status = $this->input->post('status');
+		$notes = $this->input->post('notes');
 		
 		parent::_execute('lib_material', 'grid_add', 
 			array(
 				$m_warehouse_id, 
 				$row, $col, $level, $m_productgroup_id, 
 				$type, $length, $width, $height, $status,
-				$user_id
+				$notes, $user_id
 			), 
 			array(
 				array('field' => 'm_warehouse_id', 'label' => 'Warehouse Id', 'rules' => 'required'),
@@ -192,13 +195,14 @@ class Grid extends MY_Controller
 		$width = $this->input->post('width');
 		$height = $this->input->post('height');
 		$status = $this->input->post('status');
+		$notes = $this->input->post('notes');
 		
 		parent::_execute('lib_material', 'grid_update', 
 			array(
 				$id, 
 				$row, $col, $level, $m_productgroup_id, 
 				$type, $length, $width, $height, $status,
-				$user_id
+				$notes, $user_id
 			), 
 			array(
 				array('field' => 'row', 'label' => 'Row', 'rules' => 'required|integer'),

@@ -41,6 +41,10 @@ if (is_authorized('core/businesspartner', 'index')){?>
 	</button>
 <?php 
 }?>
+	<button id="core_orderin_orderindetail_printout_btn" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" role="button">
+		<span class="ui-button-icon-primary ui-icon ui-icon-document"></span>
+		<span class="ui-button-text">View Printout</span>
+	</button>
 </div>
 
 <div class="content-right-header-toolbar toolbar-one-line ui-state-default ui-corner-all ui-helper-clearfix">
@@ -100,8 +104,8 @@ jQuery(document).ready(function(){
 			});
 		},
 		{
-			title : "Create Order In", 
-			width : 730,
+			title : "Create Purchase Order (PO)", 
+			width : 1024,
 			height: 500
 		});
 	});
@@ -126,8 +130,8 @@ jQuery(document).ready(function(){
 				});
 			},
 			{
-				title : "Edit Order In", 
-				width : 730,
+				title : "Edit Purchase Order (PO)", 
+				width : 1024,
 				height: 550
 			});
 		}
@@ -194,7 +198,7 @@ jQuery(document).ready(function(){
 			});
 		},
 		{
-			title : "Upload Order In"
+			title : "Upload Purchase Order"
 		});
 	});
 	
@@ -205,6 +209,17 @@ jQuery(document).ready(function(){
 		});
 	});
 
+	jQuery("#core_orderin_orderindetail_printout_btn").click(function(){
+		var id = jQuery("#core_orderin_list_table").getGridParam("selrow");
+		if (id)
+		{
+			var row_data = jQuery("#core_orderin_list_table").getRowData(id);
+			window.open("<?php echo site_url('core/orderin/orderindetail_printout');?>?id=" + row_data.id);
+		}
+		else
+			jquery_show_message("Please select the row data !", null, "ui-icon-alert");
+	});
+	
 	jQuery('#core_orderin_list_form').validate({
 		submitHandler: function(form){
 			jQuery('#core_orderin_list_table').setGridParam({
@@ -246,7 +261,7 @@ function core_orderin_list_load_table(table_id){
 			'Receive Status',
 			'Project', 
 			'Origin',
-			'Bill of Load',
+			'No Surat Jalan',
 			'External No'
 		], 
 		colModel: [
@@ -327,7 +342,7 @@ function core_orderin_list_detail(id){
 		id : id
 	}, null,
 	{
-		title : "Order In", 
+		title : "Purchase Order", 
 		width : 850
 	});
 }

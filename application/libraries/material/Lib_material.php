@@ -255,7 +255,7 @@ class Lib_material extends Lib_general
 		
 		if ($m_warehouse->code == $this->CI->config->item('inventory_default_warehouse'))
 		{
-			throw new Exception("You can't modify default warehouse.");
+			throw new Exception("You can't modify default location.");
 		}
 		
 		$this->set_model_fields_values($m_warehouse, $data);
@@ -271,7 +271,7 @@ class Lib_material extends Lib_general
 		
 		if ($m_warehouse->code == $this->CI->config->item('inventory_default_warehouse'))
 		{
-			throw new Exception("You can't remove default warehouse.");
+			throw new Exception("You can't remove default location.");
 		}
 		
 		// -- Remove Grid --
@@ -298,7 +298,7 @@ class Lib_material extends Lib_general
 		$m_warehouse = new M_warehouse($m_warehouse_id);
 		if ($m_warehouse->code == $this->CI->config->item('inventory_default_warehouse'))
 		{
-			throw new Exception("You can't generate grid of default warehouse.");
+			throw new Exception("You can't generate grid of default location.");
 		}
 		
 		// -- Delete Grids By Level --
@@ -363,7 +363,7 @@ class Lib_material extends Lib_general
 							$m_warehouse_id, 
 							$m_grid_row, $m_grid_col, $m_grid_level, NULL, 
 							$grid_types, $grid_lengths, $grid_widths, $grid_heights, $grid_statuses, 
-							$generated_by
+							NULL, $generated_by
 						);
 					}
 					else
@@ -375,7 +375,7 @@ class Lib_material extends Lib_general
 							$m_grid_record->id, 
 							$m_grid_record->row, $m_grid_record->col, $m_grid_record->level, $m_grid_record->m_productgroup_id, 
 							$grid_types, $grid_lengths, $grid_widths, $grid_heights, $grid_statuses, 
-							$generated_by
+							$m_grid_record->notes, $generated_by
 						);
 					}
 				}
@@ -385,21 +385,72 @@ class Lib_material extends Lib_general
 	
 	public function warehouse_default_generate($generated_by)
 	{
-		$table = $this->CI->db
-			->from('m_grids')
-			->where('code', $this->CI->config->item('inventory_default_grid'))
-			->get();
-		if ($table->num_rows() > 0)
-			return;
+		$m_warehouse_id = NULL;
 		
 		// -- Create default warehouse --
-		$data = new stdClass();
-		$data->code = $this->CI->config->item('inventory_default_warehouse');
-		$data->name = 'Default Warehouse';
-		$m_warehouse_id = $this->warehouse_add($data, $generated_by);
+		$table = $this->CI->db
+			->select('id')
+			->from('m_warehouses')
+			->where('code', $this->CI->config->item('inventory_default_warehouse'))
+			->get();
+		if ($table->num_rows() > 0)
+		{
+			$table_record = $table->first_row();
+			$m_warehouse_id = $table_record->id;
+		}
+		else
+		{
+			$m_warehouse_new = new stdClass();
+			$m_warehouse_new->code = $this->CI->config->item('inventory_default_warehouse');
+			$m_warehouse_new->name = 'Default Location';
+			$m_warehouse_id = $this->warehouse_add($m_warehouse_new, $generated_by);
+		}
 		
-		// -- Create default grid --
-		$this->grid_add($m_warehouse_id, 0, 0, 0, NULL, $generated_by);
+		// -- Create default grid by product group default --
+		$m_product_groups = array(
+			$this->CI->config->item('inventory_default_grid')	=> $this->CI->config->item('product_group_default'),
+			$this->CI->config->item('inventory_default_grid_1')	=> $this->CI->config->item('product_group_default_1')
+		);
+		foreach ($m_product_groups as $m_grid_code=>$m_product_group)
+		{
+			$table = $this->CI->db
+				->select('id')
+				->from('m_grids')
+				->where('code', $m_grid_code)
+				->get();
+			if ($table->num_rows() > 0)
+				continue;
+			
+			$m_productgroup_id = NULL;
+			$table = $this->CI->db
+				->select('id')
+				->from('m_productgroups')
+				->where('code', $m_product_group['code'])
+				->get();
+			if ($table->num_rows() > 0)
+			{
+				$table_record = $table->first_row();
+				$m_productgroup_id = $table_record->id;
+			}
+			else
+			{
+				$m_product_group_new = new stdClass();
+				foreach ($m_product_group as $field=>$value)
+				{
+					$m_product_group_new->$field = $value;
+				}
+				$m_productgroup_id = $this->productgroup_add($m_product_group_new, $generated_by);
+			}
+			
+			// -- Create default grid --
+			$this->grid_add(
+				$m_warehouse_id, 
+				0, 0, 0, $m_productgroup_id, 
+				NULL, 0, 0, 0, NULL, 
+				NULL, $generated_by,
+				$m_grid_code
+			);
+		}
 	}
 	
 	public function warehouse_get_grid_scalar($m_warehouse_id)
@@ -448,7 +499,8 @@ class Lib_material extends Lib_general
 		$m_warehouse_id, 
 		$row, $col, $level, $m_productgroup_id = NULL,
 		$type = NULL, $length = 0, $width = 0, $height = 0, $status = NULL, 
-		$created_by = NULL
+		$notes = NULL, $created_by = NULL,
+		$code_default = NULL
 	)
 	{
 		$m_warehouse = new M_warehouse($m_warehouse_id);
@@ -459,9 +511,9 @@ class Lib_material extends Lib_general
 		$code_level = sprintf("%02s", $level);
 		
 		$code = $m_warehouse->code . $code_row.$code_col.$code_level;
-		if ($m_warehouse->code == $this->CI->config->item('inventory_default_warehouse'))
+		if ($code_default !== NULL)
 		{
-			$code = $this->CI->config->item('inventory_default_grid');
+			$code = $code_default;
 		}
 		
 		$m_grid = new M_grid();
@@ -474,6 +526,7 @@ class Lib_material extends Lib_general
 		$m_grid->width = $width;
 		$m_grid->height = $height;
 		$m_grid->status = $status;
+		$m_grid->notes = $notes;
 		$m_grid->created_by = $created_by;
 		$m_grid_saved = $m_grid->save(
 			array(
@@ -496,13 +549,14 @@ class Lib_material extends Lib_general
 		$m_grid_id, 
 		$row, $col, $level, $m_productgroup_id = NULL, 
 		$type = NULL, $length = 0, $width = 0, $height = 0, $status = NULL, 
-		$updated_by = NULL
+		$notes = NULL, $updated_by = NULL
 	)
 	{
 		$m_grid = new M_grid($m_grid_id);
-		if ($m_grid->code == $this->CI->config->item('inventory_default_grid'))
+		if (	$m_grid->code == $this->CI->config->item('inventory_default_grid')
+			||	$m_grid->code == $this->CI->config->item('inventory_default_grid_1'))
 		{
-			throw new Exception("You can't modify default grid.");
+			throw new Exception("You can't modify default location detail.");
 		}
 		
 		$m_productgroup = new M_productgroup($m_productgroup_id);
@@ -520,6 +574,7 @@ class Lib_material extends Lib_general
 		$m_grid->width = $width;
 		$m_grid->height = $height;
 		$m_grid->status = $status;
+		$m_grid->notes = $notes;
 		$m_grid->updated_by = $updated_by;
 		$m_grid_saved = $m_grid->save(
 			array(
@@ -540,81 +595,82 @@ class Lib_material extends Lib_general
 	public function grid_remove($m_grid_id, $removed_by = NULL)
 	{
 		$m_grid = new M_grid($m_grid_id);
-		if ($m_grid->code == $this->CI->config->item('inventory_default_grid'))
+		if (	$m_grid->code == $this->CI->config->item('inventory_default_grid')
+			||	$m_grid->code == $this->CI->config->item('inventory_default_grid_1'))
 		{
-			throw new Exception("You can't remove default grid.");
+			throw new Exception("You can't remove default location detail.");
 		}
 		
 		// -- Remove Inventory --
 		if ($m_grid->m_inventory->count())
 		{
-			throw new Exception("You can't remove grid because it's already in used by inventory.");
+			throw new Exception("You can't remove location detail because it's already in used by inventory.");
 		}
 		
 		// -- Remove Putaway From --
 		if ($m_grid->m_inventory_putawaydetail_from->count())
 		{
-			throw new Exception("You can't remove grid because it's already in used by putaway from.");
+			throw new Exception("You can't remove location detail because it's already in used by putaway from.");
 		}
 		
 		// -- Remove Putaway To --
 		if ($m_grid->m_inventory_putawaydetail_to->count())
 		{
-			throw new Exception("You can't remove grid because it's already in used by putaway to.");
+			throw new Exception("You can't remove location detail because it's already in used by putaway to.");
 		}
 		
 		// -- Remove Move From --
 		if ($m_grid->m_inventory_movedetail_from->count())
 		{
-			throw new Exception("You can't remove grid because it's already in used by move from.");
+			throw new Exception("You can't remove location detail because it's already in used by move from.");
 		}
 		
 		// -- Remove Move To --
 		if ($m_grid->m_inventory_movedetail_to->count())
 		{
-			throw new Exception("You can't remove grid because it's already in used by move to.");
+			throw new Exception("You can't remove location detail because it's already in used by move to.");
 		}
 		
 		// -- Remove Pick List --
 		if ($m_grid->m_inventory_picklistdetail->count())
 		{
-			throw new Exception("You can't remove grid because it's already in used by pick list.");
+			throw new Exception("You can't remove location detail because it's already in used by pick list.");
 		}
 		
 		// -- Remove Inbound Detail --
 		if ($m_grid->m_inventory_inbounddetail->count())
 		{
-			throw new Exception("You can't remove grid because it's already in used by inbound.");
+			throw new Exception("You can't remove location detail because it's already in used by inbound.");
 		}
 		
 		// -- Remove Adjust Detail --
 		if ($m_grid->m_inventory_adjustdetail->count())
 		{
-			throw new Exception("You can't remove grid because it's already in used by adjust.");
+			throw new Exception("You can't remove location detail because it's already in used by adjust.");
 		}
 		
 		// -- Remove Hold Detail --
 		if ($m_grid->m_inventory_holddetail->count())
 		{
-			throw new Exception("You can't remove grid because it's already in used by hold.");
+			throw new Exception("You can't remove location detail because it's already in used by hold.");
 		}
 		
 		// -- Remove Assembly Source --
 		if ($m_grid->m_inventory_assemblysource->count())
 		{
-			throw new Exception("You can't remove grid because it's already in used by assembly source.");
+			throw new Exception("You can't remove location detail because it's already in used by assembly source.");
 		}
 		
 		// -- Remove Assembly Target --
 		if ($m_grid->m_inventory_assemblytarget->count())
 		{
-			throw new Exception("You can't remove grid because it's already in used by assembly target.");
+			throw new Exception("You can't remove location detail because it's already in used by assembly target.");
 		}
 		
 		// -- Remove Custom Inventory Inbound Detail --
 		if ($m_grid->cus_m_inventory_inbounddetail->count())
 		{
-			throw new Exception("You can't remove grid because it's already in used by inbound live.");
+			throw new Exception("You can't remove location detail because it's already in used by inbound live.");
 		}
 		
 		$this->CI->load->library('custom/lib_custom_inventory');
@@ -638,9 +694,10 @@ class Lib_material extends Lib_general
 	public function grid_set_productgroup($m_grid_id, $m_productgroup_id, $set_by = NULL)
 	{
 		$m_grid = new M_grid($m_grid_id);
-		if ($m_grid->code == $this->CI->config->item('inventory_default_grid'))
+		if (	$m_grid->code == $this->CI->config->item('inventory_default_grid')
+			||	$m_grid->code == $this->CI->config->item('inventory_default_grid_1'))
 		{
-			throw new Exception("You can't modify default grid.");
+			throw new Exception("You can't modify default location detail.");
 		}
 		
 		$m_productgroup = new M_productgroup($m_productgroup_id);

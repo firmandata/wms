@@ -15,7 +15,8 @@ class C_project extends DataMapper {
 		'm_inventory_assemblysource'	=> array('cascade_delete' => FALSE),
 		'm_inventory_assemblytarget'	=> array('cascade_delete' => FALSE),
 		'm_inventory_picklistdetail'	=> array('cascade_delete' => FALSE),
-		'm_inventory_inbounddetail'		=> array('cascade_delete' => FALSE)
+		'm_inventory_sampleinventory'	=> array('cascade_delete' => FALSE),
+		'm_inventory_waterinventory'	=> array('cascade_delete' => FALSE)
 	);
 	
     var $validation = array(

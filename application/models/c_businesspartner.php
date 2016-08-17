@@ -29,15 +29,7 @@ class C_businesspartner extends DataMapper {
 			'class'				=> 'a_asset_transferdetail',
 			'other_field'		=> 'c_businesspartner_userto',
 			'cascade_delete'	=> FALSE
-		),
-		'm_inventory'					=> array('cascade_delete' => FALSE),
-		'm_inventorylog'				=> array('cascade_delete' => FALSE),
-		'cus_m_inventory_inbounddetail'	=> array('cascade_delete' => FALSE),
-		'm_inventory_assemblysource'	=> array('cascade_delete' => FALSE),
-		'm_inventory_assemblytarget'	=> array('cascade_delete' => FALSE),
-		'm_inventory_invoice'			=> array('cascade_delete' => FALSE),
-		'm_inventory_picklistdetail'	=> array('cascade_delete' => FALSE),
-		'm_inventory_inbounddetail'		=> array('cascade_delete' => FALSE)
+		)
 	);
 	
     var $validation = array(

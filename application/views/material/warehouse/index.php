@@ -24,7 +24,7 @@ if (is_authorized('material/warehouse', 'delete')){?>
 if (is_authorized('material/warehouse', 'insert') && is_authorized('material/warehouse', 'update')){?>
 	<button id="material_warehouse_default_warehouse_btn" class="ui-button ui-widget ui-state-default ui-corner-all ui-button-text-icon-primary" role="button">
 		<span class="ui-button-icon-primary ui-icon ui-icon-plus"></span>
-		<span class="ui-button-text">Generate Default Warehouse</span>
+		<span class="ui-button-text">Generate Default Location</span>
 	</button>
 <?php
 }?>
@@ -53,7 +53,7 @@ jQuery(function(){
 			});
 		},
 		{
-			title : "Create Warehouse", 
+			title : "Create Location", 
 			width : 400
 		});
 	});
@@ -78,7 +78,7 @@ jQuery(function(){
 				});
 			},
 			{
-				title : "Edit Warehouse", 
+				title : "Edit Location", 
 				width : 400
 			});
 		}
@@ -167,13 +167,17 @@ function material_warehouse_list_load_table(table_id){
 			'',
 			'Id', 
 			'Code', 
-			'Name'
+			'Name',
+			'Address',
+			'Notes'
 		], 
 		colModel: [
 			{name:'act',index:'act', width:25, sortable:false, search:false},
 			{name:'id', index:'wh.id', key:true, hidden:true, frozen:true},
-			{name:'code', index:'wh.code', width:150, frozen:true, editable:true, editrules:{required:true}, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
-			{name:'name', index:'wh.name', width:400, editable:true, editrules:{required:true}, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}}
+			{name:'code', index:'wh.code', width:100, frozen:true, editable:true, editrules:{required:true}, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
+			{name:'name', index:'wh.name', width:200, editable:true, editrules:{required:true}, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
+			{name:'address', index:'wh.address', width:250, classes:'jqgrid-nowrap-cell', editable:true, edittype:'textarea', searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
+			{name:'notes', index:'wh.notes', width:250, classes:'jqgrid-nowrap-cell', editable:true, edittype:'textarea', searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}}
 		],
 		gridComplete: function(){
 			var ids = jQuery("#" + table_id).jqGrid('getDataIDs');
@@ -183,7 +187,7 @@ function material_warehouse_list_load_table(table_id){
 				
 				var el_id = 'material_warehouse_grid_' + id.toString() + '_btn';
 				jQuery("#" + table_id).jqGrid('setRowData', id, {
-					act : '<button id="' + el_id + '" data-value="' + id.toString() + '">Grid</button>'
+					act : '<button id="' + el_id + '" data-value="' + id.toString() + '">Detail</button>'
 				});
 				
 				jQuery('#' + el_id).button({
@@ -235,7 +239,7 @@ function material_warehouse_list_grid(m_warehouse_id){
 	},
 	null,
 	{
-		title : "Grid", 
+		title : "Detail", 
 		width : 900
 	});
 }

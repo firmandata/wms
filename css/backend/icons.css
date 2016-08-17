@@ -18,6 +18,10 @@
 	font-weight: bold;
 }
 
+.icon-bullet-16 > a {
+	background: url('../../img/icons/16/bullet.png') no-repeat;
+}
+
 .icon-home-16 > a {
 	background: url('../../img/icons/16/home.png') no-repeat;
 }
@@ -144,10 +148,6 @@
 
 .icon-shipment-16 > a {
 	background: url('../../img/icons/16/shipment.png') no-repeat;
-}
-
-.icon-invoice-16 > a {
-	background: url('../../img/icons/16/invoice.png') no-repeat;
 }
 
 .icon-report-16 > a {

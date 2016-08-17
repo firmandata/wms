@@ -1,5 +1,6 @@
 var jqgird_search_string_operators = ['bw','bn','eq','ne','lt','le','gt','ge','in','ni','ew','en','cn','nc'];
 var jqgird_search_date_operators = ['eq','ne','lt','le','gt','ge','in','ni'];
+var jqgird_search_time_operators = ['ge','gt','eq','ne','lt','le','in','ni'];
 var jqgird_search_datetime_operators = ['ge','gt','lt','le','eq','ne','in','ni'];
 var jqgird_search_number_operators = ['ge','gt','lt','le','eq','ne','in','ni'];
 var jqgrid_fixed_height = new Array;
@@ -142,6 +143,41 @@ function jqgrid_column_datetime(table_id, options)
 	return options;
 }
 
+function jqgrid_column_time(table_id, options)
+{
+	options = options || {};
+	
+	var defaults = { 
+		width : 80,
+		formatter : 'date',
+		align : 'center'
+	};
+	options = $.extend(defaults, options);
+	
+	options.formatoptions = options.formatoptions || {};
+	options.formatoptions = $.extend({
+		srcformat:server_time_format,
+		newformat:client_jqgrid_time_format
+	}, options.formatoptions);
+	
+	options.searchoptions = options.searchoptions || {};
+	options.searchoptions = $.extend({
+		sopt:jqgird_search_time_operators, 
+		clearSearch:false, 
+		dataInit:function(element){
+			jQuery(element)
+				.timepicker({
+					timeFormat: client_picker_time_format
+				})
+				.change(function(){
+					jQuery('#' + table_id)[0].triggerToolbar();
+				});
+		}
+	}, options.searchoptions);
+	
+	return options;
+}
+
 jQuery(window).resize(function()
 {
 	for (var _jqgrid_counter = 0; _jqgrid_counter < jqgrid_fixed_height.length; _jqgrid_counter++)
@@ -197,6 +233,12 @@ function jquery_ready_load()
 	jQuery(".datetime-nosecond").datetimepicker({
 		timeFormat: client_picker_time_nosecond_format
 	});
+	jQuery(".time").timepicker({
+		timeFormat: client_picker_time_format
+	});
+	jQuery(".time-nosecond").timepicker({
+		timeFormat: client_picker_time_nosecond_format
+	});
 }
 
 function jquery_search_date(element)
@@ -216,6 +258,13 @@ function jquery_search_datetime_nosecond(element)
 {
 	jQuery(element).datetimepicker({
 		timeFormat: client_picker_time_nosecond_format
+	});
+}
+
+function jquery_search_time(element)
+{
+	jQuery(element).timepicker({
+		timeFormat: client_picker_time_format
 	});
 }
 

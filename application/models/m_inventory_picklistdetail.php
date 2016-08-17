@@ -7,8 +7,7 @@ class M_inventory_picklistdetail extends DataMapper {
 		'm_inventory'			=> array('cascade_delete' => FALSE),
 		'm_grid'				=> array('cascade_delete' => FALSE),
 		'm_product'				=> array('cascade_delete' => FALSE),
-		'c_project'				=> array('cascade_delete' => FALSE),
-		'c_businesspartner'		=> array('cascade_delete' => FALSE)
+		'c_project'				=> array('cascade_delete' => FALSE)
 	);
 	
 	var $has_many = array(

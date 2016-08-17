@@ -502,17 +502,17 @@ class Lib_order extends Lib_general
 			{
 				$status = 'NO PICK LIST';
 			}
-			elseif (	$record->quantity_box == $record->ipld_quantity_box
+			elseif (	($record->quantity_box == $record->ipld_quantity_box || ($record->quantity_box == 0 && $record->ipld_quantity_box > 0))
 					&&	$record->quantity == $record->ipld_quantity)
 			{
 				$status = 'COMPLETE';
 			}
-			elseif (	$record->quantity_box != $record->ipld_quantity_box
+			elseif (	($record->quantity_box != $record->ipld_quantity_box && $record->quantity_box > 0 && $record->ipld_quantity_box > 0)
 					&&	$record->quantity != $record->ipld_quantity)
 			{
 				$status = 'INCOMPLETE';
 			}
-			elseif ($record->quantity_box != $record->ipld_quantity_box)
+			elseif ($record->quantity_box != $record->ipld_quantity_box && $record->quantity_box > 0 && $record->ipld_quantity_box > 0)
 			{
 				$status = 'INCOMPLETE BOX';
 			}

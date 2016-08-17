@@ -23,7 +23,7 @@ if (!empty($record))
 <?php
 }?>
 			<tr>
-				<th width="120">
+				<th width="100">
 					<label for="material_grid_form_m_productgroup_id_caption">Product Group</label>
 				</th>
 				<td><input type="hidden" name="m_productgroup_id" id="material_grid_form_m_productgroup_id" value="<?php echo (!empty($record) ? $record->m_productgroup_id : '');?>" data-text="<?php echo (!empty($record) ? $record->m_productgroup_text : '');?>"/></td>
@@ -78,6 +78,32 @@ echo form_dropdown('type', $grid_types, (!empty($record) ? $record->type : ''), 
 				</td>
 			</tr>
 			<tr>
+				<th><label for="material_grid_form_status">Status</label></th>
+				<td>
+<?php 
+echo form_dropdown('status', $grid_statuses, (!empty($record) ? $record->status : ''), 'id="material_grid_form_status"');?>
+				</td>
+			</tr>
+			<tr>
+				<th><label for="material_grid_form_notes">Notes</label></th>
+				<td>
+<?php 
+echo form_textarea(
+	array(
+		'name' 	=> 'notes',
+		'id' 	=> 'material_grid_form_notes',
+		'rows'	=> 3, 'cols' => 30,
+		'value'	=> (!empty($record) ? $record->notes : '')
+	)
+);?>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" align="center">
+					<strong>Size</strong>
+				</td>
+			<tr>
+			<tr>
 				<th><label for="material_grid_form_length">Length</label></th>
 				<td>
 <?php 
@@ -89,6 +115,7 @@ echo form_input(
 		'value'	=> (!empty($record) ? $record->length : '0')
 	)
 );?>
+					Meter
 				</td>
 			</tr>
 			<tr>
@@ -103,6 +130,23 @@ echo form_input(
 		'value'	=> (!empty($record) ? $record->width : '0')
 	)
 );?>
+					Meter
+				</td>
+			</tr>
+			<tr>
+				<th><label for="material_grid_form_size">Size</label></th>
+				<td>
+<?php 
+echo form_input(
+	array(
+		'name' 		=> 'size',
+		'id' 		=> 'material_grid_form_size',
+		'readonly'	=> 'readonly',
+		'class'		=> 'number',
+		'value'		=> (!empty($record) ? $record->length * $record->width : '0')
+	)
+);?>
+					Meter
 				</td>
 			</tr>
 			<tr>
@@ -117,13 +161,7 @@ echo form_input(
 		'value'	=> (!empty($record) ? $record->height : '0')
 	)
 );?>
-				</td>
-			</tr>
-			<tr>
-				<th><label for="material_grid_form_status">Status</label></th>
-				<td>
-<?php 
-echo form_dropdown('status', $grid_statuses, (!empty($record) ? $record->status : ''), 'id="material_grid_form_status"');?>
+					Meter
 				</td>
 			</tr>
 		</tbody>
@@ -158,6 +196,11 @@ jQuery(function(){
 	},
 	{
 		autoFocus : false
+	});
+
+	jQuery("#material_grid_form_length,#material_grid_form_width").change(function() {
+		var size = parseFloat(jQuery("#material_grid_form_length").val()) * parseFloat(jQuery("#material_grid_form_width").val());
+		jQuery("#material_grid_form_size").val(size.toFixed(4));
 	});
 });
 

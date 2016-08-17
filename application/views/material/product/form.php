@@ -1,5 +1,6 @@
 <?php
 $product_uoms = array_merge(array('' => ''), $this->config->item('product_uoms'));
+$product_casings = array_merge(array('' => ''), $this->config->item('product_casings'));
 $product_origins = array_merge(array('' => ''), $this->config->item('product_origins'));
 $product_types = array_merge(array('' => ''), $this->config->item('product_types'));
 
@@ -16,19 +17,16 @@ echo form_open($form_action.(!empty($record) ? '/'.$record->id : ''),
 			<li><a href="#material_product_form_tab_category">Select Category</a></li>
 		</ul>
 		<div id="material_product_form_tab_general">
-			<table>
-				<tr>
-					<td valign="top">
-						<table class="form-table">
-							<thead>
-								<tr>
-									<td colspan="2" class="form-table-title">Information</td>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<th width="100"><label for="material_product_form_code">Code</label></th>
-									<td>
+			<table class="form-table">
+				<thead>
+					<tr>
+						<td colspan="2" class="form-table-title">Information</td>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<th width="120"><label for="material_product_form_code">Code</label></th>
+						<td>
 <?php 
 echo form_input(
 	array(
@@ -38,11 +36,11 @@ echo form_input(
 		'value'	=> (!empty($record) ? $record->code : '')
 	)
 );?>
-									</td>
-								</tr>
-								<tr>
-									<th><label for="material_product_form_name">Name</label></th>
-									<td>
+						</td>
+					</tr>
+					<tr>
+						<th><label for="material_product_form_name">Name</label></th>
+						<td>
 <?php 
 echo form_input(
 	array(
@@ -52,22 +50,22 @@ echo form_input(
 		'value'	=> (!empty($record) ? $record->name : '')
 	)
 );?>
-									</td>
-								</tr>
-								<tr>
-									<th><label for="material_product_form_m_productgroup_id_caption">Zone</label></th>
-									<td><input type="hidden" name="m_productgroup_id" id="material_product_form_m_productgroup_id" value="<?php echo (!empty($record) ? $record->m_productgroup_id : '');?>" data-text="<?php echo (!empty($record) ? $record->m_productgroup_text : '');?>"/></td>
-								</tr>
-								<tr>
-									<th><label for="material_product_form_uom">UOM</label></th>
-									<td>
+						</td>
+					</tr>
+					<tr>
+						<th><label for="material_product_form_m_productgroup_id_caption">Zone</label></th>
+						<td><input type="hidden" name="m_productgroup_id" id="material_product_form_m_productgroup_id" value="<?php echo (!empty($record) ? $record->m_productgroup_id : '');?>" data-text="<?php echo (!empty($record) ? $record->m_productgroup_text : '');?>" class="required" /></td>
+					</tr>
+					<tr>
+						<th><label for="material_product_form_uom">UOM</label></th>
+						<td>
 <?php 
 echo form_dropdown('uom', $product_uoms, (!empty($record) ? $record->uom : ''), 'id="material_product_form_uom"');?>
-									</td>
-								</tr>
-								<tr>
-									<th><label for="material_product_form_pack">Pack</label></th>
-									<td>
+						</td>
+					</tr>
+					<tr>
+						<th><label for="material_product_form_pack">Pack</label></th>
+						<td>
 <?php 
 echo form_input(
 	array(
@@ -77,25 +75,32 @@ echo form_input(
 		'value'	=> (!empty($record) ? $record->pack : '0')
 	)
 );?>
-									</td>
-								</tr>
-								<tr>
-									<th><label for="material_product_form_origin">Origin</label></th>
-									<td>
+						</td>
+					</tr>
+					<tr>
+						<th><label for="material_product_form_casing">Casing</label></th>
+						<td>
+<?php 
+echo form_dropdown('casing', $product_casings, (!empty($record) ? $record->casing : ''), 'id="material_product_form_casing"');?>
+						</td>
+					</tr>
+					<tr>
+						<th><label for="material_product_form_origin">Origin</label></th>
+						<td>
 <?php 
 echo form_dropdown('origin', $product_origins, (!empty($record) ? $record->origin : ''), 'id="material_product_form_origin"');?>
-									</td>
-								</tr>
-								<tr>
-									<th><label for="material_product_form_type">Type</label></th>
-									<td>
+						</td>
+					</tr>
+					<tr>
+						<th><label for="material_product_form_type">Type</label></th>
+						<td>
 <?php 
 echo form_dropdown('type', $product_types, (!empty($record) ? $record->type : ''), 'id="material_product_form_type"');?>
-									</td>
-								</tr>
-								<tr>
-									<th><label for="material_product_form_brand">Brand</label></th>
-									<td>
+						</td>
+					</tr>
+					<tr>
+						<th><label for="material_product_form_brand">Brand</label></th>
+						<td>
 <?php 
 echo form_input(
 	array(
@@ -104,11 +109,11 @@ echo form_input(
 		'value'	=> (!empty($record) ? $record->brand : '')
 	)
 );?>
-									</td>
-								</tr>
-								<tr>
-									<th><label for="material_product_form_netto">Netto</label></th>
-									<td>
+						</td>
+					</tr>
+					<tr>
+						<th><label for="material_product_form_netto">Netto</label></th>
+						<td>
 <?php 
 echo form_input(
 	array(
@@ -118,11 +123,11 @@ echo form_input(
 		'value'	=> (!empty($record) ? $record->netto : '0')
 	)
 );?>
-									</td>
-								</tr>
-								<tr>
-									<th><label for="material_product_form_minimum_stock">Minimum Stock</label></th>
-									<td>
+						</td>
+					</tr>
+					<tr>
+						<th><label for="material_product_form_minimum_stock">Minimum Stock</label></th>
+						<td>
 <?php 
 echo form_input(
 	array(
@@ -132,11 +137,11 @@ echo form_input(
 		'value'	=> (!empty($record) ? $record->minimum_stock : '0')
 	)
 );?>
-									</td>
-								</tr>
-								<tr>
-									<th><label for="material_product_form_price">Price</label></th>
-									<td>
+						</td>
+					</tr>
+					<tr>
+						<th><label for="material_product_form_price">Price</label></th>
+						<td>
 <?php 
 echo form_input(
 	array(
@@ -146,68 +151,9 @@ echo form_input(
 		'value'	=> (!empty($record) ? $record->price : '0')
 	)
 );?>
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</td>
-					<td valign="top">
-						<table class="form-table">
-							<thead>
-								<tr>
-									<td colspan="2" class="form-table-title">Volume</td>
-								</tr>
-							</thead>
-							<tbody>
-								<tr>
-									<th width="100"><label for="material_product_form_volume_length">Length</label></th>
-									<td>
-<?php 
-echo form_input(
-	array(
-		'name' 	=> 'volume_length',
-		'id' 	=> 'material_product_form_volume_length',
-		'class'	=> 'required number',
-		'value'	=> (!empty($record) ? $record->volume_length : '0')
-	)
-);?>
-										meter
-									</td>
-								</tr>
-								<tr>
-									<th><label for="material_product_form_volume_width">Width</label></th>
-									<td>
-<?php 
-echo form_input(
-	array(
-		'name' 	=> 'volume_width',
-		'id' 	=> 'material_product_form_volume_width',
-		'class'	=> 'required number',
-		'value'	=> (!empty($record) ? $record->volume_width : '0')
-	)
-);?>
-										meter
-									</td>
-								</tr>
-								<tr>
-									<th><label for="material_product_form_volume_height">Height</label></th>
-									<td>
-<?php 
-echo form_input(
-	array(
-		'name' 	=> 'volume_height',
-		'id' 	=> 'material_product_form_volume_height',
-		'class'	=> 'required number',
-		'value'	=> (!empty($record) ? $record->volume_height : '0')
-	)
-);?>
-										meter
-									</td>
-								</tr>
-							</tbody>
-						</table>
-					</td>
-				</tr>
+						</td>
+					</tr>
+				</tbody>
 			</table>
 		</div>
 		<div id="material_product_form_tab_scan_config">

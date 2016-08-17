@@ -63,7 +63,6 @@ class Inventory_inbound extends MY_Controller
 			->select("iid.id, iid.barcode, iid.quantity, iid.pallet, iid.carton_no, iid.packed_date, iid.expired_date, iid.lot_no, iid.condition")
 			->select("iid.m_product_id, pro.code product_code, pro.name product_name, pro.uom product_uom")
 			->select("iid.m_grid_id, gri.code grid_code")
-			->select("iid.volume_length, iid.volume_width, iid.volume_height")
 			->select("iid.created")
 			->from('cus_m_inventory_inbounddetails iid')
 			->join('m_products pro', "pro.id = iid.m_product_id")
@@ -89,7 +88,6 @@ class Inventory_inbound extends MY_Controller
 		
 		$this->db
 			->select("id, code value, code label")
-			->select("volume_length, volume_width, volume_height")
 			->from('m_products');
 		
 		if ($keywords)
@@ -155,9 +153,6 @@ class Inventory_inbound extends MY_Controller
 		$data->quantity = $this->input->post('quantity');
 		$data->carton_no = $this->input->post('carton_no');
 		$data->lot_no = $this->input->post('lot_no');
-		$data->volume_length = $this->input->post('volume_length');
-		$data->volume_width = $this->input->post('volume_width');
-		$data->volume_height = $this->input->post('volume_height');
 		$data->condition = $this->input->post('condition');
 		if ($this->input->post('packed_date') !== NULL)
 		{
@@ -191,10 +186,7 @@ class Inventory_inbound extends MY_Controller
 				array('field' => 'barcode', 'label' => 'Barcode', 'rules' => 'required'),
 				array('field' => 'quantity', 'label' => 'Quantity', 'rules' => 'numeric|required'),
 				array('field' => 'pallet', 'label' => 'Pallet', 'rules' => 'required'),
-				array('field' => 'carton_no', 'label' => 'Carton No', 'rules' => 'required'),
-				array('field' => 'volume_length', 'label' => 'Length', 'rules' => 'numeric|required'),
-				array('field' => 'volume_width', 'label' => 'Width', 'rules' => 'numeric|required'),
-				array('field' => 'volume_height', 'label' => 'Height', 'rules' => 'numeric|required')
+				array('field' => 'carton_no', 'label' => 'Carton No', 'rules' => 'required')
 			)
 		);
 	}
@@ -220,7 +212,6 @@ class Inventory_inbound extends MY_Controller
 			->select("iid.barcode, iid.quantity, iid.pallet, iid.carton_no, iid.packed_date, iid.expired_date, iid.lot_no, iid.condition")
 			->select("pro.code product_code, pro.name product_name, pro.uom product_uom")
 			->select("gri.code grid_code")
-			->select("iid.volume_length, iid.volume_width, iid.volume_height")
 			->select("iid.created")
 			->from('cus_m_inventory_inbounddetails iid')
 			->join('m_products pro', "pro.id = iid.m_product_id")
@@ -248,9 +239,6 @@ class Inventory_inbound extends MY_Controller
 			'expired_date' 	=> 'Expired Date',
 			'grid_code' 	=> 'Grid',
 			'lot_no' 		=> 'Lot No',
-			'volume_length'	=> 'Length',
-			'volume_width'	=> 'Width',
-			'volume_height'	=> 'Height',
 			'condition' 	=> 'Condition',
 			'created' 		=> 'Scan Date'
 		);

@@ -113,14 +113,3 @@ if ( ! function_exists('date_to_spelling_bahasa'))
 		);
 	}
 }
-
-if ( ! function_exists('date_diff_by_day'))
-{
-	function date_diff_by_day($from, $to)
-	{
-		$to_time = strtotime($to);
-		$from_time = strtotime($from);
-		$time_diff = $to_time - $from_time;
-		return floor($time_diff / (60 * 60 * 24));
-	}
-}

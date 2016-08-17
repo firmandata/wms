@@ -81,6 +81,16 @@
 				return this.optional(element) || check;
 			}, "Please enter a valid date");
 			
+			jQuery.validator.addMethod("time", function(value, element) {
+				var check = isDate(value, client_validate_time_format);
+				return this.optional(element) || check;
+			}, "Please enter a valid time");
+			
+			jQuery.validator.addMethod("time-nosecond", function(value, element) {
+				var check = isDate(value, client_validate_time_nosecond_format);
+				return this.optional(element) || check;
+			}, "Please enter a valid time");
+			
 			jQuery(document).ready(function(){
 				left_menu_fixed_height();
 			});

@@ -62,11 +62,14 @@
 			<th class="ui-state-default" rowspan="2">Project</th>
 			<th class="ui-state-default" rowspan="2">Product Code</th>
 			<th class="ui-state-default" rowspan="2">Product Name</th>
-			<th class="ui-state-default" colspan="3">Box</th>
+			<th class="ui-state-default" colspan="3">Qty Case</th>
+			<th class="ui-state-default" rowspan="2">Netto / Pack</th>
+			<th class="ui-state-default" colspan="3">Qty Total</th>
 			<th class="ui-state-default" rowspan="2">UOM</th>
-			<th class="ui-state-default" colspan="3">Quantity</th>
 			<th class="ui-state-default" rowspan="2">Inbound Status</th>
 			<th class="ui-state-default" rowspan="2">Condition</th>
+			<th class="ui-state-default" rowspan="2">Location</th>
+			<th class="ui-state-default" rowspan="2">Supervisor</th>
 			<th class="ui-state-default" rowspan="2">Notes</th>
 		</tr>
 		<tr>
@@ -102,12 +105,15 @@ foreach ($m_inventory_receivedetails as $m_inventory_receivedetail_idx=>$m_inven
 			<td class="ui-widget-content" align="right"><?php echo number_format_clear($m_inventory_receivedetail->quantity_box_used);?></td>
 			<td class="ui-widget-content" align="right"><?php echo number_format_clear($m_inventory_receivedetail->quantity_box - $m_inventory_receivedetail->quantity_box_used);?></td>
 			<td class="ui-widget-content" align="right"><?php echo number_format_clear($m_inventory_receivedetail->quantity_box);?></td>
-			<td class="ui-widget-content"><?php echo $m_inventory_receivedetail->m_product_uom;?></td>
+			<td class="ui-widget-content"><?php echo $m_inventory_receivedetail->m_product_pack;?></td>
 			<td class="ui-widget-content" align="right"><?php echo number_format_clear($m_inventory_receivedetail->quantity_used, 4);?></td>
 			<td class="ui-widget-content" align="right"><?php echo number_format_clear($m_inventory_receivedetail->quantity - $m_inventory_receivedetail->quantity_used, 4);?></td>
 			<td class="ui-widget-content" align="right"><?php echo number_format_clear($m_inventory_receivedetail->quantity, 4);?></td>
+			<td class="ui-widget-content"><?php echo $m_inventory_receivedetail->m_product_uom;?></td>
 			<td style="background-color:<?php echo $color;?>; font-weight:bold;" align="center"><?php echo $m_inventory_receivedetail->status_inventory_inbound;?></td>
 			<td class="ui-widget-content"><?php echo $m_inventory_receivedetail->condition;?></td>
+			<td class="ui-widget-content"><?php echo $m_inventory_receivedetail->m_grid_code;?></td>
+			<td class="ui-widget-content"><?php echo $m_inventory_receivedetail->supervisor;?></td>
 			<td class="ui-widget-content"><?php echo $m_inventory_receivedetail->notes;?></td>
 		</tr>
 <?php

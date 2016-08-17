@@ -10,6 +10,7 @@ class M_grid extends DataMapper {
 		'm_inventory_inbounddetail'			=> array('cascade_delete' => FALSE),
 		'cus_m_inventory_inbounddetail'		=> array('cascade_delete' => FALSE),
 		'm_inventory'						=> array('cascade_delete' => FALSE),
+		'm_inventory_receivedetail'			=> array('cascade_delete' => FALSE),
 		'm_inventory_putawaydetail_from'	=> array(
 			'class'				=> 'm_inventory_putawaydetail',
 			'other_field'		=> 'm_gridfrom',
@@ -36,7 +37,13 @@ class M_grid extends DataMapper {
 		'cus_m_inventory_forecastdetail'	=> array('cascade_delete' => FALSE),
 		'cus_m_grid_usage'					=> array('cascade_delete' => FALSE),
 		'm_inventory_assemblysource'		=> array('cascade_delete' => FALSE),
-		'm_inventory_assemblytarget'		=> array('cascade_delete' => FALSE)
+		'm_inventory_assemblytarget'		=> array('cascade_delete' => FALSE),
+		'm_inventory_balancedetail'			=> array('cascade_delete' => FALSE),
+		'm_inventory_picklist'				=> array('cascade_delete' => FALSE),
+		'm_inventory_sampledetail'			=> array('cascade_delete' => FALSE),
+		'm_inventory_sampleinventory'		=> array('cascade_delete' => FALSE),
+		'm_inventory_waterdetail'			=> array('cascade_delete' => FALSE),
+		'm_inventory_waterinventory'		=> array('cascade_delete' => FALSE)
 	);
 	
     var $validation = array(
@@ -48,7 +55,7 @@ class M_grid extends DataMapper {
             'label' => 'Code',
             'rules' => array('required', 'unique', 'trim', 'max_length' => 12)
         ),
-        'row' => array(
+		'row' => array(
             'label' => 'Row',
             'rules' => array('required')
         ),

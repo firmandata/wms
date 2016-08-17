@@ -1,6 +1,4 @@
 <?php 
-$orderout_origins = array_merge(array('' => ''), $this->config->item('orderout_origins'));
-
 echo form_open($form_action.(!empty($record) ? '/'.$record->id : ''),
 	array(
 		'name'	=> 'core_orderout_form',
@@ -19,9 +17,10 @@ echo form_input(
 	array(
 		'name' 	=> 'code',
 		'id' 	=> 'core_orderout_form_code',
-		'class'	=> 'required',
+		'class'	=> (!empty($record) ? 'required' : ''),
 		'style'	=> 'width:120px;',
-		'value'	=> (!empty($record) ? $record->code : '')
+		'value'	=> (!empty($record) ? $record->code : ''),
+		'placeholder'	=> '## Auto ##'
 	)
 );?>
 						</td>
@@ -41,21 +40,6 @@ echo form_input(
 		'class'	=> 'required date',
 		'style'	=> 'width:75px;',
 		'value'	=> (!empty($record->orderout_date) ? date($this->config->item('server_display_date_format'), strtotime($record->orderout_date)) : '')
-	)
-);?>
-						</td>
-					</tr>
-					<tr>
-						<th><label for="core_orderout_form_request_arrive_date">Request Arrival Date</label></th>
-						<td>
-<?php 
-echo form_input(
-	array(
-		'name' 	=> 'request_arrive_date',
-		'id' 	=> 'core_orderout_form_request_arrive_date',
-		'class'	=> 'date',
-		'style'	=> 'width:75px;',
-		'value'	=> (!empty($record->request_arrive_date) ? date($this->config->item('server_display_date_format'), strtotime($record->request_arrive_date)) : '')
 	)
 );?>
 						</td>
@@ -85,13 +69,6 @@ echo form_textarea(
 						<td><input type="hidden" name="c_project_id" id="core_orderout_form_c_project_id" class="required" value="<?php echo (!empty($record) ? $record->c_project_id : '');?>" data-text="<?php echo (!empty($record) ? $record->c_project_text : '');?>"/></td>
 					</tr>
 					<tr>
-						<th><label for="core_orderout_form_origin">Origin</label></th>
-						<td>
-<?php 
-echo form_dropdown('origin', $orderout_origins, (!empty($record) ? $record->origin : ''), 'id="core_orderout_form_origin"');?>
-						</td>
-					</tr>
-					<tr>
 						<th><label for="core_orderout_form_external_no">External No</label></th>
 						<td>
 <?php 
@@ -105,27 +82,16 @@ echo form_input(
 						</td>
 					</tr>
 					<tr>
-						<th><label for="core_orderout_form_no_surat_jalan">No Surat Jalan</label></th>
+						<th><label for="core_orderout_form_estimation_harvest_time">Harvest Estimation</label></th>
 						<td>
 <?php 
 echo form_input(
 	array(
-		'name' 	=> 'no_surat_jalan',
-		'id' 	=> 'core_orderout_form_no_surat_jalan',
-		'value'	=> (!empty($record) ? $record->no_surat_jalan : '')
-	)
-);?>
-						</td>
-					</tr>
-					<tr>
-						<th><label for="core_orderout_form_marketing_unit">Marketing Unit</label></th>
-						<td>
-<?php 
-echo form_input(
-	array(
-		'name' 	=> 'marketing_unit',
-		'id' 	=> 'core_orderout_form_marketing_unit',
-		'value'	=> (!empty($record) ? $record->marketing_unit : '')
+		'name' 	=> 'estimation_harvest_time',
+		'id' 	=> 'core_orderout_form_estimation_harvest_time',
+		'class'	=> 'date',
+		'style'	=> 'width:75px;',
+		'value'	=> (!empty($record->estimation_harvest_time) ? date($this->config->item('server_display_date_format'), strtotime($record->estimation_harvest_time)) : '')
 	)
 );?>
 						</td>
@@ -141,15 +107,18 @@ echo form_input(
 		<tr>
 			<th class="ui-state-default ui-corner-tl" width="22px">&nbsp;</th>
 			<th class="ui-state-default">Product</th>
-			<th class="ui-state-default">Box</th>
+			<th class="ui-state-default">Size</th>
+			<th class="ui-state-default">UOM</th>
+			<th class="ui-state-default">Price</th>
 			<th class="ui-state-default">Quantity</th>
+			<th class="ui-state-default">Total Amount</th>
 			<th class="ui-state-default">Notes</th>
 		</tr>
 	</thead>
 	<tbody></tbody>
 	<tfoot>
 		<tr>
-			<td colspan="5" class="ui-state-default ui-corner-bl ui-corner-br">
+			<td colspan="8" class="ui-state-default ui-corner-bl ui-corner-br">
 				<button id="core_orderout_orderoutdetail_list_table_add" class="table-data-button">Add</button>
 			</td>
 		</tr>
@@ -200,7 +169,10 @@ jQuery(function(){
 	.click(function(e){
 		e.preventDefault();
 		core_orderout_form_orderoutdetail_add(
-			null, null, null, 0, 1, 1, null
+			null,
+			null, null, null, null, null, null, null,
+			0, 0, 0,
+			null
 		);
 		
 		jQuery('#core_orderout_form_detail_m_product_id_' + core_orderout_orderoutdetail_row_id.toString() + '_caption').focus();
@@ -208,7 +180,10 @@ jQuery(function(){
 	
 	jQuery.each(<?php echo !empty($c_orderoutdetails) ? json_encode($c_orderoutdetails) : '[]';?>, function(orderoutdetail_idx, orderoutdetail){
 		core_orderout_form_orderoutdetail_add(
-			orderoutdetail.id, orderoutdetail.m_product_id, orderoutdetail.m_product_text, orderoutdetail.m_product_netto, orderoutdetail.quantity_box, orderoutdetail.quantity, orderoutdetail.notes
+			orderoutdetail.id,
+			orderoutdetail.m_product_id, orderoutdetail.m_product_text, orderoutdetail.m_product_netto, orderoutdetail.m_product_pack, orderoutdetail.m_product_type, orderoutdetail.m_product_casing, orderoutdetail.m_product_uom,
+			orderoutdetail.size, orderoutdetail.price, orderoutdetail.quantity,
+			orderoutdetail.notes
 		);
 	});
 	
@@ -216,14 +191,20 @@ jQuery(function(){
 if (empty($c_orderoutdetails))
 {?>
 	core_orderout_form_orderoutdetail_add(
-		null, null, null, 0, 1, 1, null
+		null,
+		null, null, null, null, null, null, null,
+		0, 0, 0,
+		null
 	);
 <?php
 }?>
 });
 
 function core_orderout_form_orderoutdetail_add(
-	id, m_product_id, m_product_text, m_product_netto, quantity_box, quantity, notes
+	id, 
+	m_product_id, m_product_text, m_product_netto, m_product_pack, m_product_type, m_product_casing, m_product_uom,
+	size, price, quantity,
+	notes
 ){
 	core_orderout_orderoutdetail_row_id++;
 	
@@ -245,24 +226,35 @@ function core_orderout_form_orderoutdetail_add(
 			).append(
 				$("<input>", {type:'hidden', name:'c_orderoutdetails[' + core_orderout_orderoutdetail_row_id.toString() + '][m_product_id]', id:'core_orderout_form_detail_m_product_id_' + core_orderout_orderoutdetail_row_id.toString(), 'class':'required'})
 					.val(m_product_id).attr('data-text', m_product_text)
-			).append(
-				$("<input>", {type:'hidden', name:'c_orderoutdetails[' + core_orderout_orderoutdetail_row_id.toString() + '][m_product_netto]', id:'core_orderout_form_detail_m_product_netto_' + core_orderout_orderoutdetail_row_id.toString()})
-					.val(m_product_netto)
 			)
 		).append(
 			$("<td>", {'class':'ui-widget-content', 'align':'center'}).append(
-				$("<input>", {type:'text', name:'c_orderoutdetails[' + core_orderout_orderoutdetail_row_id.toString() + '][quantity_box]', id:'core_orderout_form_detail_quantity_box_' + core_orderout_orderoutdetail_row_id.toString(), 'class':'required number'})
+				$("<input>", {type:'text', name:'c_orderoutdetails[' + core_orderout_orderoutdetail_row_id.toString() + '][size]', id:'core_orderout_form_detail_size_' + core_orderout_orderoutdetail_row_id.toString(), 'class':'required number'})
+					.width(40).val(size).css('text-align', 'right')
+			)
+		).append(
+			$("<td>", {'class':'ui-widget-content', 'align':'center', id:'core_orderout_form_detail_m_product_uom_' + core_orderout_orderoutdetail_row_id.toString()})
+				.text(m_product_uom)
+		).append(
+			$("<td>", {'class':'ui-widget-content', 'align':'center'}).append(
+				$("<input>", {type:'text', name:'c_orderoutdetails[' + core_orderout_orderoutdetail_row_id.toString() + '][price]', id:'core_orderout_form_detail_price_' + core_orderout_orderoutdetail_row_id.toString(), 'class':'required number'})
 					.attr('data-index', core_orderout_orderoutdetail_row_id)
-					.width(40).val(quantity_box).css('text-align', 'right')
+					.width(70).val(price).css('text-align', 'right')
 					.change(function(){
-						core_orderout_form_quantity_calculate(jQuery(this).attr('data-index'));
+						core_orderout_form_amount_total_calculate(jQuery(this).attr('data-index'));
 					})
 			)
 		).append(
 			$("<td>", {'class':'ui-widget-content', 'align':'center'}).append(
 				$("<input>", {type:'text', name:'c_orderoutdetails[' + core_orderout_orderoutdetail_row_id.toString() + '][quantity]', id:'core_orderout_form_detail_quantity_' + core_orderout_orderoutdetail_row_id.toString(), 'class':'required number'})
+					.attr('data-index', core_orderout_orderoutdetail_row_id)
 					.width(40).val(quantity).css('text-align', 'right')
+					.change(function(){
+						core_orderout_form_amount_total_calculate(jQuery(this).attr('data-index'));
+					})
 			)
+		).append(
+			$("<td>", {'class':'ui-widget-content', 'align':'right', id:'core_orderout_form_detail_total_amount_' + core_orderout_orderoutdetail_row_id.toString()})
 		).append(
 			$("<td>", {'class':'ui-widget-content', 'align':'center'}).append(
 				$("<input>", {type:'text', name:'c_orderoutdetails[' + core_orderout_orderoutdetail_row_id.toString() + '][notes]', id:'core_orderout_form_detail_notes_' + core_orderout_orderoutdetail_row_id.toString()})
@@ -272,36 +264,33 @@ function core_orderout_form_orderoutdetail_add(
 	);
 	
 	core_orderout_form_select(core_orderout_orderoutdetail_row_id);
+	core_orderout_form_amount_total_calculate(core_orderout_orderoutdetail_row_id)
 }
 
 function core_orderout_form_select(idx){
 	jquery_autocomplete_build('#core_orderout_form_detail_m_product_id_' + idx.toString(), "<?php echo site_url('core/orderout/get_product_autocomplete_list_json');?>", {
-		width : 350
+		width : 300
 	}, {
 		change: function(event, ui){
 			if (ui.item == null)
 			{
 				$(this).val('');
 				$('#core_orderout_form_detail_m_product_id_' + idx.toString()).val('');
-				$('#core_orderout_form_detail_m_product_netto_' + idx.toString()).val(0);
+				$('#core_orderout_form_detail_m_product_uom_' + idx.toString()).text('');
 			}
 			else
 			{
 				$('#core_orderout_form_detail_m_product_id_' + idx.toString()).val(ui.item.id);
-				$('#core_orderout_form_detail_m_product_netto_' + idx.toString()).val(ui.item.netto);
+				$('#core_orderout_form_detail_m_product_uom_' + idx.toString()).text(ui.item.uom);
 			}
-			core_orderout_form_quantity_calculate(idx);
 		}
 	});
 }
 
-function core_orderout_form_quantity_calculate(idx){
-	var netto = parseFloat($('#core_orderout_form_detail_m_product_netto_' + idx.toString()).val());
-	if (netto > 0)
-	{
-		var quantity_box = parseFloat($('#core_orderout_form_detail_quantity_box_' + idx.toString()).val());
-		$('#core_orderout_form_detail_quantity_' + idx.toString()).val(netto * quantity_box);
-	}
+function core_orderout_form_amount_total_calculate(idx){
+	var quantity = parseFloat($('#core_orderout_form_detail_quantity_' + idx.toString()).val());
+	var price = parseFloat($('#core_orderout_form_detail_price_' + idx.toString()).val());
+	$('#core_orderout_form_detail_total_amount_' + idx.toString()).text(quantity * price);
 }
 
 function core_orderout_form_submit(on_success){

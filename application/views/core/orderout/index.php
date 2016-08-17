@@ -1,7 +1,6 @@
 <?php
 $this->load->helper('date');
 
-$orderout_origins = array_merge(array('' => ''), $this->config->item('orderout_origins'));
 $status_inventory_picklist = array_merge(array('' => ''), $this->config->item('status_inventory_picklist'));?>
 
 <div class="content-right-header-toolbar ui-state-default ui-corner-bottom ui-helper-clearfix">
@@ -101,7 +100,7 @@ jQuery(document).ready(function(){
 		},
 		{
 			title : "Create Order Out", 
-			width : 730,
+			width : 900,
 			height: 600
 		});
 	});
@@ -127,7 +126,7 @@ jQuery(document).ready(function(){
 			},
 			{
 				title : "Edit Order Out", 
-				width : 730,
+				width : 900,
 				height: 600
 			});
 		}
@@ -243,13 +242,10 @@ function core_orderout_list_load_table(table_id){
 			'No', 
 			'Business Partner', 
 			'External No',
-			'No Surat Jln',
 			'Date',
-			'Request Arrival',
+			'Harvest Estimation',
 			'Pick List Status',
-			'Project',
-			'Origin',
-			'Marketing Unit'
+			'Project'
 		], 
 		colModel: [
 			{name:'id', index:'oo.id', key:true, hidden:true, frozen:true},
@@ -260,9 +256,8 @@ function core_orderout_list_load_table(table_id){
 			},
 			{name:'c_businesspartner_name', index:'bp.name', width:180, frozen:true, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			{name:'external_no', index:'oo.external_no', width:90, frozen:true, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
-			{name:'no_surat_jalan', index:'oo.no_surat_jalan', width:90, frozen:true, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			jqgrid_column_date(table_id, {name:'orderout_date', index:'oo.orderout_date'}),
-			jqgrid_column_date(table_id, {name:'request_arrive_date', index:'oo.request_arrive_date'}),
+			jqgrid_column_date(table_id, {name:'estimation_harvest_time', index:'oo.estimation_harvest_time'}),
 			{name:'status_inventory_picklist', index:'oo.status_inventory_picklist', width:110, align:'center', 
 			 stype:'select', searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false, value:<?php echo json_encode($status_inventory_picklist);?>},
 			 cellattr: function(rowId, val, rawObject, cm, rdata){
@@ -281,11 +276,7 @@ function core_orderout_list_load_table(table_id){
 					return;
 			 }
 			},
-			{name:'c_project_name', index:'prj.name', width:150, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
-			{name:'origin', index:'oo.origin', width:100,
-			 stype:'select', searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false, value:<?php echo json_encode($orderout_origins);?>}
-			},
-			{name:'marketing_unit', index:'oo.marketing_unit', width:120, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}}
+			{name:'c_project_name', index:'prj.name', width:150, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}}
 		],
 		pager: '#' + table_id + '_nav', 
 		sortname: 'oo.orderout_date', 
@@ -332,7 +323,7 @@ function core_orderout_list_detail(id){
 	}, null,
 	{
 		title : "Order Out", 
-		width : 750
+		width : 900
 	});
 }
 </script>

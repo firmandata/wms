@@ -47,7 +47,8 @@ function material_inventory_summary_list_load_table(table_id){
 			'Product Id', 
 			'Product Code', 
 			'Product Name',
-			'Grid',
+			'Location',
+			'Price Buy',
 			'Exist',
 			'Allocated',
 			'Picked',
@@ -57,8 +58,8 @@ function material_inventory_summary_list_load_table(table_id){
 			'Picked',
 			'Onhand',
 			'Pallet',
+			'Size',
 			'Age',
-			'Business Partner',
 			'Project'
 		], 
 		colModel: [
@@ -66,6 +67,7 @@ function material_inventory_summary_list_load_table(table_id){
 			{name:'m_product_code', index:'pro.code', width:90, frozen:true, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			{name:'m_product_name', index:'pro.name', width:150, frozen:true, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			{name:'m_grid_code', index:'grd.code', width:90, frozen:true, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
+			{name:'price_buy', index:'inv.price_buy', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
 			{name:'quantity_box_exist', index:'quantity_box_exist', width:80, formatter:'number', formatoptions:{decimalPlaces: 0}, align:'right', search:false},
 			{name:'quantity_box_allocated', index:'quantity_box_allocated', width:80, formatter:'number', formatoptions:{decimalPlaces: 0}, align:'right', search:false},
 			{name:'quantity_box_picked', index:'quantity_box_picked', width:80, formatter:'number', formatoptions:{decimalPlaces: 0}, align:'right', search:false},
@@ -75,8 +77,8 @@ function material_inventory_summary_list_load_table(table_id){
 			{name:'quantity_picked', index:'quantity_picked', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', search:false},
 			{name:'quantity_onhand', index:'quantity_onhand', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', search:false},
 			{name:'pallet', index:'inv.pallet', width:120, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
+			{name:'product_size', index:'inv.product_size', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
 			{name:'inventory_age', index:'inventory_age', width:80, formatter:'number', formatoptions:{decimalPlaces: 0}, align:'right', search:false},
-			{name:'c_businesspartner_name', index:'bp.name', width:120, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			{name:'c_project_name', index:'prj.name', width:120, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}}
 		],
 		pager: '#' + table_id + '_nav'

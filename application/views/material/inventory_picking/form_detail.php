@@ -212,7 +212,7 @@ function material_inventory_picking_detail_ref_list_load_table(table_id){
 			{name:'quantity_box', index:'quantity_box', width:70, formatter:'number', formatoptions:{decimalPlaces: 0}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
 			{name:'quantity', index:'quantity', width:90, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
 			{name:'c_businesspartner_name', index:'bp.name', width:180, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
-			jqgrid_column_date(table_id, {name:'c_orderout_date', index:'oo.orderout_date'}),
+			jqgrid_column_date(table_id, {name:'c_orderout_orderout_date', index:'oo.orderout_date'}),
 			jqgrid_column_date(table_id, {name:'c_orderout_request_arrive_date', index:'oo.request_arrive_date'}),
 			{name:'c_project_name', index:'prj.name', width:150, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}}
 		],
@@ -347,7 +347,6 @@ function material_inventory_picking_detail_list_remove(table_id, id){
 				m_inventory_picklist_id	: row_data.m_inventory_picklist_id,
 				m_product_id			: row_data.m_product_id,
 				m_grid_id				: row_data.m_grid_id,
-				c_businesspartner_id	: row_data.c_businesspartner_id,
 				barcode					: row_data.barcode,
 				pallet					: row_data.pallet,
 				condition				: row_data.condition,

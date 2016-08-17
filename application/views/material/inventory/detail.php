@@ -91,9 +91,10 @@ function material_inventory_detail_list_load_table(table_id){
 			'Product Id', 
 			'Product Code', 
 			'Product Name',
-			'Grid',
-			'Warehouse',
+			'Location',
+			'Location Group',
 			'Product Group',
+			'Price Buy',
 			'Exist',
 			'Allocated',
 			'Picked',
@@ -110,12 +111,9 @@ function material_inventory_detail_list_load_table(table_id){
 			'Packed Date',
 			'Expired Date',
 			'Lot No',
-			'Length',
-			'Width',
-			'Height',
 			'Condition',
+			'Size',
 			'Age',
-			'Business Partner',
 			'Project'
 		], 
 		colModel: [
@@ -125,6 +123,7 @@ function material_inventory_detail_list_load_table(table_id){
 			{name:'m_grid_code', index:'grd.code', width:90, frozen:true, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			{name:'m_warehouse_name', index:'wh.name', width:120, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			{name:'m_productgroup_name', index:'prog.name', width:110, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
+			{name:'price_buy', index:'inv.price_buy', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
 			{name:'quantity_box_exist', index:'quantity_box_exist', width:80, formatter:'number', formatoptions:{decimalPlaces: 0}, align:'right', search:false},
 			{name:'quantity_box_allocated', index:'quantity_box_allocated', width:80, formatter:'number', formatoptions:{decimalPlaces: 0}, align:'right', search:false},
 			{name:'quantity_box_picked', index:'quantity_box_picked', width:80, formatter:'number', formatoptions:{decimalPlaces: 0}, align:'right', search:false},
@@ -143,14 +142,11 @@ function material_inventory_detail_list_load_table(table_id){
 			jqgrid_column_date(table_id, {name:'packed_date', index:'inv.packed_date'}),
 			jqgrid_column_date(table_id, {name:'expired_date', index:'inv.expired_date'}),
 			{name:'lot_no', index:'inv.lot_no', width:90, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
-			{name:'volume_length', index:'inv.volume_length', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
-			{name:'volume_width', index:'inv.volume_width', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
-			{name:'volume_height', index:'inv.volume_height', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
 			{name:'condition', index:'inv.condition', width:100,
 			 stype:'select', searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false, value:<?php echo json_encode($product_conditions);?>}
 			},
+			{name:'product_size', index:'inv.product_size', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
 			{name:'inventory_age', index:'inventory_age', width:80, formatter:'number', formatoptions:{decimalPlaces: 0}, align:'right', search:false},
-			{name:'c_businesspartner_name', index:'bp.name', width:120, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			{name:'c_project_name', index:'prj.name', width:120, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}}
 		],
 		pager: '#' + table_id + '_nav', 
@@ -183,8 +179,7 @@ function material_inventory_detail_list_load_table(table_id){
 		useColSpanStyle: true, 
 		groupHeaders:[
 			{startColumnName: 'quantity_box_exist', numberOfColumns: 4, titleText: 'Box'},
-			{startColumnName: 'quantity_exist', numberOfColumns: 4, titleText: 'Quantity'},
-			{startColumnName: 'volume_length', numberOfColumns: 3, titleText: 'Volume'}
+			{startColumnName: 'quantity_exist', numberOfColumns: 4, titleText: 'Quantity'}
 		]
 	});
 

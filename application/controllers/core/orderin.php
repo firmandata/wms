@@ -23,7 +23,7 @@ class Orderin extends MY_Controller
 		);
 		
 		$content = array(
-			'title'		=> "Order In",
+			'title'		=> "Purchase Order (PO)",
 			'content' 	=> $this->load->view('core/orderin/index', $data, TRUE)
 		);
 		$this->_load_layout($content);
@@ -48,6 +48,7 @@ class Orderin extends MY_Controller
 			->select("oi.c_businesspartner_id, bp.name c_businesspartner_name")
 			->select("oi.c_project_id, prj.name c_project_name")
 			->select("oi.status_inventory_receive")
+			->select("oi.term, oi.ppn, oi.signer")
 			->from('c_orderins oi')
 			->join('c_businesspartners bp', "bp.id = oi.c_businesspartner_id")
 			->join('c_projects prj', "prj.id = oi.c_project_id", 'left');
@@ -77,6 +78,7 @@ class Orderin extends MY_Controller
 				->select("oi.c_project_id, prj.code c_project_code, prj.name c_project_name")
 				->select_concat(array("prj.name", "' ('", "prj.code", "')'"), 'c_project_text')
 				->select("oi.status_inventory_receive")
+				->select("oi.term, oi.ppn, oi.signer")
 				->from('c_orderins oi')
 				->join('c_businesspartners bp', "bp.id = oi.c_businesspartner_id")
 				->join('c_projects prj', "prj.id = oi.c_project_id", 'left')
@@ -98,7 +100,8 @@ class Orderin extends MY_Controller
 		{
 			$this->db
 				->select("oid.id, oid.quantity_box, oid.quantity, oid.notes")
-				->select("oid.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.uom m_product_uom, pro.netto m_product_netto")
+				->select("oid.discount, oid.price")
+				->select("oid.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.uom m_product_uom, pro.netto m_product_netto, pro.price m_product_price, pro.pack m_product_pack, pro.casing m_product_casing")
 				->select_concat(array("pro.name", "' ('", "pro.code", "')'"), 'm_product_text')
 				->from('c_orderindetails oid')
 				->join('m_products pro', "pro.id = oid.m_product_id")
@@ -143,6 +146,7 @@ class Orderin extends MY_Controller
 			->select("oi.c_project_id, prj.code c_project_code, prj.name c_project_name")
 			->select_concat(array("prj.name", "' ('", "prj.code", "')'"), 'c_project_text')
 			->select("oi.status_inventory_receive")
+			->select("oi.term, oi.ppn, oi.signer")
 			->from('c_orderins oi')
 			->join('c_businesspartners bp', "bp.id = oi.c_businesspartner_id")
 			->join('c_projects prj', "prj.id = oi.c_project_id", 'left')
@@ -156,7 +160,8 @@ class Orderin extends MY_Controller
 		
 		$this->db
 			->select("oid.id, oid.quantity_box, oid.quantity, oid.notes")
-			->select("oid.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.uom m_product_uom")
+			->select("oid.discount, oid.price")
+			->select("oid.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.uom m_product_uom, pro.netto m_product_netto, pro.price m_product_price, pro.pack m_product_pack, pro.casing m_product_casing")
 			->select_if_null('ird.quantity_box', 0, 'quantity_box_used')
 			->select_if_null('ird.quantity', 0, 'quantity_used')
 			->select("oid.status_inventory_receive")
@@ -233,7 +238,7 @@ class Orderin extends MY_Controller
 			->select("id")
 			->select_concat(array("name", "' ('", "code", "')'"), 'value')
 			->select_concat(array("name", "' ('", "code", "')'"), 'label')
-			->select("netto")
+			->select("netto, price, pack, casing, uom")
 			->from('m_products');
 		
 		if ($keywords)
@@ -250,9 +255,9 @@ class Orderin extends MY_Controller
 		parent::_execute('this', 'add_orderin_and_details', 
 			array(),
 			array(
-				array('field' => 'code', 'label' => 'No', 'rules' => 'required'),
 				array('field' => 'c_businesspartner_id', 'label' => 'Business Partner', 'rules' => 'required'),
-				array('field' => 'orderin_date', 'label' => 'Date', 'rules' => 'required')
+				array('field' => 'orderin_date', 'label' => 'Date', 'rules' => 'required'),
+				array('field' => 'ppn', 'label' => 'PPN', 'rules' => 'numeric')
 			)
 		);
 	}
@@ -268,11 +273,16 @@ class Orderin extends MY_Controller
 		$data_header = new stdClass();
 		$data_header->c_businesspartner_id = $c_businesspartner_id;
 		$data_header->c_project_id = $c_project_id;
-		$data_header->code = $this->input->post('code');
+		$data_header->code = generate_code_number("PO". date('ymd-'), NULL, 3);
 		$data_header->orderin_date = $this->input->post('orderin_date');
 		$data_header->origin = $this->input->post('origin');
 		$data_header->bol_no = $this->input->post('bol_no');
 		$data_header->external_no = $this->input->post('external_no');
+		$data_header->term = $this->input->post('term');
+		$data_header->ppn = $this->input->post('ppn');
+		if ($data_header->ppn === NULL)
+			$data_header->ppn = 0;
+		$data_header->signer = $this->input->post('signer');
 		$data_header->notes = $this->input->post('notes');
 		$id = $this->lib_order->orderin_add($data_header, $user_id);
 		
@@ -290,6 +300,8 @@ class Orderin extends MY_Controller
 				$data_detail->m_product_id = $c_orderindetail['m_product_id'];
 				$data_detail->quantity_box = $c_orderindetail['quantity_box'];
 				$data_detail->quantity = $c_orderindetail['quantity'];
+				$data_detail->discount = $c_orderindetail['discount'];
+				$data_detail->price = $c_orderindetail['price'];
 				$data_detail->notes = $c_orderindetail['notes'];
 				$this->lib_order->orderindetail_add($data_detail, $user_id);
 			}
@@ -308,7 +320,8 @@ class Orderin extends MY_Controller
 			array(
 				array('field' => 'code', 'label' => 'No', 'rules' => 'required'),
 				array('field' => 'c_businesspartner_id', 'label' => 'Business Partner', 'rules' => 'required'),
-				array('field' => 'orderin_date', 'label' => 'Date', 'rules' => 'required')
+				array('field' => 'orderin_date', 'label' => 'Date', 'rules' => 'required'),
+				array('field' => 'ppn', 'label' => 'PPN', 'rules' => 'numeric')
 			)
 		);
 	}
@@ -329,6 +342,11 @@ class Orderin extends MY_Controller
 		$data_header->origin = $this->input->post('origin');
 		$data_header->bol_no = $this->input->post('bol_no');
 		$data_header->external_no = $this->input->post('external_no');
+		$data_header->term = $this->input->post('term');
+		$data_header->ppn = $this->input->post('ppn');
+		if ($data_header->ppn === NULL)
+			$data_header->ppn = 0;
+		$data_header->signer = $this->input->post('signer');
 		$data_header->notes = $this->input->post('notes');
 		$updated_result = $this->lib_order->orderin_update($id, $data_header, $user_id);
 		
@@ -360,6 +378,8 @@ class Orderin extends MY_Controller
 			$data_detail->m_product_id = $c_orderindetail['m_product_id'];
 			$data_detail->quantity_box = $c_orderindetail['quantity_box'];
 			$data_detail->quantity = $c_orderindetail['quantity'];
+			$data_detail->discount = $c_orderindetail['discount'];
+			$data_detail->price = $c_orderindetail['price'];
 			if ($is_found_new == TRUE)
 			{
 				$data_detail->c_orderin_id = $id;
@@ -454,7 +474,7 @@ class Orderin extends MY_Controller
 					{
 						$c_order = new stdClass();
 						
-						$c_order->code = $this->excel->read_value($excel_sheet, 3, 2);
+						$c_order->external_no = $this->excel->read_value($excel_sheet, 3, 2);
 						
 						$c_businesspartner_code = $this->excel->read_value($excel_sheet, 4, 2);
 						$table = $this->db
@@ -469,6 +489,7 @@ class Orderin extends MY_Controller
 						
 						$c_order->orderin_date = $this->excel->read_value($excel_sheet, 5, 2, 'date');
 						$c_order->notes = $this->excel->read_value($excel_sheet, 6, 2);
+						$c_order->ppn = $this->excel->read_value($excel_sheet, 7, 2);
 						
 						$c_project_code = $this->excel->read_value($excel_sheet, 3, 6);
 						$table = $this->db
@@ -483,19 +504,22 @@ class Orderin extends MY_Controller
 						
 						$c_order->origin = $this->excel->read_value($excel_sheet, 4, 6);
 						$c_order->bol_no = $this->excel->read_value($excel_sheet, 5, 6);
-						$c_order->external_no = $this->excel->read_value($excel_sheet, 6, 6);
+						$c_order->term = $this->excel->read_value($excel_sheet, 7, 6);
 						
 						$c_order->c_orderindetails = array();
-						for ($c_orderindetail_count = 11; $c_orderindetail_count < count($excel_sheet); $c_orderindetail_count++)
+						for ($c_orderindetail_count = 12; $c_orderindetail_count < count($excel_sheet); $c_orderindetail_count++)
 						{
 							$c_orderindetail = new stdClass();
 							
+							$c_orderindetail_no = $this->excel->read_value($excel_sheet, $c_orderindetail_count, 0);
 							$m_product_code = $this->excel->read_value($excel_sheet, $c_orderindetail_count, 1);
 							$c_orderindetail->quantity_box = $this->excel->read_value($excel_sheet, $c_orderindetail_count, 3);
 							$c_orderindetail->quantity = $this->excel->read_value($excel_sheet, $c_orderindetail_count, 4);
-							$c_orderindetail->notes = $this->excel->read_value($excel_sheet, $c_orderindetail_count, 6);
+							$c_orderindetail->discount = $this->excel->read_value($excel_sheet, $c_orderindetail_count, 6);
+							$c_orderindetail->price = $this->excel->read_value($excel_sheet, $c_orderindetail_count, 7);
+							$c_orderindetail->notes = $this->excel->read_value($excel_sheet, $c_orderindetail_count, 9);
 							
-							if (empty($m_product_code) && empty($c_orderindetail->quantity_box) && empty($c_orderindetail->quantity))
+							if (empty($c_orderindetail_no) || empty($m_product_code) || empty($c_orderindetail->quantity_box) || empty($c_orderindetail->quantity))
 								continue;
 							
 							$table = $this->db
@@ -510,6 +534,8 @@ class Orderin extends MY_Controller
 							
 							$c_order->c_orderindetails[] = $c_orderindetail;
 						}
+						
+						$c_order->signer = $this->excel->read_value($excel_sheet, 12 + count($c_order->c_orderindetails) + 6, 1);
 						
 						$c_orders[] = $c_order;
 					}
@@ -537,11 +563,14 @@ class Orderin extends MY_Controller
 							$data_header = new stdClass();
 							$data_header->c_businesspartner_id = $c_order->c_businesspartner_id;
 							$data_header->c_project_id = $c_order->c_project_id;
-							$data_header->code = $c_order->code;
+							$data_header->code = generate_code_number("PO". date('ymd-'), NULL, 3);
 							$data_header->orderin_date = $c_order->orderin_date;
 							$data_header->origin = $c_order->origin;
 							$data_header->bol_no = $c_order->bol_no;
 							$data_header->external_no = $c_order->external_no;
+							$data_header->term = $c_order->term;
+							$data_header->ppn = $c_order->ppn;
+							$data_header->signer = $c_order->signer;
 							$data_header->notes = $c_order->notes;
 							$id = $this->lib_order->orderin_add($data_header, $user_id);
 							
@@ -552,6 +581,8 @@ class Orderin extends MY_Controller
 								$data_detail->m_product_id = $c_orderindetail->m_product_id;
 								$data_detail->quantity_box = $c_orderindetail->quantity_box;
 								$data_detail->quantity = $c_orderindetail->quantity;
+								$data_detail->discount = $c_orderindetail->discount;
+								$data_detail->price = $c_orderindetail->price;
 								$data_detail->notes = $c_orderindetail->notes;
 								$this->lib_order->orderindetail_add($data_detail, $user_id);
 							}
@@ -585,5 +616,53 @@ class Orderin extends MY_Controller
 		}
 		
 		$this->result_json($result);
+	}
+
+	public function orderindetail_printout()
+	{
+		if (!is_authorized('core/orderin', 'index')) 
+			access_denied();
+		
+		$id = $this->input->get_post('id');
+		
+		$this->db
+			->select("oi.id, oi.code, oi.orderin_date")
+			->select("oi.origin, oi.bol_no, oi.external_no, oi.notes")
+			->select("oi.c_businesspartner_id, bp.code c_businesspartner_code, bp.name c_businesspartner_name, bp.address c_businesspartner_address, bp.pic c_businesspartner_pic")
+			->select("oi.c_project_id, prj.code c_project_code, prj.name c_project_name")
+			->select("oi.status_inventory_receive")
+			->select("oi.term, oi.ppn, oi.signer")
+			->from('c_orderins oi')
+			->join('c_businesspartners bp', "bp.id = oi.c_businesspartner_id")
+			->join('c_projects prj', "prj.id = oi.c_project_id", 'left')
+			->where('oi.id', $id);
+		$this->lib_custom->project_query_filter('oi.c_project_id', $this->c_project_ids);
+		$table = $this->db->get();
+		if ($table->num_rows() > 0)
+			$record = $table->first_row();
+		else
+			show_error("Order in not found", 400);
+		
+		$this->db
+			->select("oid.id, oid.quantity_box, oid.quantity, oid.notes")
+			->select("oid.discount, oid.price")
+			->select("oid.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.uom m_product_uom, pro.netto m_product_netto, pro.price m_product_price, pro.pack m_product_pack, pro.casing m_product_casing")
+			->select("oid.status_inventory_receive")
+			->from('c_orderindetails oid')
+			->join('m_products pro', "pro.id = oid.m_product_id")
+			->where('oid.c_orderin_id', $id)
+			->order_by('oid.id', 'asc');
+		$table = $this->db->get();
+		$c_orderindetails = $table->result();
+		
+		$data = array(
+			'record'			=> $record,
+			'c_orderindetails'	=> $c_orderindetails
+		);
+		$html = $this->load->view('core/orderin/orderindetail_printout', $data, TRUE);
+		
+		// $this->output->set_output($html);
+		$this->load->library('lib_dompdf');
+		$this->lib_dompdf->load_as_pdf($html, 'orderindetail_printout.pdf', 'a4', 'portrait');
 	}
 }

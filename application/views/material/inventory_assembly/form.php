@@ -65,28 +65,21 @@ echo form_textarea(
 <table id="material_inventory_assembly_assemblysource_list_table" class="table-data ui-widget ui-widget-content ui-corner-all" width="100%" cellspacing="0" cellpadding="0">
 	<thead>
 		<tr>
-			<th class="ui-state-default ui-corner-tl" width="22px" rowspan="2">&nbsp;</th>
-			<th class="ui-state-default" rowspan="2">Product</th>
-			<th class="ui-state-default" rowspan="2">Grid</th>
-			<th class="ui-state-default" rowspan="2">Project</th>
-			<th class="ui-state-default" rowspan="2">Business Partner</th>
-			<th class="ui-state-default" rowspan="2">Pallet</th>
-			<th class="ui-state-default" rowspan="2">Barcode</th>
-			<th class="ui-state-default" rowspan="2">Carton No</th>
-			<th class="ui-state-default" rowspan="2">Lot No</th>
-			<th class="ui-state-default" colspan="3">Volume</th>
-			<th class="ui-state-default" rowspan="2">Quantity</th>
-		</tr>
-		<tr>
-			<th class="ui-state-default">Length</th>
-			<th class="ui-state-default">Width</th>
-			<th class="ui-state-default">Height</th>
+			<th class="ui-state-default ui-corner-tl" width="22px">&nbsp;</th>
+			<th class="ui-state-default">Product</th>
+			<th class="ui-state-default">Grid</th>
+			<th class="ui-state-default">Project</th>
+			<th class="ui-state-default">Pallet</th>
+			<th class="ui-state-default">Barcode</th>
+			<th class="ui-state-default">Carton No</th>
+			<th class="ui-state-default">Lot No</th>
+			<th class="ui-state-default">Quantity</th>
 		</tr>
 	</thead>
 	<tbody></tbody>
 	<tfoot>
 		<tr>
-			<td colspan="13" class="ui-state-default ui-corner-bl ui-corner-br">
+			<td colspan="9" class="ui-state-default ui-corner-bl ui-corner-br">
 				<button id="material_inventory_assembly_assemblysource_list_table_add" class="table-data-button">Add</button>
 			</td>
 		</tr>
@@ -97,32 +90,25 @@ echo form_textarea(
 <table id="material_inventory_assembly_assemblytarget_list_table" class="table-data ui-widget ui-widget-content ui-corner-all" width="100%" cellspacing="0" cellpadding="0">
 	<thead>
 		<tr>
-			<th class="ui-state-default ui-corner-tl" width="22px" rowspan="2">&nbsp;</th>
-			<th class="ui-state-default" rowspan="2">Product</th>
-			<th class="ui-state-default" rowspan="2">Grid</th>
-			<th class="ui-state-default" rowspan="2">Project</th>
-			<th class="ui-state-default" rowspan="2">Business Partner</th>
-			<th class="ui-state-default" rowspan="2">Pallet</th>
-			<th class="ui-state-default" rowspan="2">Barcode</th>
-			<th class="ui-state-default" rowspan="2">Carton No</th>
-			<th class="ui-state-default" rowspan="2">Lot No</th>
-			<th class="ui-state-default" colspan="3">Volume</th>
-			<th class="ui-state-default" rowspan="2">Condition</th>
-			<th class="ui-state-default" rowspan="2">Packed Date</th>
-			<th class="ui-state-default" rowspan="2">Expired Date</th>
-			<th class="ui-state-default" rowspan="2">Box</th>
-			<th class="ui-state-default" rowspan="2">Quantity</th>
-		</tr>
-		<tr>
-			<th class="ui-state-default">Length</th>
-			<th class="ui-state-default">Width</th>
-			<th class="ui-state-default">Height</th>
+			<th class="ui-state-default ui-corner-tl" width="22px">&nbsp;</th>
+			<th class="ui-state-default">Product</th>
+			<th class="ui-state-default">Grid</th>
+			<th class="ui-state-default">Project</th>
+			<th class="ui-state-default">Pallet</th>
+			<th class="ui-state-default">Barcode</th>
+			<th class="ui-state-default">Carton No</th>
+			<th class="ui-state-default">Lot No</th>
+			<th class="ui-state-default">Condition</th>
+			<th class="ui-state-default">Packed Date</th>
+			<th class="ui-state-default">Expired Date</th>
+			<th class="ui-state-default">Box</th>
+			<th class="ui-state-default">Quantity</th>
 		</tr>
 	</thead>
 	<tbody></tbody>
 	<tfoot>
 		<tr>
-			<td colspan="17" class="ui-state-default ui-corner-bl ui-corner-br">
+			<td colspan="13" class="ui-state-default ui-corner-bl ui-corner-br">
 				<button id="material_inventory_assembly_assemblytarget_list_table_add" class="table-data-button">Add</button>
 			</td>
 		</tr>
@@ -184,12 +170,10 @@ jQuery(function(){
 								record.m_product_id, record.m_product_code, record.m_product_name, record.m_product_netto, 
 								record.m_grid_id, record.m_grid_code,
 								record.c_project_id, record.c_project_name,
-								record.c_businesspartner_id, record.c_businesspartner_name,
 								record.pallet,
 								record.barcode,
 								record.carton_no,
 								record.lot_no,
-								record.volume_length, record.volume_width, record.volume_height,
 								record.quantity_exist,
 								false
 							);
@@ -224,12 +208,10 @@ jQuery(function(){
 			null, null, 0,
 			null, null,
 			null, null,
-			null, null,
 			null,
 			null,
 			null,
 			null,
-			0, 0, 0,
 			null,
 			null, null,
 			1, 1,
@@ -245,12 +227,10 @@ jQuery(function(){
 			assemblysource.m_product_id, assemblysource.m_product_code, assemblysource.m_product_name, assemblysource.m_product_netto, 
 			assemblysource.m_grid_id, assemblysource.m_grid_code,
 			assemblysource.c_project_id, assemblysource.c_project_name,
-			assemblysource.c_businesspartner_id, assemblysource.c_businesspartner_name,
 			assemblysource.pallet,
 			assemblysource.barcode,
 			assemblysource.carton_no,
 			assemblysource.lot_no,
-			assemblysource.volume_length, assemblysource.volume_width, assemblysource.volume_height,
 			assemblysource.quantity_from - assemblysource.quantity_to,
 			true
 		);
@@ -262,12 +242,10 @@ jQuery(function(){
 			assemblytarget.m_product_id, assemblytarget.m_product_text, assemblytarget.m_product_netto, 
 			assemblytarget.m_grid_id, assemblytarget.m_grid_text,
 			assemblytarget.c_project_id, assemblytarget.c_project_text,
-			assemblytarget.c_businesspartner_id, assemblytarget.c_businesspartner_text,
 			assemblytarget.pallet,
 			assemblytarget.barcode,
 			assemblytarget.carton_no,
 			assemblytarget.lot_no,
-			assemblytarget.volume_length, assemblytarget.volume_width, assemblytarget.volume_height,
 			assemblytarget.condition,
 			assemblytarget.packed_date, assemblytarget.expired_date,
 			assemblytarget.quantity_box, assemblytarget.quantity,
@@ -281,12 +259,10 @@ function material_inventory_assembly_form_assemblysource_add(
 	m_product_id, m_product_code, m_product_name, m_product_netto, 
 	m_grid_id, m_grid_code,
 	c_project_id, c_project_name,
-	c_businesspartner_id, c_businesspartner_name,
 	pallet,
 	barcode,
 	carton_no,
 	lot_no,
-	volume_length, volume_width, volume_height,
 	quantity,
 	is_edit_mode
 ){
@@ -338,13 +314,6 @@ function material_inventory_assembly_form_assemblysource_add(
 				)
 		).append(
 			$("<td>", {'class':'ui-widget-content'})
-				.text(c_businesspartner_name)
-				.append(
-					$("<input>", {type:'hidden', name:'m_inventory_assemblysources[' + material_inventory_assembly_assemblysource_row_id.toString() + '][c_businesspartner_id]', id:'material_inventory_assembly_form_source_c_businesspartner_id_' + material_inventory_assembly_assemblysource_row_id.toString()})
-						.val(c_businesspartner_id)
-				)
-		).append(
-			$("<td>", {'class':'ui-widget-content'})
 				.text(pallet)
 				.append(
 					$("<input>", {type:'hidden', name:'m_inventory_assemblysources[' + material_inventory_assembly_assemblysource_row_id.toString() + '][pallet]', id:'material_inventory_assembly_form_source_pallet_' + material_inventory_assembly_assemblysource_row_id.toString()})
@@ -372,27 +341,6 @@ function material_inventory_assembly_form_assemblysource_add(
 						.val(lot_no)
 				)
 		).append(
-			$("<td>", {'class':'ui-widget-content', 'align':'center'})
-				.text(volume_length)
-				.append(
-					$("<input>", {type:'hidden', name:'m_inventory_assemblysources[' + material_inventory_assembly_assemblysource_row_id.toString() + '][volume_length]', id:'material_inventory_assembly_form_source_volume_length_' + material_inventory_assembly_assemblysource_row_id.toString()})
-						.val(volume_length)
-				)
-		).append(
-			$("<td>", {'class':'ui-widget-content', 'align':'center'})
-				.text(volume_width)
-				.append(
-					$("<input>", {type:'hidden', name:'m_inventory_assemblysources[' + material_inventory_assembly_assemblysource_row_id.toString() + '][volume_width]', id:'material_inventory_assembly_form_source_volume_width_' + material_inventory_assembly_assemblysource_row_id.toString()})
-						.val(volume_width)
-				)
-		).append(
-			$("<td>", {'class':'ui-widget-content', 'align':'center'})
-				.text(volume_height)
-				.append(
-					$("<input>", {type:'hidden', name:'m_inventory_assemblysources[' + material_inventory_assembly_assemblysource_row_id.toString() + '][volume_height]', id:'material_inventory_assembly_form_source_volume_height_' + material_inventory_assembly_assemblysource_row_id.toString()})
-						.val(volume_height)
-				)
-		).append(
 			!is_edit_mode ? $("<td>", {'class':'ui-widget-content', 'align':'center'})
 				.append(
 					$("<input>", {type:'text', name:'m_inventory_assemblysources[' + material_inventory_assembly_assemblysource_row_id.toString() + '][quantity]', id:'material_inventory_assembly_form_source_quantity_' + material_inventory_assembly_assemblysource_row_id.toString(), 'class':'required number', 'min':'0.0001'})
@@ -413,12 +361,10 @@ function material_inventory_assembly_form_assemblytarget_add(
 	m_product_id, m_product_text, m_product_netto, 
 	m_grid_id, m_grid_text,
 	c_project_id, c_project_text,
-	c_businesspartner_id, c_businesspartner_text,
 	pallet,
 	barcode,
 	carton_no,
 	lot_no,
-	volume_length, volume_width, volume_height,
 	condition,
 	packed_date, expired_date,
 	quantity_box, quantity,
@@ -488,18 +434,6 @@ function material_inventory_assembly_form_assemblytarget_add(
 		).append(
 			!is_edit_mode ? $("<td>", {'class':'ui-widget-content', 'align':'center'})
 				.append(
-					$("<input>", {type:'hidden', name:'m_inventory_assemblytargets[' + material_inventory_assembly_assemblytarget_row_id.toString() + '][c_businesspartner_id]', id:'material_inventory_assembly_form_target_c_businesspartner_id_' + material_inventory_assembly_assemblytarget_row_id.toString()})
-						.val(c_businesspartner_id).attr('data-text', c_businesspartner_text)
-				)
-			: $("<td>", {'class':'ui-widget-content'})
-				.text(c_businesspartner_text)
-				.append(
-					$("<input>", {type:'hidden', name:'m_inventory_assemblytargets[' + material_inventory_assembly_assemblytarget_row_id.toString() + '][c_businesspartner_id]', id:'material_inventory_assembly_form_target_c_businesspartner_id_' + material_inventory_assembly_assemblytarget_row_id.toString()})
-						.val(c_businesspartner_id)
-				)
-		).append(
-			!is_edit_mode ? $("<td>", {'class':'ui-widget-content', 'align':'center'})
-				.append(
 					$("<input>", {type:'text', name:'m_inventory_assemblytargets[' + material_inventory_assembly_assemblytarget_row_id.toString() + '][pallet]', id:'material_inventory_assembly_form_target_pallet_' + material_inventory_assembly_assemblytarget_row_id.toString(), 'class':'required'})
 						.width(130).val(pallet)
 				)
@@ -544,42 +478,6 @@ function material_inventory_assembly_form_assemblytarget_add(
 				.append(
 					$("<input>", {type:'hidden', name:'m_inventory_assemblytargets[' + material_inventory_assembly_assemblytarget_row_id.toString() + '][lot_no]', id:'material_inventory_assembly_form_target_lot_no_' + material_inventory_assembly_assemblytarget_row_id.toString()})
 						.val(lot_no)
-				)
-		).append(
-			!is_edit_mode ? $("<td>", {'class':'ui-widget-content', 'align':'center'})
-				.append(
-					$("<input>", {type:'text', name:'m_inventory_assemblytargets[' + material_inventory_assembly_assemblytarget_row_id.toString() + '][volume_length]', id:'material_inventory_assembly_form_target_volume_length_' + material_inventory_assembly_assemblytarget_row_id.toString(), 'class':'required number'})
-						.width(40).val(volume_length).css('text-align', 'right')
-				)
-			: $("<td>", {'class':'ui-widget-content'})
-				.text(volume_length)
-				.append(
-					$("<input>", {type:'hidden', name:'m_inventory_assemblytargets[' + material_inventory_assembly_assemblytarget_row_id.toString() + '][volume_length]', id:'material_inventory_assembly_form_target_volume_length_' + material_inventory_assembly_assemblytarget_row_id.toString(), 'class':'required number'})
-						.val(volume_length)
-				)
-		).append(
-			!is_edit_mode ? $("<td>", {'class':'ui-widget-content', 'align':'center'})
-				.append(
-					$("<input>", {type:'text', name:'m_inventory_assemblytargets[' + material_inventory_assembly_assemblytarget_row_id.toString() + '][volume_width]', id:'material_inventory_assembly_form_target_volume_width_' + material_inventory_assembly_assemblytarget_row_id.toString(), 'class':'required number'})
-						.width(40).val(volume_width).css('text-align', 'right')
-				)
-			: $("<td>", {'class':'ui-widget-content'})
-				.text(volume_width)
-				.append(
-					$("<input>", {type:'hidden', name:'m_inventory_assemblytargets[' + material_inventory_assembly_assemblytarget_row_id.toString() + '][volume_width]', id:'material_inventory_assembly_form_target_volume_width_' + material_inventory_assembly_assemblytarget_row_id.toString(), 'class':'required number'})
-						.val(volume_width)
-				)
-		).append(
-			!is_edit_mode ? $("<td>", {'class':'ui-widget-content', 'align':'center'})
-				.append(
-					$("<input>", {type:'text', name:'m_inventory_assemblytargets[' + material_inventory_assembly_assemblytarget_row_id.toString() + '][volume_height]', id:'material_inventory_assembly_form_target_volume_height_' + material_inventory_assembly_assemblytarget_row_id.toString(), 'class':'required number'})
-						.width(40).val(volume_height).css('text-align', 'right')
-				)
-			: $("<td>", {'class':'ui-widget-content'})
-				.text(volume_height)
-				.append(
-					$("<input>", {type:'hidden', name:'m_inventory_assemblytargets[' + material_inventory_assembly_assemblytarget_row_id.toString() + '][volume_height]', id:'material_inventory_assembly_form_target_volume_height_' + material_inventory_assembly_assemblytarget_row_id.toString(), 'class':'required number'})
-						.val(volume_height)
 				)
 		).append(
 			!is_edit_mode ? $("<td>", {'class':'ui-widget-content', 'align':'center'})
@@ -665,14 +563,6 @@ function material_inventory_assembly_form_assemblytarget_add(
 		jquery_autocomplete_build(
 			'#material_inventory_assembly_form_target_c_project_id_' + material_inventory_assembly_assemblytarget_row_id.toString(),
 			"<?php echo site_url('material/inventory_assembly/get_project_autocomplete_list_json');?>",
-			{
-				width : 150
-			}
-		);
-		
-		jquery_autocomplete_build(
-			'#material_inventory_assembly_form_target_c_businesspartner_id_' + material_inventory_assembly_assemblytarget_row_id.toString(),
-			"<?php echo site_url('material/inventory_assembly/get_businesspartner_autocomplete_list_json');?>",
 			{
 				width : 150
 			}

@@ -3,7 +3,8 @@ class M_inventory_receivedetail extends DataMapper {
 	
 	var $has_one = array(
 		'm_inventory_receive'	=> array('cascade_delete' => FALSE),
-		'c_orderindetail'		=> array('cascade_delete' => FALSE)
+		'c_orderindetail'		=> array('cascade_delete' => FALSE),
+		'm_grid'				=> array('cascade_delete' => FALSE)
 	);
 	
 	var $has_many = array(
@@ -18,6 +19,10 @@ class M_inventory_receivedetail extends DataMapper {
         ),
         'c_orderindetail' => array(
             'label' => 'Order In Detail',
+            'rules' => array('required')
+        ),
+		'm_grid' => array(
+            'label' => 'Grid',
             'rules' => array('required')
         ),
         'quantity' => array(

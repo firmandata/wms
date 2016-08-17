@@ -20,7 +20,8 @@ class M_product extends DataMapper {
 		'm_inventory_assemblytarget'	=> array('cascade_delete' => FALSE),
 		'm_product_category'			=> array('cascade_delete' => FALSE),
 		'a_asset'						=> array('cascade_delete' => FALSE),
-		'm_inventory_inbounddetail'		=> array('cascade_delete' => FALSE)
+		'm_inventory_sampleinventory'	=> array('cascade_delete' => FALSE),
+		'm_inventory_waterinventory'	=> array('cascade_delete' => FALSE)
 	);
 	
     var $validation = array(

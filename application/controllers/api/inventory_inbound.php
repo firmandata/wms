@@ -63,7 +63,7 @@ class Inventory_inbound extends REST_Controller
 		if ($to_month && $to_year)
 			$this->db->where("ii.inbound_date <=", add_date(date('Y-m-d', mktime(0, 0, 0, $to_month, 1, $to_year)), -1, 1));
 		
-		$this->lib_custom->project_query_filter('iid.c_project_id', $this->c_project_ids);
+		$this->lib_custom->project_query_filter('oi.c_project_id', $this->c_project_ids);
 		
 		parent::_get_list_json();
     }
@@ -107,22 +107,21 @@ class Inventory_inbound extends REST_Controller
 			->select("ir.code m_inventory_receive_code, ir.receive_date m_inventory_receive_date")
 			->select("ir.vehicle_no m_inventory_receive_vehicle_no, ir.vehicle_driver m_inventory_receive_vehicle_driver, ir.transport_mode m_inventory_receive_transport_mode")
 			->select("oi.id c_orderin_id, oi.code c_orderin_code, oi.orderin_date c_orderin_date")
-			->select("iid.c_businesspartner_id, bp.name c_businesspartner_name")
-			->select("iid.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.uom m_product_uom, pro.pack m_product_pack")
+			->select("oi.c_businesspartner_id, bp.name c_businesspartner_name")
+			->select("oid.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.uom m_product_uom, pro.pack m_product_pack")
 			->select("iid.m_grid_id, gri.code m_grid_code")
-			->select("iid.volume_length, iid.volume_width, iid.volume_height")
-			->select("iid.c_project_id, prj.name c_project_name")
+			->select("oi.c_project_id, prj.name c_project_name")
 			->from('m_inventory_inbounddetails iid')
 			->join('m_inventory_receivedetails ird', "ird.id = iid.m_inventory_receivedetail_id")
 			->join('m_inventory_receives ir', "ir.id = ird.m_inventory_receive_id")
 			->join('c_orderindetails oid', "oid.id = ird.c_orderindetail_id")
 			->join('c_orderins oi', "oi.id = oid.c_orderin_id")
-			->join('m_products pro', "pro.id = iid.m_product_id")
+			->join('c_businesspartners bp', "bp.id = oi.c_businesspartner_id")
+			->join('m_products pro', "pro.id = oid.m_product_id")
 			->join('m_grids gri', "gri.id = iid.m_grid_id", 'left')
-			->join('c_businesspartners bp', "bp.id = iid.c_businesspartner_id", 'left')
-			->join('c_projects prj', "prj.id = iid.c_project_id", 'left');
+			->join('c_projects prj', "prj.id = oi.c_project_id", 'left');
 		
-		$this->lib_custom->project_query_filter('iid.c_project_id', $this->c_project_ids);
+		$this->lib_custom->project_query_filter('oi.c_project_id', $this->c_project_ids);
 		
 		$id = $this->input->get_post('id');
 		if ($id !== '')
@@ -141,15 +140,14 @@ class Inventory_inbound extends REST_Controller
 			->select("ir.code m_inventory_receive_code, ir.receive_date m_inventory_receive_date")
 			->select("ir.vehicle_no m_inventory_receive_vehicle_no, ir.vehicle_driver m_inventory_receive_vehicle_driver, ir.transport_mode m_inventory_receive_transport_mode")
 			->select("oid.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.uom m_product_uom")
-			->select("pro.volume_length m_product_volume_length, pro.volume_width m_product_volume_width, pro.volume_height m_product_volume_height")
 			->select("oi.id c_orderin_id, oi.code c_orderin_code, oi.orderin_date c_orderin_date")
 			->select("oi.c_businesspartner_id, bp.name c_businesspartner_name")
 			->from('m_inventory_receivedetails ird')
 			->join('m_inventory_receives ir', "ir.id = ird.m_inventory_receive_id")
 			->join('c_orderindetails oid', "oid.id = ird.c_orderindetail_id")
 			->join('c_orderins oi', "oi.id = oid.c_orderin_id")
-			->join('m_products pro', "pro.id = oid.m_product_id")
 			->join('c_businesspartners bp', "bp.id = oi.c_businesspartner_id", 'left')
+			->join('m_products pro', "pro.id = oid.m_product_id")
 			->where('ird.status_inventory_inbound <>', 'COMPLETE');
 		
 		$this->lib_custom->project_query_filter('oi.c_project_id', $this->c_project_ids);
@@ -311,10 +309,7 @@ class Inventory_inbound extends REST_Controller
 				array('field' => 'barcode', 'label' => 'Barcode', 'rules' => 'required'),
 				array('field' => 'quantity', 'label' => 'Quantity', 'rules' => 'numeric|required'),
 				array('field' => 'pallet', 'label' => 'Pallet', 'rules' => 'required'),
-				array('field' => 'carton_no', 'label' => 'Carton No', 'rules' => 'required'),
-				array('field' => 'volume_length', 'label' => 'Length', 'rules' => 'numeric|required'),
-				array('field' => 'volume_width', 'label' => 'Width', 'rules' => 'numeric|required'),
-				array('field' => 'volume_height', 'label' => 'Height', 'rules' => 'numeric|required')
+				array('field' => 'carton_no', 'label' => 'Carton No', 'rules' => 'required')
 			)
 		);
 	}
@@ -339,9 +334,6 @@ class Inventory_inbound extends REST_Controller
 		$data->pallet = $pallet;
 		$data->carton_no = $this->input->post('carton_no');
 		$data->lot_no = $this->input->post('lot_no');
-		$data->volume_length = $this->input->post('volume_length');
-		$data->volume_width = $this->input->post('volume_width');
-		$data->volume_height = $this->input->post('volume_height');
 		$data->condition = $this->input->post('condition');
 		if ($this->input->post('packed_date') !== NULL)
 		{
@@ -385,7 +377,7 @@ class Inventory_inbound extends REST_Controller
 		$data->m_grid_id = $m_grid_id;
 		
 		$response = new stdClass();
-		$response->m_inventory_inbounddetail_id = $this->lib_inventory_in->inbounddetail_add($data, $user_id);
+		$response->m_inventory_inbounddetail_ids = $this->lib_inventory_in->inbounddetail_add($data, $user_id);
 		$response->counter = $this->_get_detail_counter($m_inventory_inbound_id, $pallet);
 		return $response;
 	}

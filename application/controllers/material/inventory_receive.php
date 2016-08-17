@@ -23,7 +23,7 @@ class Inventory_receive extends MY_Controller
 		);
 		
 		$content = array(
-			'title'		=> "Receive",
+			'title'		=> "ASN",
 			'content' 	=> $this->load->view('material/inventory_receive/index', $data, TRUE)
 		);
 		$this->_load_layout($content);
@@ -93,10 +93,10 @@ class Inventory_receive extends MY_Controller
 			{
 				$record = $table->first_row();
 				if ($record->status_inventory_inbound == 'COMPLETE')
-					show_error("Receive was complete", 400);
+					show_error("ASN was complete", 400);
 			}
 			else
-				show_error("Receive not found", 400);
+				show_error("ASN not found", 400);
 		}
 		
 		$m_inventory_receivedetails = array();
@@ -105,11 +105,14 @@ class Inventory_receive extends MY_Controller
 			$this->db
 				->select("ird.id, ird.condition, ird.notes")
 				->select("ird.c_orderindetail_id")
-				->select("pro.code m_product_code, pro.name m_product_name, pro.netto m_product_netto")
+				->select("ird.m_grid_id, gri.code m_grid_code")
+				->select("ird.supervisor")
+				->select("pro.code m_product_code, pro.name m_product_name, pro.netto m_product_netto, pro.uom m_product_uom, pro.pack m_product_pack")
 				->select_concat(array("pro.name", "' ('", "pro.code", "' / '", "oi.code", "')'"), 'm_product_text')
 				->select("ird.quantity_box, ird.quantity", FALSE)
 				->from('m_inventory_receivedetails ird')
 				->join('c_orderindetails oid', "oid.id = ird.c_orderindetail_id")
+				->join('m_grids gri', "gri.id = ird.m_grid_id")
 				->join('c_orderins oi', "oi.id = oid.c_orderin_id")
 				->join('m_products pro', "pro.id = oid.m_product_id")
 				->where('ird.m_inventory_receive_id', $id)
@@ -156,16 +159,18 @@ class Inventory_receive extends MY_Controller
 		if ($table->num_rows() > 0)
 			$record = $table->first_row();
 		else
-			show_error("Receive not found", 400);
+			show_error("ASN not found", 400);
 		
 		$this->db
 			->select("ird.id")
 			->select("ird.condition, ird.notes")
+			->select("ird.m_grid_id, gri.code m_grid_code")
+			->select("ird.supervisor")
 			->select("oid.c_orderin_id, oid.m_product_id")
 			->select("oi.code c_orderin_code, oi.orderin_date c_orderin_date")
 			->select("oi.c_businesspartner_id, bp.name c_businesspartner_name")
 			->select("oi.c_project_id, prj.name c_project_name")
-			->select("pro.code m_product_code, pro.name m_product_name, pro.uom m_product_uom")
+			->select("pro.code m_product_code, pro.name m_product_name, pro.uom m_product_uom, pro.pack m_product_pack")
 			->select("ird.quantity_box")
 			->select_if_null('inbd.quantity_box', 0, 'quantity_box_used')
 			->select("ird.quantity")
@@ -173,6 +178,7 @@ class Inventory_receive extends MY_Controller
 			->select("ird.status_inventory_inbound")
 			->from('m_inventory_receivedetails ird')
 			->join('c_orderindetails oid', "oid.id = ird.c_orderindetail_id")
+			->join('m_grids gri', "gri.id = ird.m_grid_id")
 			->join('c_orderins oi', "oi.id = oid.c_orderin_id")
 			->join('c_businesspartners bp', "bp.id = oi.c_businesspartner_id", 'left')
 			->join('c_projects prj', "prj.id = oi.c_project_id", 'left')
@@ -209,7 +215,7 @@ class Inventory_receive extends MY_Controller
 			->select("oid.id")
 			->select_concat(array("pro.name", "' ('", "pro.code", "' / '", "oi.code", "')'"), 'value')
 			->select_concat(array("pro.name", "' ('", "pro.code", "' / '", "oi.code", "')'"), 'label')
-			->select("pro.netto netto")
+			->select("pro.netto netto, pro.price price, pro.pack pack, pro.casing casing, pro.uom uom")
 			->select_sum("oid.quantity_box", "quantity_box")
 			->select_sum("oid.quantity", "quantity")
 			->from('c_orderindetails oid')
@@ -219,7 +225,8 @@ class Inventory_receive extends MY_Controller
 			->group_by(
 				array(
 					  'oid.id', 'oi.code'
-					, 'pro.name', 'pro.code', 'pro.netto'
+					, 'pro.name', 'pro.code'
+					, 'pro.netto', 'pro.price', 'pro.pack', 'pro.casing', 'pro.uom'
 				)
 			);
 		
@@ -227,6 +234,26 @@ class Inventory_receive extends MY_Controller
 			$this->db->where($this->db->concat(array("pro.name", "' ('", "pro.code", "' / '", "oi.code", "')'")) . " LIKE '%" . $this->db->escape_like_str($keywords) . "%'", NULL, FALSE);
 		
 		$this->lib_custom->project_query_filter('oi.c_project_id', $this->c_project_ids);
+		
+		parent::_get_list_autocomplete_json();
+	}
+	
+	public function get_grid_autocomplete_list_json()
+	{
+		if (!is_authorized('material/inventory_receive', 'index')) 
+			access_denied();
+		
+		$keywords = $this->input->get_post('term');
+		$m_product_id = $this->input->get_post('m_product_id');
+		
+		$this->db
+			->select("gri.id")
+			->select("gri.code value")
+			->select("gri.code label")
+			->from('m_grids gri');
+		
+		if ($keywords)
+			$this->db->like('gri.code', $keywords);
 		
 		parent::_get_list_autocomplete_json();
 	}
@@ -239,7 +266,6 @@ class Inventory_receive extends MY_Controller
 		parent::_execute('this', 'add_receive_and_details', 
 			array(),
 			array(
-				array('field' => 'code', 'label' => 'No', 'rules' => 'required'),
 				array('field' => 'receive_date', 'label' => 'Date', 'rules' => 'required')
 			)
 		);
@@ -252,7 +278,7 @@ class Inventory_receive extends MY_Controller
 		$user_id = $this->session->userdata('user_id');
 		
 		$data_header = new stdClass();
-		$data_header->code = $this->input->post('code');
+		$data_header->code = generate_code_number("ASN". date('ymd-'), NULL, 3);
 		$data_header->receive_date = $this->input->post('receive_date');
 		$data_header->vehicle_no = $this->input->post('vehicle_no');
 		$data_header->vehicle_driver = $this->input->post('vehicle_driver');
@@ -275,6 +301,25 @@ class Inventory_receive extends MY_Controller
 				$data_detail->quantity_box = $m_inventory_receivedetail['quantity_box'];
 				$data_detail->quantity = $m_inventory_receivedetail['quantity'];
 				$data_detail->condition = $m_inventory_receivedetail['condition'];
+				
+				$data_detail->m_grid_id = NULL;
+				if (!empty($m_inventory_receivedetail['m_grid_code']))
+				{
+					$m_grids_query = $this->db
+						->select("gri.id")
+						->from('m_grids gri')
+						->where('gri.code', $m_inventory_receivedetail['m_grid_code'])
+						->get();
+					if ($m_grids_query->num_rows() > 0)
+					{
+						$m_grids_record = $m_grids_query->first_row();
+						$data_detail->m_grid_id = $m_grids_record->id;
+					}
+					else
+						throw new Exception("Unknown location '".$m_inventory_receivedetail['m_grid_code']."'.");
+				}
+				
+				$data_detail->supervisor = $m_inventory_receivedetail['supervisor'];
 				$data_detail->notes = $m_inventory_receivedetail['notes'];
 				$this->lib_inventory_in->receivedetail_add($data_detail, $user_id);
 			}
@@ -357,6 +402,23 @@ class Inventory_receive extends MY_Controller
 			$data_detail->quantity_box = $m_inventory_receivedetail['quantity_box'];
 			$data_detail->quantity = $m_inventory_receivedetail['quantity'];
 			$data_detail->condition = $m_inventory_receivedetail['condition'];
+			$data_detail->m_grid_id = NULL;
+			if (!empty($m_inventory_receivedetail['m_grid_code']))
+			{
+				$m_grids_query = $this->db
+					->select("gri.id")
+					->from('m_grids gri')
+					->where('gri.code', $m_inventory_receivedetail['m_grid_code'])
+					->get();
+				if ($m_grids_query->num_rows() > 0)
+				{
+					$m_grids_record = $m_grids_query->first_row();
+					$data_detail->m_grid_id = $m_grids_record->id;
+				}
+				else
+					throw new Exception("Unknown location '".$m_inventory_receivedetail['m_grid_code']."'.");
+			}
+			$data_detail->supervisor = $m_inventory_receivedetail['supervisor'];
 			$data_detail->notes = $m_inventory_receivedetail['notes'];
 			if ($is_found_new == TRUE)
 			{
@@ -384,6 +446,28 @@ class Inventory_receive extends MY_Controller
 		parent::_execute('lib_inventory_in', 'receive_remove', array($id, $user_id));
 	}
 	
+	public function inbound($m_inventory_receive_id)
+	{
+		if (!is_authorized('material/inventory_inbound', 'insert')) 
+			access_denied();
+		
+		$this->load->library('material/lib_inventory_in');
+		
+		$data = new stdClass();
+		$data->code = generate_code_number("INB". date('ymd-'), NULL, 3);
+		$data->inbound_date = $this->input->post('inbound_date');
+		$data->notes = $this->input->post('notes');
+		
+		$user_id = $this->session->userdata('user_id');
+		
+		parent::_execute('lib_inventory_in', 'receive_generate_inbound', 
+			array($data, $m_inventory_receive_id, $user_id),
+			array(
+				array('field' => 'inbound_date', 'label' => 'Date', 'rules' => 'required')
+			)
+		);
+	}
+	
 	public function forecast_create($id)
 	{
 		if (!is_authorized('material/inventory_receive', 'insert') || !is_authorized('material/inventory_receive', 'update') || !is_authorized('material/inventory_receive', 'delete')) 
@@ -401,7 +485,7 @@ class Inventory_receive extends MY_Controller
 				show_error("Only NO INBOUND can be create the forecast", 400);
 		}
 		else
-			show_error("Receive not found", 400);
+			show_error("ASN not found", 400);
 		
 		$user_id = $this->session->userdata('user_id');
 		$is_force_regenerate = $this->input->get_post('is_force_regenerate');
@@ -871,7 +955,7 @@ class Inventory_receive extends MY_Controller
 		$table = $this->db
 			->get();
 		if ($table->num_rows() == 0)
-			show_error("Receive not found", 400);
+			show_error("ASN not found", 400);
 		$m_inventory_receive = $table->first_row();
 		
 		// -- Get Details -- 
@@ -965,9 +1049,7 @@ class Inventory_receive extends MY_Controller
 					{
 						$m_inventory_receive = new stdClass();
 						
-						$m_inventory_receive->code = $this->excel->read_value($excel_sheet, 3, 2);
-						
-						$c_orderin_code = $this->excel->read_value($excel_sheet, 4, 2);
+						$c_orderin_code = $this->excel->read_value($excel_sheet, 3, 2);
 						$table = $this->db
 							->select('id')
 							->from('c_orderins')
@@ -978,8 +1060,8 @@ class Inventory_receive extends MY_Controller
 						$table_record = $table->first_row();
 						$c_orderin_id = $table_record->id;
 						
-						$m_inventory_receive->receive_date = $this->excel->read_value($excel_sheet, 5, 2, 'date');
-						$m_inventory_receive->notes = $this->excel->read_value($excel_sheet, 6, 2);
+						$m_inventory_receive->receive_date = $this->excel->read_value($excel_sheet, 4, 2, 'date');
+						$m_inventory_receive->notes = $this->excel->read_value($excel_sheet, 5, 2);
 						
 						$m_inventory_receive->vehicle_no = $this->excel->read_value($excel_sheet, 3, 6);
 						$m_inventory_receive->vehicle_driver = $this->excel->read_value($excel_sheet, 4, 6);
@@ -994,7 +1076,26 @@ class Inventory_receive extends MY_Controller
 							$m_inventory_receivedetail->quantity_box = $this->excel->read_value($excel_sheet, $m_inventory_receivedetail_count, 3);
 							$m_inventory_receivedetail->quantity = $this->excel->read_value($excel_sheet, $m_inventory_receivedetail_count, 4);
 							$m_inventory_receivedetail->condition = $this->excel->read_value($excel_sheet, $m_inventory_receivedetail_count, 6);
-							$m_inventory_receivedetail->notes = $this->excel->read_value($excel_sheet, $m_inventory_receivedetail_count, 7);
+							$m_grid_code = $this->excel->read_value($excel_sheet, $m_inventory_receivedetail_count, 7);
+							$m_inventory_receivedetail->supervisor = $this->excel->read_value($excel_sheet, $m_inventory_receivedetail_count, 8);
+							$m_inventory_receivedetail->notes = $this->excel->read_value($excel_sheet, $m_inventory_receivedetail_count, 9);
+							
+							$m_inventory_receivedetail->m_grid_id = NULL;
+							if (!empty($m_grid_code))
+							{
+								$m_grids_query = $this->db
+									->select("gri.id")
+									->from('m_grids gri')
+									->where('gri.code', $m_grid_code)
+									->get();
+								if ($m_grids_query->num_rows() > 0)
+								{
+									$m_grids_record = $m_grids_query->first_row();
+									$m_inventory_receivedetail->m_grid_id = $m_grids_record->id;
+								}
+								else
+									throw new Exception("Unknown location '".$m_grid_code."'.");
+							}
 							
 							if (empty($m_product_code) && empty($m_inventory_receivedetail->quantity_box) && empty($m_inventory_receivedetail->quantity))
 								continue;
@@ -1039,7 +1140,7 @@ class Inventory_receive extends MY_Controller
 						{
 							$data_header = new stdClass();
 							
-							$data_header->code = $m_inventory_receive->code;
+							$data_header->code = generate_code_number("ASN". date('ymd-'), NULL, 3);
 							$data_header->receive_date = $m_inventory_receive->receive_date;
 							$data_header->vehicle_no = $m_inventory_receive->vehicle_no;
 							$data_header->vehicle_driver = $m_inventory_receive->vehicle_driver;
@@ -1055,6 +1156,8 @@ class Inventory_receive extends MY_Controller
 								$data_detail->quantity_box = $m_inventory_receivedetail->quantity_box;
 								$data_detail->quantity = $m_inventory_receivedetail->quantity;
 								$data_detail->condition = $m_inventory_receivedetail->condition;
+								$data_detail->m_grid_id = $m_inventory_receivedetail->m_grid_id;
+								$data_detail->supervisor = $m_inventory_receivedetail->supervisor;
 								$data_detail->notes = $m_inventory_receivedetail->notes;
 								$this->lib_inventory_in->receivedetail_add($data_detail, $user_id);
 							}
