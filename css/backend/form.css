@@ -1,0 +1,73 @@
+.form-table th {
+	text-align: right;
+	vertical-align: top;
+	font-weight: normal;
+	white-space: nowrap;
+	padding-top: 3px;
+}
+
+label.error {
+	position: absolute;
+	color: #FF0000;
+	background: #FFFF00;
+	border: 1px solid #FF0000;
+	z-index: 1;
+}
+
+.form-table-title {
+	font-weight: bold;
+}
+
+.table-data thead th {
+	height:22px;
+	padding-left: 3px;
+	padding-right: 3px;
+}
+
+.table-data thead th.ui-state-default {
+	border-left:none !important;
+	border-top:none !important;
+}
+
+.table-data thead th.ui-state-default.ui-corner-tr {
+	border-right:none !important;
+}
+
+.table-data tbody td {
+	height:22px;
+	padding-left: 3px;
+	padding-right: 3px;
+}
+
+.table-data tbody td.ui-state-default,
+.table-data tbody td.ui-widget-content {
+	border-left:none !important;
+	border-top:none !important;
+}
+
+.table-data tbody td.end {
+	border-right:none !important;
+}
+
+.table-data tfoot td {
+	height:22px;
+	padding-left: 3px;
+	padding-right: 3px;
+}
+
+.table-data tfoot td.ui-state-default {
+	border:none !important;
+}
+
+.table-data-button {
+	margin-left:1px;
+	border: none !important;
+    height: 20px;
+    width: 20px;
+}
+
+.table-data-button:link,
+.table-data-button:visited,
+.table-data-button:hover {
+	border: 1px solid #d3d3d3 !important;
+}
