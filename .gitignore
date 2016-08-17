@@ -5,3 +5,6 @@
 */cache/!index.html
 */cache/!.htaccess
 .svn
+application/config/config.php
+application/config/database.php
+application/logs
