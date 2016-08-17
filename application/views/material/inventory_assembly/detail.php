@@ -24,23 +24,16 @@
 <table class="table-data ui-widget ui-widget-content ui-corner-all" width="100%" cellspacing="0" cellpadding="0">
 	<thead>
 		<tr>
-			<th class="ui-state-default ui-corner-tl" width="22px" rowspan="2">&nbsp;</th>
-			<th class="ui-state-default" rowspan="2">Product</th>
-			<th class="ui-state-default" rowspan="2">Grid</th>
-			<th class="ui-state-default" rowspan="2">Project</th>
-			<th class="ui-state-default" rowspan="2">Business Partner</th>
-			<th class="ui-state-default" rowspan="2">Pallet</th>
-			<th class="ui-state-default" rowspan="2">Barcode</th>
-			<th class="ui-state-default" rowspan="2">Carton No</th>
-			<th class="ui-state-default" rowspan="2">Lot No</th>
-			<th class="ui-state-default" colspan="3">Volume</th>
-			<th class="ui-state-default" rowspan="2">Box</th>
-			<th class="ui-state-default" rowspan="2">Quantity</th>
-		</tr>
-		<tr>
-			<th class="ui-state-default">Length</th>
-			<th class="ui-state-default">Width</th>
-			<th class="ui-state-default">Height</th>
+			<th class="ui-state-default ui-corner-tl" width="22px">&nbsp;</th>
+			<th class="ui-state-default">Product</th>
+			<th class="ui-state-default">Grid</th>
+			<th class="ui-state-default">Project</th>
+			<th class="ui-state-default">Pallet</th>
+			<th class="ui-state-default">Barcode</th>
+			<th class="ui-state-default">Carton No</th>
+			<th class="ui-state-default">Lot No</th>
+			<th class="ui-state-default">Box</th>
+			<th class="ui-state-default">Quantity</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -54,14 +47,10 @@ foreach ($m_inventory_assemblysources as $m_inventory_assemblysource_idx=>$m_inv
 			</td>
 			<td class="ui-widget-content" align="center"><?php echo $m_inventory_assemblysource->m_grid_code;?></td>
 			<td class="ui-widget-content"><?php echo $m_inventory_assemblysource->c_project_name;?></td>
-			<td class="ui-widget-content"><?php echo $m_inventory_assemblysource->c_businesspartner_name;?></td>
 			<td class="ui-widget-content"><?php echo $m_inventory_assemblysource->pallet;?></td>
 			<td class="ui-widget-content"><?php echo $m_inventory_assemblysource->barcode;?></td>
 			<td class="ui-widget-content"><?php echo $m_inventory_assemblysource->carton_no;?></td>
 			<td class="ui-widget-content" align="center"><?php echo $m_inventory_assemblysource->lot_no;?></td>
-			<td class="ui-widget-content" align="right"><?php echo number_format_clear($m_inventory_assemblysource->volume_length, 4);?></td>
-			<td class="ui-widget-content" align="right"><?php echo number_format_clear($m_inventory_assemblysource->volume_width, 4);?></td>
-			<td class="ui-widget-content" align="right"><?php echo number_format_clear($m_inventory_assemblysource->volume_height, 4);?></td>
 			<td class="ui-widget-content" align="right">
 				<?php
 				$quantity_box = $m_inventory_assemblysource->quantity_box_from - $m_inventory_assemblysource->quantity_box_to;
@@ -80,26 +69,19 @@ foreach ($m_inventory_assemblysources as $m_inventory_assemblysource_idx=>$m_inv
 <table class="table-data ui-widget ui-widget-content ui-corner-all" width="100%" cellspacing="0" cellpadding="0">
 	<thead>
 		<tr>
-			<th class="ui-state-default ui-corner-tl" width="22px" rowspan="2">&nbsp;</th>
-			<th class="ui-state-default" rowspan="2">Product</th>
-			<th class="ui-state-default" rowspan="2">Grid</th>
-			<th class="ui-state-default" rowspan="2">Project</th>
-			<th class="ui-state-default" rowspan="2">Business Partner</th>
-			<th class="ui-state-default" rowspan="2">Pallet</th>
-			<th class="ui-state-default" rowspan="2">Barcode</th>
-			<th class="ui-state-default" rowspan="2">Carton No</th>
-			<th class="ui-state-default" rowspan="2">Lot No</th>
-			<th class="ui-state-default" colspan="3">Volume</th>
-			<th class="ui-state-default" rowspan="2">Condition</th>
-			<th class="ui-state-default" rowspan="2">Packed Date</th>
-			<th class="ui-state-default" rowspan="2">Expired Date</th>
-			<th class="ui-state-default" rowspan="2">Box</th>
-			<th class="ui-state-default" rowspan="2">Quantity</th>
-		</tr>
-		<tr>
-			<th class="ui-state-default">Length</th>
-			<th class="ui-state-default">Width</th>
-			<th class="ui-state-default">Height</th>
+			<th class="ui-state-default ui-corner-tl" width="22px">&nbsp;</th>
+			<th class="ui-state-default">Product</th>
+			<th class="ui-state-default">Grid</th>
+			<th class="ui-state-default">Project</th>
+			<th class="ui-state-default">Pallet</th>
+			<th class="ui-state-default">Barcode</th>
+			<th class="ui-state-default">Carton No</th>
+			<th class="ui-state-default">Lot No</th>
+			<th class="ui-state-default">Condition</th>
+			<th class="ui-state-default">Packed Date</th>
+			<th class="ui-state-default">Expired Date</th>
+			<th class="ui-state-default">Box</th>
+			<th class="ui-state-default">Quantity</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -113,14 +95,10 @@ foreach ($m_inventory_assemblytargets as $m_inventory_assemblytarget_idx=>$m_inv
 			</td>
 			<td class="ui-widget-content" align="center"><?php echo $m_inventory_assemblytarget->m_grid_code;?></td>
 			<td class="ui-widget-content"><?php echo $m_inventory_assemblytarget->c_project_name;?></td>
-			<td class="ui-widget-content"><?php echo $m_inventory_assemblytarget->c_businesspartner_name;?></td>
 			<td class="ui-widget-content"><?php echo $m_inventory_assemblytarget->pallet;?></td>
 			<td class="ui-widget-content"><?php echo $m_inventory_assemblytarget->barcode;?></td>
 			<td class="ui-widget-content"><?php echo $m_inventory_assemblytarget->carton_no;?></td>
 			<td class="ui-widget-content" align="center"><?php echo $m_inventory_assemblytarget->lot_no;?></td>
-			<td class="ui-widget-content" align="right"><?php echo number_format_clear($m_inventory_assemblytarget->volume_length, 4);?></td>
-			<td class="ui-widget-content" align="right"><?php echo number_format_clear($m_inventory_assemblytarget->volume_width, 4);?></td>
-			<td class="ui-widget-content" align="right"><?php echo number_format_clear($m_inventory_assemblytarget->volume_height, 4);?></td>
 			<td class="ui-widget-content" align="center"><?php echo $m_inventory_assemblytarget->condition;?></td>
 			<td class="ui-widget-content" align="center"><?php echo (!empty($m_inventory_assemblytarget->packed_date) ? date($this->config->item('server_display_date_format'), strtotime($m_inventory_assemblytarget->packed_date)) : '');?></td>
 			<td class="ui-widget-content" align="center"><?php echo (!empty($m_inventory_assemblytarget->expired_date) ? date($this->config->item('server_display_date_format'), strtotime($m_inventory_assemblytarget->expired_date)) : '');?></td>

@@ -153,7 +153,7 @@ jQuery(document).ready(function(){
 			{
 				title : "Enroll Inbound", 
 				width : 1015,
-				height: 700
+				height: 630
 			});
 		}
 		else

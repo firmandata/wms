@@ -92,7 +92,6 @@ class Lib_custom extends Lib_general
 		$m_product = new M_product();
 		$m_grid = new M_grid();
 		$c_project = new C_project();
-		$c_businesspartner = new C_businesspartner();
 		$received_date = date('Y-m-d');
 		$quantity_box = 1;
 		
@@ -102,18 +101,6 @@ class Lib_custom extends Lib_general
 			$m_product = new M_product($data->m_product_id);
 			$inbounddetail_relations['m_product'] = $m_product;
 			unset($data->m_product_id);
-		}
-		if (!property_exists($data, 'volume_length'))
-		{
-			$data->volume_length = $m_product->volume_length;
-		}
-		if (!property_exists($data, 'volume_width'))
-		{
-			$data->volume_width = $m_product->volume_width;
-		}
-		if (!property_exists($data, 'volume_height'))
-		{
-			$data->volume_height = $m_product->volume_height;
 		}
 		if (property_exists($data, 'm_grid_id'))
 		{
@@ -126,12 +113,6 @@ class Lib_custom extends Lib_general
 			$c_project = new C_project($data->c_project_id);
 			$inbounddetail_relations['c_project'] = $c_project;
 			unset($data->c_project_id);
-		}
-		if (property_exists($data, 'c_businesspartner_id'))
-		{
-			$c_businesspartner = new C_businesspartner($data->c_businesspartner_id);
-			$inbounddetail_relations['c_businesspartner'] = $c_businesspartner;
-			unset($data->c_businesspartner_id);
 		}
 		if (property_exists($data, 'received_date'))
 		{
@@ -150,11 +131,6 @@ class Lib_custom extends Lib_general
 			$data->quantity_box = $quantity_box;
 		}
 		
-		// -- Validate the project --
-		$project_is_valid = $this->project_is_valid($created_by, $c_project->id);
-		if (!$project_is_valid)
-			throw new Exception("Access denied for the project.");
-		
 		$this->CI->load->library('material/lib_inventory');
 		
 		// -- Get Grid --
@@ -170,7 +146,6 @@ class Lib_custom extends Lib_general
 		$data_m_inventory->m_product_id = $m_product->id;
 		$data_m_inventory->m_grid_id = $m_grid->id;
 		$data_m_inventory->c_project = $c_project->id;
-		$data_m_inventory->c_businesspartner = $c_businesspartner->id;
 		
 		$data_m_inventory_log = new stdClass();
 		$data_m_inventory_log->log_type = "INBOUND";
@@ -195,18 +170,111 @@ class Lib_custom extends Lib_general
 		return $cus_m_inventory_inbounddetail->id;
 	}
 	
+	public function inbounddetail_update($cus_m_inventory_inbounddetail_id, $data, $updated_by = NULL)
+	{
+		$this->CI->load->library('material/lib_inventory');
+		
+		$cus_m_inventory_inbounddetail = new Cus_m_inventory_inbounddetail($cus_m_inventory_inbounddetail_id);
+		$m_inventory = $cus_m_inventory_inbounddetail->m_inventory->get();
+		$m_product = $cus_m_inventory_inbounddetail->m_product->get();
+		$m_grid = $cus_m_inventory_inbounddetail->m_grid->get();
+		$c_project = $cus_m_inventory_inbounddetail->c_project->get();
+		$received_date = $cus_m_inventory_inbounddetail->received_date;
+		$quantity = $cus_m_inventory_inbounddetail->quantity;
+		$quantity_box = $cus_m_inventory_inbounddetail->quantity_box;
+		
+		$inbounddetail_relations = array();
+		if (property_exists($data, 'm_inventory_id'))
+		{
+			$m_inventory = new M_inventory($data->m_inventory_id);
+			$inbounddetail_relations['m_inventory'] = $m_inventory;
+			unset($data->m_inventory_id);
+		}
+		if (property_exists($data, 'm_product_id'))
+		{
+			$m_product = new M_product($data->m_product_id);
+			$inbounddetail_relations['m_product'] = $m_product;
+			unset($data->m_product_id);
+		}
+		if (property_exists($data, 'm_grid_id'))
+		{
+			$m_grid = new M_grid($data->m_grid_id);
+			$inbounddetail_relations['m_grid'] = $m_grid;
+			unset($data->m_grid_id);
+		}
+		if (!$m_grid->exists())
+		{
+			$m_grid
+				->where('code', $this->CI->config->item('inventory_default_grid'))
+				->get();
+		}
+		if (property_exists($data, 'c_project_id'))
+		{
+			$c_project = new C_project($data->c_project_id);
+			$inbounddetail_relations['c_project'] = $c_project;
+			unset($data->c_project_id);
+		}
+		if (property_exists($data, 'received_date'))
+		{
+			$received_date = $data->received_date;
+		}
+		$data->received_date = $received_date;
+		if (property_exists($data, 'quantity'))
+		{
+			$quantity = $data->quantity;
+		}
+		if (property_exists($data, 'quantity_box'))
+		{
+			$quantity_box = $data->quantity_box;
+		}
+		
+		// -- Get Inventory Quantity --
+		$quantity_box_inventory = $m_inventory->quantity_box;
+		if ($quantity_box > $m_inventory->quantity_box)
+			$quantity_box_inventory += $quantity_box - $m_inventory->quantity_box;
+		elseif ($m_inventory->quantity_box > $quantity_box)
+			$quantity_box_inventory -= $m_inventory->quantity_box - $quantity_box;
+		
+		$quantity_inventory = $m_inventory->quantity;
+		if ($quantity > $m_inventory->quantity)
+			$quantity_inventory += $quantity - $m_inventory->quantity;
+		elseif ($m_inventory->quantity > $quantity)
+			$quantity_inventory -= $m_inventory->quantity - $quantity;
+		
+		// -- Inventory Update --
+		$data_m_inventory = $data;
+		$data_m_inventory->m_product_id = $m_product->id;
+		$data_m_inventory->m_grid_id = $m_grid->id;
+		$data_m_inventory->c_project_id = $c_project->id;
+		$data_m_inventory->quantity_box = $quantity_box_inventory;
+		$data_m_inventory->quantity = $quantity_inventory;
+		
+		$data_m_inventory_log = new stdClass();
+		$data_m_inventory_log->log_type = "INBOUND";
+		$data_m_inventory_log->notes = "Modify Custom Inbound";
+		
+		$m_inventory_id = $this->CI->lib_inventory->update($m_inventory->id, $data_m_inventory, $updated_by, $data_m_inventory_log);
+		
+		// -- Custom Inbound Detail Update --
+		$data->updated_by = $updated_by;
+		
+		$this->set_model_fields_values($cus_m_inventory_inbounddetail, $data);
+		$m_inventory_inbounddetail_saved = $cus_m_inventory_inbounddetail->save($inbounddetail_relations);
+		if (!$m_inventory_inbounddetail_saved)
+			throw new Exception($cus_m_inventory_inbounddetail->error->string);
+		
+		$m_inventory = new M_inventory($m_inventory_id);
+		$this->CI->lib_inventory->verify_pallet_grid($m_inventory->pallet, $m_grid->id);
+		
+		return $cus_m_inventory_inbounddetail_id;
+	}
+	
 	public function inbounddetail_remove($cus_m_inventory_inbounddetail_id, $removed_by = NULL)
 	{
 		$this->CI->load->library('material/lib_inventory');
 		
 		$cus_m_inventory_inbounddetail = new Cus_m_inventory_inbounddetail($cus_m_inventory_inbounddetail_id);
 		$m_inventory = $cus_m_inventory_inbounddetail->m_inventory->get();
-		
-		// -- Validate the project --
-		$c_project = $cus_m_inventory_inbounddetail->c_project->get();
-		$project_is_valid = $this->project_is_valid($removed_by, $c_project->id);
-		if (!$project_is_valid)
-			throw new Exception("Access denied for the project.");
 		
 		// -- Custom Inbound Detail Delete --
 		if (!$cus_m_inventory_inbounddetail->delete())

@@ -69,7 +69,7 @@ class Inventory_shipment extends REST_Controller
 		if ($to_month && $to_year)
 			$this->db->where("isp.shipment_date <=", add_date(date('Y-m-d', mktime(0, 0, 0, $to_month, 1, $to_year)), -1, 1));
 		
-		$this->lib_custom->project_query_filter('ipld.c_project_id', $this->c_project_ids);
+		$this->lib_custom->project_query_filter('oo.c_project_id', $this->c_project_ids);
 		
 		parent::_get_list_json();
 	}
@@ -116,8 +116,8 @@ class Inventory_shipment extends REST_Controller
 			->select("ipgd.m_inventory_picking_id, ispd.packed_group, ipg.code m_inventory_picking_code, ipg.picking_date m_inventory_picking_date")
 			->select("ipld.m_inventory_picklist_id, ipl.code m_inventory_picklist_code, ipl.picklist_date m_inventory_picklist_date")
 			->select("ood.c_orderout_id, oo.code c_orderout_code, oo.orderout_date c_orderout_date, oo.request_arrive_date c_orderout_request_arrive_date")
-			->select("ipld.c_businesspartner_id, bp.name c_businesspartner_name")
-			->select("ipld.c_project_id, prj.name c_project_name")
+			->select("oo.c_businesspartner_id, bp.name c_businesspartner_name")
+			->select("oo.c_project_id, prj.name c_project_name")
 			->select("ipld.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.uom m_product_uom")
 			->select("ipld.pallet, ipld.barcode, ipld.condition")
 			->select("SUM(ispd.quantity_box) quantity_box", FALSE)
@@ -129,16 +129,16 @@ class Inventory_shipment extends REST_Controller
 			->join('m_inventory_picklists ipl', "ipl.id = ipld.m_inventory_picklist_id")
 			->join('c_orderoutdetails ood', "ood.id = ipld.c_orderoutdetail_id")
 			->join('c_orderouts oo', "oo.id = ood.c_orderout_id")
-			->join('c_businesspartners bp', "bp.id = ipld.c_businesspartner_id", 'left')
+			->join('c_businesspartners bp', "bp.id = oo.c_businesspartner_id")
 			->join('m_products pro', "pro.id = ipld.m_product_id", 'left')
-			->join('c_projects prj', "prj.id = ipld.c_project_id", 'left')
+			->join('c_projects prj', "prj.id = oo.c_project_id", 'left')
 			->group_by(
 				array(
 					'ipgd.m_inventory_picking_id', 'ispd.packed_group', 'ipg.code', 'ipg.picking_date',
 					'ipld.m_inventory_picklist_id', 'ipl.code', 'ipl.picklist_date',
 					'ood.c_orderout_id', 'oo.code', 'oo.orderout_date', 'oo.request_arrive_date',
-					'ipld.c_businesspartner_id', 'bp.name',
-					'ipld.c_project_id', 'prj.name',
+					'oo.c_businesspartner_id', 'bp.name',
+					'oo.c_project_id', 'prj.name',
 					'ipld.m_product_id', 'pro.code', 'pro.name', 'pro.uom',
 					'ipld.pallet', 'ipld.barcode', 'ipld.condition'
 				)
@@ -148,7 +148,7 @@ class Inventory_shipment extends REST_Controller
 		if ($id !== '')
 			$this->db->where("ispd.m_inventory_shipment_id", $id);
 		
-		$this->lib_custom->project_query_filter('ipld.c_project_id', $this->c_project_ids);
+		$this->lib_custom->project_query_filter('oo.c_project_id', $this->c_project_ids);
 		
 		parent::_get_list_json();
 	}
@@ -187,7 +187,7 @@ class Inventory_shipment extends REST_Controller
 				)
 			);
 		
-		$this->lib_custom->project_query_filter('ipld.c_project_id', $this->c_project_ids);
+		$this->lib_custom->project_query_filter('oo.c_project_id', $this->c_project_ids);
 		
 		parent::_get_list_json();
 	}

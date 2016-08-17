@@ -52,13 +52,8 @@ function material_inventory_assembly_form_inventory_list_load_table(table_id){
 			'Pallet',
 			'Carton No',
 			'Lot No',
-			'Length',
-			'Width',
-			'Height',
 			'Project Id',
-			'Project',
-			'Business Partner Id',
-			'Business Partner'
+			'Project'
 		], 
 		colModel: [
 			{name:'m_product_id', index:'pro.id', hidden:true, frozen:true},
@@ -85,13 +80,8 @@ function material_inventory_assembly_form_inventory_list_load_table(table_id){
 			{name:'pallet', index:'inv.pallet', width:120, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			{name:'carton_no', index:'inv.carton_no', width:80, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			{name:'lot_no', index:'inv.lot_no', width:90, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
-			{name:'volume_length', index:'inv.volume_length', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
-			{name:'volume_width', index:'inv.volume_width', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
-			{name:'volume_height', index:'inv.volume_height', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
 			{name:'c_project_id', index:'prj.id', hidden:true},
-			{name:'c_project_name', index:'prj.name', width:120, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
-			{name:'c_businesspartner_id', index:'bp.id', hidden:true},
-			{name:'c_businesspartner_name', index:'bp.name', width:120, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}}
+			{name:'c_project_name', index:'prj.name', width:120, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}}
 		],
 		pager: '#' + table_id + '_nav', 
 		// sortname: 'pro.code', 

@@ -20,8 +20,6 @@ label.error {
 
 .table-data thead th {
 	height:22px;
-	padding-left: 3px;
-	padding-right: 3px;
 }
 
 .table-data thead th.ui-state-default {
@@ -35,8 +33,6 @@ label.error {
 
 .table-data tbody td {
 	height:22px;
-	padding-left: 3px;
-	padding-right: 3px;
 }
 
 .table-data tbody td.ui-state-default,
@@ -51,8 +47,6 @@ label.error {
 
 .table-data tfoot td {
 	height:22px;
-	padding-left: 3px;
-	padding-right: 3px;
 }
 
 .table-data tfoot td.ui-state-default {

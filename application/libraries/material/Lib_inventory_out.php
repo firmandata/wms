@@ -307,7 +307,10 @@ class lib_inventory_out extends Lib_general
 		$this->CI->db
 			->select_if_null("SUM(ipld.quantity)", 0, 'quantity')
 			->from('m_inventory_picklistdetails ipld')
+			->join('c_orderoutdetails ood', "ood.id = ipld.c_orderoutdetail_id")
+			->join('c_orderouts oo', "oo.id = ood.c_orderout_id")
 			->where('ipld.c_orderoutdetail_id', $c_orderoutdetail->id);
+		$this->CI->lib_custom->project_query_filter('oo.c_project_id', $c_project_ids);
 		$table = $this->CI->db
 			->get();
 		if ($table->num_rows() > 0)
@@ -424,9 +427,11 @@ class lib_inventory_out extends Lib_general
 		// -- Get Pick List Detail Exists --
 		$this->CI->db
 			->select("ipld.id")
-			->from('m_inventory_picklistdetails ipld');
+			->from('m_inventory_picklistdetails ipld')
+			->join('c_orderoutdetails ood', "ood.id = ipld.c_orderoutdetail_id")
+			->join('c_orderouts oo', "oo.id = ood.c_orderout_id");
 		$this->picklistdetail_criteria_query($data, 'ipld', 'm_inventory_picklistdetails');
-		$this->CI->lib_custom->project_query_filter('ipld.c_project_id', $c_project_ids);
+		$this->CI->lib_custom->project_query_filter('oo.c_project_id', $c_project_ids);
 		$table = $this->CI->db
 			->get();
 		if ($table->num_rows() == 0)
@@ -477,7 +482,6 @@ class lib_inventory_out extends Lib_general
 			$m_inventory_picklistdetail_relations['m_grid'] = $m_inventory->m_grid->get();
 			$m_inventory_picklistdetail_relations['m_product'] = $m_inventory->m_product->get();
 			$m_inventory_picklistdetail_relations['c_project'] = $m_inventory->c_project->get();
-			$m_inventory_picklistdetail_relations['c_businesspartner'] = $m_inventory->c_businesspartner->get();
 			$quantity_box = $m_inventory->quantity_box;
 			$quantity = $m_inventory->quantity;
 			unset($data->m_inventory_id);
@@ -485,10 +489,6 @@ class lib_inventory_out extends Lib_general
 		if (property_exists($data, 'c_project_id'))
 		{
 			unset($data->c_project_id);
-		}
-		if (property_exists($data, 'c_businesspartner_id'))
-		{
-			unset($data->c_businesspartner_id);
 		}
 		if (property_exists($data, 'quantity_box'))
 		{
@@ -519,9 +519,6 @@ class lib_inventory_out extends Lib_general
 		$data->pallet = $m_inventory->pallet;
 		$data->carton_no = $m_inventory->carton_no;
 		$data->lot_no = $m_inventory->lot_no;
-		$data->volume_length = $m_inventory->volume_length;
-		$data->volume_width = $m_inventory->volume_width;
-		$data->volume_height = $m_inventory->volume_height;
 		$data->condition = $m_inventory->condition;
 		$data->created_by = $created_by;
 		
@@ -556,13 +553,13 @@ class lib_inventory_out extends Lib_general
 		$c_orderout = $c_orderoutdetail->c_orderout->get();
 		$m_inventory_picklist = $m_inventory_picklistdetail->m_inventory_picklist->get();
 		$m_inventory = $m_inventory_picklistdetail->m_inventory->get();
-		$c_project = $m_inventory_picklistdetail->c_project->get();
 		$m_grid = $m_inventory->m_grid->get();
 		
+		$c_project = $c_orderout->c_project->get();
 		$project_is_valid = $this->CI->lib_custom->project_is_valid($removed_by, $c_project->id);
 		if (!$project_is_valid)
 			throw new Exception("Access denied for the project.");
-		
+			
 		// -- Allocate adjust increase inventory quantity --
 		$data_m_inventory_log = new stdClass();
 		$data_m_inventory_log->log_type = "PICKLIST";
@@ -596,7 +593,7 @@ class lib_inventory_out extends Lib_general
 	private function picklistdetail_criteria_query($data, $table_alias, $table_name = 'm_inventory_picklistdetails')
 	{
 		$fields = array(
-			'm_grid_id', 'm_product_id', 'c_project_id', 'c_businesspartner_id', 'pallet', 'barcode', 'carton_no', 'lot_no', 'volume_length', 'volume_width', 'volume_height', 'condition', 'packed_date', 'received_date', 'expired_date'
+			'm_grid_id', 'm_product_id', 'c_project_id', 'pallet', 'barcode', 'carton_no', 'lot_no', 'condition', 'packed_date', 'received_date', 'expired_date'
 		);
 		if ($table_name == 'm_inventory_picklistdetails')
 		{
@@ -823,9 +820,11 @@ class lib_inventory_out extends Lib_general
 			->select_if_null("SUM(ipgd.quantity_box)", 0, 'quantity_box')
 			->from('m_inventory_pickingdetails ipgd')
 			->join('m_inventory_picklistdetails ipld', "ipld.id = ipgd.m_inventory_picklistdetail_id")
+			->join('c_orderoutdetails ood', "ood.id = ipld.c_orderoutdetail_id")
+			->join('c_orderouts oo', "oo.id = ood.c_orderout_id")
 			->where('ipld.m_inventory_picklist_id', $m_inventory_picklist->id);
 		$this->pickingdetail_criteria_query($data, 'ipld', 'm_inventory_picklistdetails');
-		$this->CI->lib_custom->project_query_filter('ipld.c_project_id', $c_project_ids);
+		$this->CI->lib_custom->project_query_filter('oo.c_project_id', $c_project_ids);
 		$table = $this->CI->db
 			->get();
 		if ($table->num_rows() > 0)
@@ -838,9 +837,11 @@ class lib_inventory_out extends Lib_general
 		$this->CI->db
 			->select_if_null("SUM(ipld.quantity_box)", 0, 'quantity_box')
 			->from('m_inventory_picklistdetails ipld')
+			->join('c_orderoutdetails ood', "ood.id = ipld.c_orderoutdetail_id")
+			->join('c_orderouts oo', "oo.id = ood.c_orderout_id")
 			->where('ipld.m_inventory_picklist_id', $m_inventory_picklist->id);
 		$this->pickingdetail_criteria_query($data, 'ipld', 'm_inventory_picklistdetails');
-		$this->CI->lib_custom->project_query_filter('ipld.c_project_id', $c_project_ids);
+		$this->CI->lib_custom->project_query_filter('oo.c_project_id', $c_project_ids);
 		$table = $this->CI->db
 			->get();
 		if ($table->num_rows() > 0)
@@ -868,9 +869,11 @@ class lib_inventory_out extends Lib_general
 			->select("ipld.id, ipld.quantity_box, ipld.quantity, inv.quantity_per_box")
 			->from('m_inventory_picklistdetails ipld')
 			->join('m_inventories inv', "inv.id = ipld.m_inventory_id")
+			->join('c_orderoutdetails ood', "ood.id = ipld.c_orderoutdetail_id")
+			->join('c_orderouts oo', "oo.id = ood.c_orderout_id")
 			->where('ipld.m_inventory_picklist_id', $m_inventory_picklist->id);
 		$this->pickingdetail_criteria_query($data, 'ipld', 'm_inventory_picklistdetails');
-		$this->CI->lib_custom->project_query_filter('ipld.c_project_id', $c_project_ids);
+		$this->CI->lib_custom->project_query_filter('oo.c_project_id', $c_project_ids);
 		$table = $this->CI->db
 			->order_by('ipld.id', 'asc')
 			->get();
@@ -940,10 +943,12 @@ class lib_inventory_out extends Lib_general
 			->select("ipgd.id")
 			->from('m_inventory_pickingdetails ipgd')
 			->join('m_inventory_picklistdetails ipld', "ipld.id = ipgd.m_inventory_picklistdetail_id")
+			->join('c_orderoutdetails ood', "ood.id = ipld.c_orderoutdetail_id")
+			->join('c_orderouts oo', "oo.id = ood.c_orderout_id")
 			->where('ipgd.m_inventory_picking_id', $m_inventory_picking->id);
 		$this->pickingdetail_criteria_query($data, 'ipld', 'm_inventory_picklistdetails');
 		$this->pickingdetail_criteria_query($data, 'ipgd', 'm_inventory_pickingdetails');
-		$this->CI->lib_custom->project_query_filter('ipld.c_project_id', $c_project_ids);
+		$this->CI->lib_custom->project_query_filter('oo.c_project_id', $c_project_ids);
 		$table = $this->CI->db
 			->get();
 		if ($table->num_rows() == 0)
@@ -982,7 +987,7 @@ class lib_inventory_out extends Lib_general
 			
 			$c_orderoutdetail = $m_inventory_picklistdetail->c_orderoutdetail->get();
 			$c_orderout = $c_orderoutdetail->c_orderout->get();
-			$c_project = $m_inventory_picklistdetail->c_project->get();
+			$c_project = $c_orderout->c_project->get();
 			$project_is_valid = $this->CI->lib_custom->project_is_valid($created_by, $c_project->id);
 			if (!$project_is_valid)
 				throw new Exception("Access denied for the project.");
@@ -1046,7 +1051,7 @@ class lib_inventory_out extends Lib_general
 		$m_inventory = $m_inventory_picklistdetail->m_inventory->get();
 		$c_orderoutdetail = $m_inventory_picklistdetail->c_orderoutdetail->get();
 		$c_orderout = $c_orderoutdetail->c_orderout->get();
-		$c_project = $m_inventory_picklistdetail->c_project->get();
+		$c_project = $c_orderout->c_project->get();
 		$project_is_valid = $this->CI->lib_custom->project_is_valid($removed_by, $c_project->id);
 		if (!$project_is_valid)
 			throw new Exception("Access denied for the project.");
@@ -1084,15 +1089,10 @@ class lib_inventory_out extends Lib_general
 			$fields[] = 'm_inventory_picklist_id';
 			$fields[] = 'm_grid_id';
 			$fields[] = 'm_product_id';
-			$fields[] = 'c_project_id';
-			$fields[] = 'c_businesspartner_id';
 			$fields[] = 'pallet';
 			$fields[] = 'barcode';
 			$fields[] = 'carton_no';
 			$fields[] = 'lot_no';
-			$fields[] = 'volume_length';
-			$fields[] = 'volume_width';
-			$fields[] = 'volume_height';
 			$fields[] = 'condition';
 		}
 		if ($table_name == 'm_inventory_pickingdetails')
@@ -1246,10 +1246,12 @@ class lib_inventory_out extends Lib_general
 			->from('m_inventory_shipmentdetails ispd')
 			->join('m_inventory_pickingdetails ipgd', "ipgd.id = ispd.m_inventory_pickingdetail_id")
 			->join('m_inventory_picklistdetails ipld', "ipld.id = ipgd.m_inventory_picklistdetail_id")
+			->join('c_orderoutdetails ood', "ood.id = ipld.c_orderoutdetail_id")
+			->join('c_orderouts oo', "oo.id = ood.c_orderout_id")
 			->where('ipgd.m_inventory_picking_id', $m_inventory_picking->id);
 		$this->shipmentdetail_criteria_query($data, 'ipld', 'm_inventory_picklistdetails');
 		$this->shipmentdetail_criteria_query($data, 'ipgd', 'm_inventory_pickingdetails');
-		$this->CI->lib_custom->project_query_filter('ipld.c_project_id', $c_project_ids);
+		$this->CI->lib_custom->project_query_filter('oo.c_project_id', $c_project_ids);
 		$table = $this->CI->db
 			->get();
 		if ($table->num_rows() > 0)
@@ -1263,10 +1265,12 @@ class lib_inventory_out extends Lib_general
 			->select_if_null("SUM(ipgd.quantity_box)", 0, 'quantity_box')
 			->from('m_inventory_pickingdetails ipgd')
 			->join('m_inventory_picklistdetails ipld', "ipld.id = ipgd.m_inventory_picklistdetail_id")
+			->join('c_orderoutdetails ood', "ood.id = ipld.c_orderoutdetail_id")
+			->join('c_orderouts oo', "oo.id = ood.c_orderout_id")
 			->where('ipgd.m_inventory_picking_id', $m_inventory_picking->id);
 		$this->shipmentdetail_criteria_query($data, 'ipld', 'm_inventory_picklistdetails');
 		$this->shipmentdetail_criteria_query($data, 'ipgd', 'm_inventory_pickingdetails');
-		$this->CI->lib_custom->project_query_filter('ipld.c_project_id', $c_project_ids);
+		$this->CI->lib_custom->project_query_filter('oo.c_project_id', $c_project_ids);
 		$table = $this->CI->db
 			->get();
 		if ($table->num_rows() > 0)
@@ -1295,10 +1299,12 @@ class lib_inventory_out extends Lib_general
 			->from('m_inventory_pickingdetails ipgd')
 			->join('m_inventory_picklistdetails ipld', "ipld.id = ipgd.m_inventory_picklistdetail_id")
 			->join('m_inventories inv', "inv.id = ipld.m_inventory_id")
+			->join('c_orderoutdetails ood', "ood.id = ipld.c_orderoutdetail_id")
+			->join('c_orderouts oo', "oo.id = ood.c_orderout_id")
 			->where('ipgd.m_inventory_picking_id', $m_inventory_picking->id);
 		$this->shipmentdetail_criteria_query($data, 'ipld', 'm_inventory_picklistdetails');
 		$this->shipmentdetail_criteria_query($data, 'ipgd', 'm_inventory_pickingdetails');
-		$this->CI->lib_custom->project_query_filter('ipld.c_project_id', $c_project_ids);
+		$this->CI->lib_custom->project_query_filter('oo.c_project_id', $c_project_ids);
 		$table = $this->CI->db
 			->order_by('ipgd.id', 'asc')
 			->get();
@@ -1374,11 +1380,13 @@ class lib_inventory_out extends Lib_general
 			->from('m_inventory_shipmentdetails ispd')
 			->join('m_inventory_pickingdetails ipgd', "ipgd.id = ispd.m_inventory_pickingdetail_id")
 			->join('m_inventory_picklistdetails ipld', "ipld.id = ipgd.m_inventory_picklistdetail_id")
+			->join('c_orderoutdetails ood', "ood.id = ipld.c_orderoutdetail_id")
+			->join('c_orderouts oo', "oo.id = ood.c_orderout_id")
 			->where('ispd.m_inventory_shipment_id', $m_inventory_shipment->id)
 			->where('ipgd.m_inventory_picking_id', $m_inventory_picking->id);
 		$this->shipmentdetail_criteria_query($data, 'ipld', 'm_inventory_picklistdetails');
 		$this->shipmentdetail_criteria_query($data, 'ispd', 'm_inventory_shipmentdetails');
-		$this->CI->lib_custom->project_query_filter('ipld.c_project_id', $c_project_ids);
+		$this->CI->lib_custom->project_query_filter('oo.c_project_id', $c_project_ids);
 		$table = $this->CI->db
 			->get();
 		if ($table->num_rows() == 0)
@@ -1421,7 +1429,7 @@ class lib_inventory_out extends Lib_general
 			$m_inventory_picklistdetail = $m_inventory_pickingdetail->m_inventory_picklistdetail->get();
 			$c_orderoutdetail = $m_inventory_picklistdetail->c_orderoutdetail->get();
 			$c_orderout = $c_orderoutdetail->c_orderout->get();
-			$c_project = $m_inventory_picklistdetail->c_project->get();
+			$c_project = $c_orderout->c_project->get();
 			$project_is_valid = $this->CI->lib_custom->project_is_valid($created_by, $c_project->id);
 			if (!$project_is_valid)
 				throw new Exception("Access denied for the project.");
@@ -1491,7 +1499,7 @@ class lib_inventory_out extends Lib_general
 		$m_inventory = $m_inventory_picklistdetail->m_inventory->get();
 		$c_orderoutdetail = $m_inventory_picklistdetail->c_orderoutdetail->get();
 		$c_orderout = $c_orderoutdetail->c_orderout->get();
-		$c_project = $m_inventory_picklistdetail->c_project->get();
+		$c_project = $c_orderout->c_project->get();
 		$project_is_valid = $this->CI->lib_custom->project_is_valid($removed_by, $c_project->id);
 		if (!$project_is_valid)
 			throw new Exception("Access denied for the project.");
@@ -1521,15 +1529,10 @@ class lib_inventory_out extends Lib_general
 			$fields[] = 'm_inventory_picklist_id';
 			$fields[] = 'm_grid_id';
 			$fields[] = 'm_product_id';
-			$fields[] = 'c_project_id';
-			$fields[] = 'c_businesspartner_id';
 			$fields[] = 'pallet';
 			$fields[] = 'barcode';
 			$fields[] = 'carton_no';
 			$fields[] = 'lot_no';
-			$fields[] = 'volume_length';
-			$fields[] = 'volume_width';
-			$fields[] = 'volume_height';
 			$fields[] = 'condition';
 		}
 		if ($table_name == 'm_inventory_pickingdetails' || $table_name == 'm_inventory_shipmentdetails')

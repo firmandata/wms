@@ -45,7 +45,7 @@ class Inventory extends MY_Controller
 		$is_show_empty = $this->input->get_post('is_show_empty');
 		
 		$inventory_sql = 
-			 "(SELECT	  inv.m_product_id, inv.m_grid_id, inv.c_project_id, inv.c_businesspartner_id "
+			 "(SELECT	  inv.m_product_id, inv.m_grid_id, inv.c_project_id "
 			."			, inv.pallet "
 			."			, inv.received_date "
 			."			, ".$this->db->if_null("SUM(inv.quantity_box)", 0)." quantity_box_exist "
@@ -68,7 +68,7 @@ class Inventory extends MY_Controller
 			$inventory_sql .= " WHERE ". implode(" AND ", $criterias);
 		$inventory_sql .= 
 			 " GROUP	BY "
-			."			  inv.m_product_id, inv.m_grid_id, inv.c_project_id, inv.c_businesspartner_id "
+			."			  inv.m_product_id, inv.m_grid_id, inv.c_project_id "
 			."			, inv.pallet "
 			."			, inv.received_date "
 			.") inv ";
@@ -77,7 +77,6 @@ class Inventory extends MY_Controller
 			->select("pro.id m_product_id, pro.code m_product_code, pro.name m_product_name")
 			->select("grd.id m_grid_id, grd.code m_grid_code")
 			->select("inv.pallet")
-			->select("bp.name c_businesspartner_name")
 			->select("prj.name c_project_name")
 			->select_datediff_day('inv.received_date', $this->db->getdate(), 'inventory_age')
 			->select("inv.quantity_box_exist, inv.quantity_box_allocated, inv.quantity_box_picked, inv.quantity_box_onhand")
@@ -85,8 +84,7 @@ class Inventory extends MY_Controller
 			->from($inventory_sql, FALSE)
 			->join('m_products pro', "pro.id = inv.m_product_id")
 			->join('m_grids grd', "grd.id = inv.m_grid_id")
-			->join('c_projects prj', "prj.id = inv.c_project_id", 'left')
-			->join('c_businesspartners bp', "bp.id = inv.c_businesspartner_id", 'left');
+			->join('c_projects prj', "prj.id = inv.c_project_id", 'left');
 	}
 	
 	public function get_summary_list_json()
@@ -122,7 +120,6 @@ class Inventory extends MY_Controller
 			'quantity_onhand'		=> 'Onhand',
 			'pallet'				=> 'Pallet',
 			'inventory_age'			=> 'Age',
-			'c_businesspartner_name'=> 'Business Partner',
 			'c_project_name'		=> 'Project'
 		);
 		
@@ -158,9 +155,8 @@ class Inventory extends MY_Controller
 		$is_show_empty = $this->input->get_post('is_show_empty');
 		
 		$inventory_sql = 
-			 "(SELECT	  inv.m_product_id, inv.m_grid_id, inv.c_project_id, inv.c_businesspartner_id "
+			 "(SELECT	  inv.m_product_id, inv.m_grid_id, inv.c_project_id "
 			."			, inv.barcode, inv.pallet, inv.carton_no, inv.packed_date, inv.expired_date, inv.condition, inv.lot_no "
-			."			, inv.volume_length, inv.volume_width, inv.volume_height "
 			."			, inv.received_date "
 			."			, ".$this->db->if_null("SUM(inv.quantity_box)", 0)." quantity_box_exist "
 			."			, ".$this->db->if_null("SUM(inv.quantity_box_allocated)", 0)." quantity_box_allocated "
@@ -182,9 +178,8 @@ class Inventory extends MY_Controller
 			$inventory_sql .= " WHERE ". implode(" AND ", $criterias);
 		$inventory_sql .= 
 			 " GROUP	BY "
-			."			  inv.m_product_id, inv.m_grid_id, inv.c_project_id, inv.c_businesspartner_id "
+			."			  inv.m_product_id, inv.m_grid_id, inv.c_project_id "
 			."			, inv.barcode, inv.pallet, inv.carton_no, inv.packed_date, inv.expired_date, inv.condition, inv.lot_no "
-			."			, inv.volume_length, inv.volume_width, inv.volume_height "
 			."			, inv.received_date "
 			.") inv ";
 		
@@ -194,8 +189,6 @@ class Inventory extends MY_Controller
 			->select("wh.id m_warehouse_id, wh.code m_warehouse_code, wh.name m_warehouse_name")
 			->select("prog.id m_productgroup_id, prog.code m_productgroup_code, prog.name m_productgroup_name")
 			->select("inv.barcode, inv.pallet, inv.carton_no, inv.packed_date, inv.expired_date, inv.condition, inv.lot_no")
-			->select("inv.volume_length, inv.volume_width, inv.volume_height")
-			->select("bp.name c_businesspartner_name")
 			->select("prj.name c_project_name")
 			->select_datediff_day('inv.received_date', $this->db->getdate(), 'inventory_age')
 			->select("inv.quantity_box_exist, inv.quantity_box_allocated, inv.quantity_box_picked, inv.quantity_box_onhand")
@@ -205,8 +198,7 @@ class Inventory extends MY_Controller
 			->join('m_grids grd', "grd.id = inv.m_grid_id")
 			->join('m_warehouses wh', "wh.id = grd.m_warehouse_id")
 			->join('m_productgroups prog', "prog.id = grd.m_productgroup_id", 'left')
-			->join('c_projects prj', "prj.id = inv.c_project_id", 'left')
-			->join('c_businesspartners bp', "bp.id = inv.c_businesspartner_id", 'left');
+			->join('c_projects prj', "prj.id = inv.c_project_id", 'left');
 	}
 	
 	public function get_detail_list_json()
@@ -250,12 +242,8 @@ class Inventory extends MY_Controller
 			'packed_date'			=> 'Packed Date',
 			'expired_date'			=> 'Expired Date',
 			'lot_no'				=> 'Lot No',
-			'volume_length'			=> 'Length',
-			'volume_width'			=> 'Width',
-			'volume_height'			=> 'Height',
 			'condition'				=> 'Condition',
 			'inventory_age'			=> 'Age',
-			'c_businesspartner_name'=> 'Business Partner',
 			'c_project_name'		=> 'Project'
 		);
 		

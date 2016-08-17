@@ -72,7 +72,7 @@ class Inventory_inbound extends MY_Controller
 		$this->db->where("ii.inbound_date >=", date('Y-m-d', mktime(0, 0, 0, $from_month, 1, $from_year)));
 		$this->db->where("ii.inbound_date <=", add_date(date('Y-m-d', mktime(0, 0, 0, $to_month, 1, $to_year)), -1, 1));
 		
-		$this->lib_custom->project_query_filter('iid.c_project_id', $this->c_project_ids);
+		$this->lib_custom->project_query_filter('oi.c_project_id', $this->c_project_ids);
 		
 		parent::_get_list_json();
 	}
@@ -87,7 +87,6 @@ class Inventory_inbound extends MY_Controller
 			->select("ir.code m_inventory_receive_code, ir.receive_date m_inventory_receive_date")
 			->select("ir.vehicle_no m_inventory_receive_vehicle_no, ir.vehicle_driver m_inventory_receive_vehicle_driver, ir.transport_mode m_inventory_receive_transport_mode")
 			->select("oid.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.uom m_product_uom")
-			->select("pro.volume_length m_product_volume_length, pro.volume_width m_product_volume_width, pro.volume_height m_product_volume_height")
 			->select("oi.code c_orderin_code, oi.orderin_date c_orderin_date")
 			->select("oi.c_businesspartner_id, bp.name c_businesspartner_name")
 			->from('m_inventory_receivedetails ird')
@@ -110,20 +109,21 @@ class Inventory_inbound extends MY_Controller
 		
 		$this->db
 			->select("iid.id, iid.barcode, iid.quantity, iid.quantity_box, iid.pallet, iid.carton_no, iid.packed_date, iid.expired_date, iid.lot_no, iid.condition")
-			->select("iid.m_product_id, pro.code product_code, pro.name product_name, pro.uom product_uom")
+			->select("oid.m_product_id, pro.code product_code, pro.name product_name, pro.uom product_uom")
 			->select("iid.m_grid_id, gri.code grid_code")
-			->select("iid.volume_length, iid.volume_width, iid.volume_height")
 			->select("iid.created")
 			->from('m_inventory_inbounddetails iid')
 			->join('m_inventory_receivedetails ird', "ird.id = iid.m_inventory_receivedetail_id")
-			->join('m_products pro', "pro.id = iid.m_product_id")
+			->join('c_orderindetails oid', "oid.id = ird.c_orderindetail_id")
+			->join('c_orderins oi', "oi.id = oid.c_orderin_id")
+			->join('m_products pro', "pro.id = oid.m_product_id")
 			->join('m_grids gri', "gri.id = iid.m_grid_id", 'left');
 		
 		$id = $this->input->get_post('id');
 		if ($id !== '')
 			$this->db->where("iid.m_inventory_inbound_id", $id);
 		
-		$this->lib_custom->project_query_filter('iid.c_project_id', $this->c_project_ids);
+		$this->lib_custom->project_query_filter('oi.c_project_id', $this->c_project_ids);
 		
 		parent::_get_list_json();
 	}
@@ -215,22 +215,21 @@ class Inventory_inbound extends MY_Controller
 			->select("ir.code m_inventory_receive_code, ir.receive_date m_inventory_receive_date")
 			->select("ir.vehicle_no m_inventory_receive_vehicle_no, ir.vehicle_driver m_inventory_receive_vehicle_driver, ir.transport_mode m_inventory_receive_transport_mode")
 			->select("oi.code c_orderin_code, oi.orderin_date c_orderin_date")
-			->select("iid.c_businesspartner_id, bp.name c_businesspartner_name")
-			->select("iid.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.uom m_product_uom, pro.pack m_product_pack")
+			->select("oi.c_businesspartner_id, bp.name c_businesspartner_name")
+			->select("oid.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.uom m_product_uom, pro.pack m_product_pack")
 			->select("iid.m_grid_id, gri.code grid_code")
-			->select("iid.volume_length, iid.volume_width, iid.volume_height")
-			->select("iid.c_project_id, prj.name c_project_name")
+			->select("oi.c_project_id, prj.name c_project_name")
 			->from('m_inventory_inbounddetails iid')
 			->join('m_inventory_receivedetails ird', "ird.id = iid.m_inventory_receivedetail_id")
 			->join('m_inventory_receives ir', "ir.id = ird.m_inventory_receive_id")
 			->join('c_orderindetails oid', "oid.id = ird.c_orderindetail_id")
 			->join('c_orderins oi', "oi.id = oid.c_orderin_id")
-			->join('m_products pro', "pro.id = iid.m_product_id")
+			->join('c_businesspartners bp', "bp.id = oi.c_businesspartner_id")
+			->join('m_products pro', "pro.id = oid.m_product_id")
 			->join('m_grids gri', "gri.id = iid.m_grid_id", 'left')
-			->join('c_businesspartners bp', "bp.id = iid.c_businesspartner_id", 'left')
-			->join('c_projects prj', "prj.id = iid.c_project_id", 'left');
+			->join('c_projects prj', "prj.id = oi.c_project_id", 'left');
 		
-		$this->lib_custom->project_query_filter('iid.c_project_id', $this->c_project_ids);
+		$this->lib_custom->project_query_filter('oi.c_project_id', $this->c_project_ids);
 	}
 	
 	public function get_list_detail_full_json()
@@ -283,9 +282,6 @@ class Inventory_inbound extends MY_Controller
 			'pallet'								=> 'Pallet',
 			'grid_code'								=> 'Grid',
 			'lot_no'								=> 'Lot No',
-			'volume_length'							=> 'Length',
-			'volume_width'							=> 'Width',
-			'volume_height'							=> 'Height',
 			'condition'								=> 'Condition',
 			'm_product_pack'						=> 'Pack',
 			'created'								=> 'Scan Date',
@@ -468,10 +464,7 @@ class Inventory_inbound extends MY_Controller
 				array('field' => 'quantity', 'label' => 'Quantity', 'rules' => 'numeric|required'),
 				array('field' => 'quantity_box', 'label' => 'Quantity Box', 'rules' => 'numeric|required'),
 				array('field' => 'pallet', 'label' => 'Pallet', 'rules' => 'required'),
-				array('field' => 'carton_no', 'label' => 'Carton No', 'rules' => 'required'),
-				array('field' => 'volume_length', 'label' => 'Length', 'rules' => 'numeric|required'),
-				array('field' => 'volume_width', 'label' => 'Width', 'rules' => 'numeric|required'),
-				array('field' => 'volume_height', 'label' => 'Height', 'rules' => 'numeric|required')
+				array('field' => 'carton_no', 'label' => 'Carton No', 'rules' => 'required')
 			)
 		);
 	}
@@ -496,9 +489,6 @@ class Inventory_inbound extends MY_Controller
 		$data->pallet = $pallet;
 		$data->carton_no = $this->input->post('carton_no');
 		$data->lot_no = $this->input->post('lot_no');
-		$data->volume_length = $this->input->post('volume_length');
-		$data->volume_width = $this->input->post('volume_width');
-		$data->volume_height = $this->input->post('volume_height');
 		$data->condition = $this->input->post('condition');
 		if ($this->input->post('packed_date') !== NULL)
 		{
@@ -656,7 +646,8 @@ class Inventory_inbound extends MY_Controller
 		$id = $this->input->get_post('id');
 		
 		$this->db
-			->select("iid.barcode, iid.lot_no, iid.carton_no")
+			->select("prj.code c_project_code")
+			->select("iid.pallet, iid.lot_no, iid.expired_date")
 			->select("pro.code m_product_code, pro.name m_product_name, pro.pack m_product_pack")
 			->select("oi.code c_orderin_code")
 			->select("ir.receive_date m_inventory_receive_date")
@@ -669,20 +660,22 @@ class Inventory_inbound extends MY_Controller
 			->join('c_orderindetails oid', "oid.id = ird.c_orderindetail_id")
 			->join('c_orderins oi', "oi.id = oid.c_orderin_id")
 			->join('m_grids gri', "gri.id = iid.m_grid_id")
-			->join('m_products pro', "pro.id = iid.m_product_id")
+			->join('m_products pro', "pro.id = oid.m_product_id")
+			->join('c_projects prj', "prj.id = oi.c_project_id", 'left')
 			->where("iid.m_inventory_inbound_id", $id)
 			->group_by(
 				array(
-					  'iid.barcode', 'iid.lot_no', 'iid.carton_no'
+					  'prj.code'
+					, 'iid.pallet', 'iid.lot_no', 'iid.expired_date'
 					, 'pro.code', 'pro.name', 'pro.pack'
 					, 'oi.code'
 					, 'ir.receive_date'
 					, 'gri.code'
 				)
 			)
-			->order_by('iid.barcode', 'asc');
+			->order_by('iid.pallet', 'asc');
 		
-		$this->lib_custom->project_query_filter('iid.c_project_id', $this->c_project_ids);
+		$this->lib_custom->project_query_filter('oi.c_project_id', $this->c_project_ids);
 		
 		$table = $this->db->get();
 		$m_inventory_inbounddetails = $table->result();
@@ -800,9 +793,6 @@ class Inventory_inbound extends MY_Controller
 							$m_inventory_inbounddetail->packed_date = $this->excel->read_value($excel_sheet, $m_inventory_inbounddetail_count, 9, 'date');
 							$m_inventory_inbounddetail->expired_date = $this->excel->read_value($excel_sheet, $m_inventory_inbounddetail_count, 10, 'date');
 							$m_inventory_inbounddetail->lot_no = $this->excel->read_value($excel_sheet, $m_inventory_inbounddetail_count, 11);
-							$m_inventory_inbounddetail->volume_length = $this->excel->read_value($excel_sheet, $m_inventory_inbounddetail_count, 12);
-							$m_inventory_inbounddetail->volume_width = $this->excel->read_value($excel_sheet, $m_inventory_inbounddetail_count, 13);
-							$m_inventory_inbounddetail->volume_height = $this->excel->read_value($excel_sheet, $m_inventory_inbounddetail_count, 14);
 							$m_inventory_inbounddetails[] = $m_inventory_inbounddetail;
 						}
 					}
@@ -890,7 +880,7 @@ class Inventory_inbound extends MY_Controller
 			->select("oi.external_no c_orderin_external_no")
 			->select("oi.c_businesspartner_id, bp.name c_businesspartner_name")
 			->select("oid.c_orderin_id")
-			->select("iid.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.uom m_product_uom, pro.pack m_product_pack")
+			->select("oid.m_product_id, pro.code m_product_code, pro.name m_product_name, pro.uom m_product_uom, pro.pack m_product_pack")
 			->select("iid.m_grid_id, gri.code m_grid_code")
 			->select("oi.c_project_id, prj.name c_project_name")
 			->from('m_inventory_inbounddetails iid')
@@ -899,11 +889,11 @@ class Inventory_inbound extends MY_Controller
 			->join('c_orderindetails oid', "oid.id = ird.c_orderindetail_id")
 			->join('c_orderins oi', "oi.id = oid.c_orderin_id")
 			->join('c_businesspartners bp', "bp.id = oi.c_businesspartner_id")
-			->join('m_products pro', "pro.id = iid.m_product_id")
+			->join('m_products pro', "pro.id = oid.m_product_id")
 			->join('m_grids gri', "gri.id = iid.m_grid_id", 'left')
 			->join('c_projects prj', "prj.id = oi.c_project_id", 'left')
 			->where("iid.m_inventory_inbound_id", $id);
-		$this->lib_custom->project_query_filter('iid.c_project_id', $this->c_project_ids);
+		$this->lib_custom->project_query_filter('oi.c_project_id', $this->c_project_ids);
 		$table = $this->db
 			->order_by('m_inventory_receive_id', 'asc')
 			->order_by('c_orderin_id', 'asc')

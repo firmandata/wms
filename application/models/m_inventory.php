@@ -2,10 +2,9 @@
 class M_inventory extends DataMapper {
 	
 	var $has_one = array(
-		'm_product'			=> array('cascade_delete' => FALSE),
-		'm_grid'			=> array('cascade_delete' => FALSE),
-		'c_project'			=> array('cascade_delete' => FALSE),
-		'c_businesspartner'	=> array('cascade_delete' => FALSE)
+		'm_product'	=> array('cascade_delete' => FALSE),
+		'm_grid'	=> array('cascade_delete' => FALSE),
+		'c_project'	=> array('cascade_delete' => FALSE)
 	);
 	
 	var $has_many = array(

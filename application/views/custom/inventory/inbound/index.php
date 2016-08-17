@@ -8,7 +8,7 @@ echo form_open('custom/inventory_inbound/insert',
 		'id'	=> 'custom_inventory_inbound_form'
 	)
 );?>
-<div id="custom_inventory_inbound_form_container" class="ui-widget ui-widget-content" style="height:220px;">
+<div id="custom_inventory_inbound_form_container" class="ui-widget ui-widget-content" style="height:190px;">
 	<table>
 		<tr>
 			<td colspan="2">
@@ -144,44 +144,8 @@ echo form_input(
 );?>
 							</td>
 						</tr>
-						<tr><th><label for="custom_inventory_inbound_form_volume">Volume</label></th>
-							<td><label for="custom_inventory_inbound_form_volume_length">L</label>
-<?php 
-echo form_input(
-	array(
-		'name' 		=> 'volume_length',
-		'id' 		=> 'custom_inventory_inbound_form_volume_length',
-		'class'		=> 'required number',
-		'style'		=> "width:60px"
-	)
-);?>
-								m,
-								<label for="custom_inventory_inbound_form_volume_width">W</label>
-<?php 
-echo form_input(
-	array(
-		'name' 		=> 'volume_width',
-		'id' 		=> 'custom_inventory_inbound_form_volume_width',
-		'class'		=> 'required number',
-		'style'		=> "width:60px"
-	)
-);?>
-								m,
-								<label for="custom_inventory_inbound_form_volume_height">H</label>
-<?php 
-echo form_input(
-	array(
-		'name' 		=> 'volume_height',
-		'id' 		=> 'custom_inventory_inbound_form_volume_height',
-		'class'		=> 'required number',
-		'style'		=> "width:60px"
-	)
-);?>
-								m
-							</td>
-						</tr>
 						<tr>
-							<th><label for="custom_inventory_inbound_form_condition">Condition</label></th>
+							<th><label for="custom_inventory_inbound_form_condition">condition</label></th>
 							<td>
 <?php 
 echo form_dropdown('condition', $product_conditions, '', 'id="custom_inventory_inbound_form_condition"');?>
@@ -376,9 +340,6 @@ function custom_inventory_inbound_list_load_table(table_id){
 			'Grid',
 			'Lot No',
 			'Condition',
-			'Length',
-			'Width',
-			'Height',
 			'Scan Date',
 			''
 		], 
@@ -400,9 +361,6 @@ function custom_inventory_inbound_list_load_table(table_id){
 			{name:'condition', index:'iid.condition', width:100,
 			 stype:'select', searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false, value:<?php echo json_encode($product_conditions);?>}
 			},
-			{name:'volume_length', index:'iid.volume_length', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
-			{name:'volume_width', index:'iid.volume_width', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
-			{name:'volume_height', index:'iid.volume_height', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
 			jqgrid_column_date(table_id, {name:'created', index:'iid.created', search:false}),
 			{name:'cmd_action', index:'cmd_action', width:26, search:false, sortable:false}
 		],
@@ -445,15 +403,8 @@ function custom_inventory_inbound_list_load_table(table_id){
 		showQuery: true
 	});
 	
-	jQuery("#" + table_id).jqGrid('setGroupHeaders', {
-		useColSpanStyle: true, 
-		groupHeaders:[
-			{startColumnName: 'volume_length', numberOfColumns: 3, titleText: 'Volume'}
-		]
-	});
-	
 	jQuery("#" + table_id).jqGrid('setFrozenColumns');
-	jQuery("#" + table_id).setGridHeight(jqgrid_window_fixed_height(jQuery("#" + table_id), -407));
+	jQuery("#" + table_id).setGridHeight(jqgrid_window_fixed_height(jQuery("#" + table_id), -357));
 }
 
 function custom_inventory_inbound_list_remove(table_id, id){
@@ -518,8 +469,5 @@ function custom_inventory_inbound_clear_field(){
 	jQuery('#custom_inventory_inbound_form_pallet').val('');
 	jQuery('#custom_inventory_inbound_form_lot_no').val('');
 	jQuery('#custom_inventory_inbound_form_condition').val('');
-	jQuery('#custom_inventory_inbound_form_volume_length').val('');
-	jQuery('#custom_inventory_inbound_form_volume_width').val('');
-	jQuery('#custom_inventory_inbound_form_volume_height').val('');
 }
 </script>

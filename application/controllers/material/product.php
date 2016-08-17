@@ -37,8 +37,6 @@ class Product extends MY_Controller
 				->select("pro.uom, pro.pack, pro.origin, pro.netto, pro.minimum_stock")
 				->select("pro.m_productgroup_id, prog.code m_productgroup_code, prog.name m_productgroup_name")
 				->select("pro.brand, pro.type")
-				->select("pro.price")
-				->select("pro.volume_length, pro.volume_width, pro.volume_height")
 				->select("cpro.barcode_length c_barcode_length")
 				->select("cpro.quantity_start c_quantity_start, cpro.quantity_end c_quantity_end")
 				->select("cpro.quantity_point_start c_quantity_point_start, cpro.quantity_point_end c_quantity_point_end")
@@ -58,14 +56,6 @@ class Product extends MY_Controller
 				show_error("Product not found", 400);
 		}
 		
-		if ($record !== NULL)
-		{
-			$table = $this->db
-				->where('m_product_id', $record->id)
-				->get('m_product_categories');
-			$record->m_product_categories = $table->result();
-		}
-		
 		$data = array(
 			'form_action'	=> $form_action,
 			'record'		=> $record
@@ -82,8 +72,6 @@ class Product extends MY_Controller
 			->select("pro.id, pro.code, pro.name")
 			->select("pro.uom, pro.pack, pro.origin, pro.netto, pro.minimum_stock")
 			->select("pro.brand, pro.type")
-			->select("pro.price")
-			->select("pro.volume_length, pro.volume_width, pro.volume_height")
 			->select("prog.code m_productgroup_code, prog.name m_productgroup_name")
 			->select("cpro.barcode_length c_barcode_length")
 			->select("cpro.quantity_start c_quantity_start, cpro.quantity_end c_quantity_end")
@@ -144,48 +132,11 @@ class Product extends MY_Controller
 		parent::_get_list_autocomplete_json();
 	}
 	
-	public function get_category_list_json()
-	{
-		if (!is_authorized('material/product', 'index')) 
-			access_denied();
-		
-		$this->db->from('m_categories');
-		
-		parent::_get_list_json();
-	}
-	
 	public function insert()
 	{
 		if (!is_authorized('material/product', 'insert')) 
 			access_denied();
 		
-		parent::_execute('this', 'product_add_and_assign_categories', 
-			array(), 
-			array(
-				array('field' => 'code', 'label' => 'Code', 'rules' => 'required'),
-				array('field' => 'name', 'label' => 'Name', 'rules' => 'required'),
-				array('field' => 'pack', 'label' => 'Pack', 'rules' => 'integer|required'),
-				array('field' => 'netto', 'label' => 'Netto', 'rules' => 'numeric|required'),
-				array('field' => 'minimum_stock', 'label' => 'Minimum Stock', 'rules' => 'numeric|required'),
-				array('field' => 'price', 'label' => 'Price', 'rules' => 'numeric|required'),
-				array('field' => 'barcode_length', 'label' => 'Barcode Length', 'rules' => 'integer|required'),
-				array('field' => 'quantity_start', 'label' => 'Quantity Start', 'rules' => 'integer|required'),
-				array('field' => 'quantity_end', 'label' => 'Quantity End', 'rules' => 'integer|required'),
-				array('field' => 'quantity_point_start', 'label' => 'Quantity Point Start', 'rules' => 'integer|required'),
-				array('field' => 'quantity_point_end', 'label' => 'Quantity Point End', 'rules' => 'integer|required'),
-				array('field' => 'quantity_divider', 'label' => 'Quantity Divider', 'rules' => 'numeric|required'),
-				array('field' => 'sku_start', 'label' => 'SKU Start', 'rules' => 'integer|required'),
-				array('field' => 'sku_end', 'label' => 'SKU End', 'rules' => 'integer|required'),
-				array('field' => 'carton_start', 'label' => 'Carton Start', 'rules' => 'integer|required'),
-				array('field' => 'carton_end', 'label' => 'Carton End', 'rules' => 'integer|required'),
-				array('field' => 'packed_date_start', 'label' => 'Packed Date Start', 'rules' => 'integer|required'),
-				array('field' => 'packed_date_end', 'label' => 'Packed Date End', 'rules' => 'integer|required')
-			)
-		);
-	}
-	
-	protected function product_add_and_assign_categories()
-	{
 		$this->load->library('material/lib_material');
 		
 		$user_id = $this->session->userdata('user_id');
@@ -200,10 +151,6 @@ class Product extends MY_Controller
 		$data->brand = $this->input->post('brand');
 		$data->netto = $this->input->post('netto');
 		$data->minimum_stock = $this->input->post('minimum_stock');
-		$data->price = $this->input->post('price');
-		$data->volume_length = $this->input->post('volume_length');
-		$data->volume_width = $this->input->post('volume_width');
-		$data->volume_height = $this->input->post('volume_height');
 		$data->barcode_length = $this->input->post('barcode_length');
 		$data->quantity_start = $this->input->post('quantity_start');
 		$data->quantity_end = $this->input->post('quantity_end');
@@ -219,48 +166,14 @@ class Product extends MY_Controller
 
 		$m_productgroup_id = $this->input->post('m_productgroup_id');
 		
-		$id = $this->lib_material->product_add($data, $m_productgroup_id, $user_id);
-		
-		$m_category_ids = $this->input->post('m_category_ids');
-		if (!is_array($m_category_ids))
-			$m_category_ids = array();
-		
-		// -- Add Category Product --
-		if (!empty($m_category_ids) && is_array($m_category_ids))
-		{
-			$m_categories = new M_category();
-			$m_categories
-				->where_in('id', $m_category_ids)
-				->get();
-			foreach ($m_categories as $m_category)
-			{
-				$product_category_data = new stdClass();
-				$product_category_data->m_product_id = $id;
-				$product_category_data->m_category_id = $m_category->id;
-				$this->lib_material->product_category_add($product_category_data, $user_id);
-			}
-		}
-		
-		return $id;
-	}
-	
-	public function update($id)
-	{
-		if (!is_authorized('material/product', 'update')) 
-			access_denied();
-		
-		parent::_execute('this', 'product_update_and_replace_categories', 
-			array($id), 
+		parent::_execute('lib_material', 'product_add', 
+			array($data, $m_productgroup_id, $user_id), 
 			array(
 				array('field' => 'code', 'label' => 'Code', 'rules' => 'required'),
 				array('field' => 'name', 'label' => 'Name', 'rules' => 'required'),
 				array('field' => 'pack', 'label' => 'Pack', 'rules' => 'integer|required'),
 				array('field' => 'netto', 'label' => 'Netto', 'rules' => 'numeric|required'),
 				array('field' => 'minimum_stock', 'label' => 'Minimum Stock', 'rules' => 'numeric|required'),
-				array('field' => 'price', 'label' => 'Price', 'rules' => 'numeric|required'),
-				array('field' => 'volume_length', 'label' => 'Volume Length', 'rules' => 'numeric'),
-				array('field' => 'volume_width', 'label' => 'Volume Width', 'rules' => 'numeric'),
-				array('field' => 'volume_height', 'label' => 'Volume Height', 'rules' => 'numeric'),
 				array('field' => 'barcode_length', 'label' => 'Barcode Length', 'rules' => 'integer|required'),
 				array('field' => 'quantity_start', 'label' => 'Quantity Start', 'rules' => 'integer|required'),
 				array('field' => 'quantity_end', 'label' => 'Quantity End', 'rules' => 'integer|required'),
@@ -277,8 +190,11 @@ class Product extends MY_Controller
 		);
 	}
 	
-	protected function product_update_and_replace_categories($id)
+	public function update($id)
 	{
+		if (!is_authorized('material/product', 'update')) 
+			access_denied();
+		
 		$this->load->library('material/lib_material');
 		
 		$user_id = $this->session->userdata('user_id');
@@ -293,10 +209,6 @@ class Product extends MY_Controller
 		$data->brand = $this->input->post('brand');
 		$data->netto = $this->input->post('netto');
 		$data->minimum_stock = $this->input->post('minimum_stock');
-		$data->price = $this->input->post('price');
-		$data->volume_length = $this->input->post('volume_length');
-		$data->volume_width = $this->input->post('volume_width');
-		$data->volume_height = $this->input->post('volume_height');
 		$data->barcode_length = $this->input->post('barcode_length');
 		$data->quantity_start = $this->input->post('quantity_start');
 		$data->quantity_end = $this->input->post('quantity_end');
@@ -312,63 +224,28 @@ class Product extends MY_Controller
 		
 		$m_productgroup_id = $this->input->post('m_productgroup_id');
 		
-		$updated_result = $this->lib_material->product_update($id, $data, $m_productgroup_id, $user_id);
-		
-		// -- Category Products --
-		$m_category_ids = $this->input->post('m_category_ids');
-		if (!is_array($m_category_ids))
-			$m_category_ids = array();
-		
-		$m_product_categories = new M_product_category();
-        $m_product_categories
-			->where('m_product_id', $id)
-			->get();
-		
-		// -- Add Category Products --
-		if (!empty($m_category_ids) && is_array($m_category_ids))
-		{
-			foreach ($m_category_ids as $m_category_id)
-			{
-				$is_found_new = TRUE;
-				foreach ($m_product_categories as $m_product_category)
-				{
-					if ($m_product_category->m_category_id == $m_category_id)
-					{
-						$is_found_new = FALSE;
-						break;
-					}
-				}
-				if ($is_found_new == TRUE)
-				{
-					$product_category_data = new stdClass();
-					$product_category_data->m_product_id = $id;
-					$product_category_data->m_category_id = $m_category_id;
-					$this->lib_material->product_category_add($product_category_data, $user_id);
-				}
-			}
-		}
-		// -- Remove Category Products --
-		foreach ($m_product_categories as $m_product_category)
-		{
-			$is_found_delete = TRUE;
-			if (!empty($m_category_ids) && is_array($m_category_ids))
-			{
-				foreach ($m_category_ids as $m_category_id)
-				{
-					if ($m_category_id == $m_product_category->m_category_id)
-					{
-						$is_found_delete = FALSE;
-						break;
-					}
-				}
-			}
-			if ($is_found_delete == TRUE)
-			{
-				$this->lib_material->product_category_remove($m_product_category->id, $user_id);
-			}
-		}
-		
-		return $updated_result;
+		parent::_execute('lib_material', 'product_update', 
+			array($id, $data, $m_productgroup_id, $user_id), 
+			array(
+				array('field' => 'code', 'label' => 'Code', 'rules' => 'required'),
+				array('field' => 'name', 'label' => 'Name', 'rules' => 'required'),
+				array('field' => 'pack', 'label' => 'Pack', 'rules' => 'integer|required'),
+				array('field' => 'netto', 'label' => 'Netto', 'rules' => 'numeric|required'),
+				array('field' => 'minimum_stock', 'label' => 'Minimum Stock', 'rules' => 'numeric|required'),
+				array('field' => 'barcode_length', 'label' => 'Barcode Length', 'rules' => 'integer|required'),
+				array('field' => 'quantity_start', 'label' => 'Quantity Start', 'rules' => 'integer|required'),
+				array('field' => 'quantity_end', 'label' => 'Quantity End', 'rules' => 'integer|required'),
+				array('field' => 'quantity_point_start', 'label' => 'Quantity Point Start', 'rules' => 'integer|required'),
+				array('field' => 'quantity_point_end', 'label' => 'Quantity Point End', 'rules' => 'integer|required'),
+				array('field' => 'quantity_divider', 'label' => 'Quantity Divider', 'rules' => 'numeric|required'),
+				array('field' => 'sku_start', 'label' => 'SKU Start', 'rules' => 'integer|required'),
+				array('field' => 'sku_end', 'label' => 'SKU End', 'rules' => 'integer|required'),
+				array('field' => 'carton_start', 'label' => 'Carton Start', 'rules' => 'integer|required'),
+				array('field' => 'carton_end', 'label' => 'Carton End', 'rules' => 'integer|required'),
+				array('field' => 'packed_date_start', 'label' => 'Packed Date Start', 'rules' => 'integer|required'),
+				array('field' => 'packed_date_end', 'label' => 'Packed Date End', 'rules' => 'integer|required')
+			)
+		);
 	}
 	
 	public function set_productgroup_by_ids()

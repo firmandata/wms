@@ -5,7 +5,6 @@ class Lib_dompdf
 	protected $CI;
 	protected $dompdf;
 	protected $is_show_page_number = FALSE;
-	protected $footer_notes = NULL;
 	
 	public function __construct()
 	{
@@ -31,9 +30,6 @@ class Lib_dompdf
 		if ($this->is_show_page_number)
 			$this->_set_page_number();
 		
-		if (!empty($this->footer_notes))
-			$this->_set_footer_notes();
-		
 		$this->dompdf->get_canvas()->get_cpdf()->setEncryption(NULL, $encryption_key, array('print'));
 		
 		$this->dompdf->stream($file_name, array("Attachment" => 0));
@@ -58,26 +54,5 @@ class Lib_dompdf
 		$y = $pdf->get_height() - 30;
 		$x = $pdf->get_width() - 70 - Font_Metrics::get_text_width('1/1', $font, $size);
 		$pdf->page_text($x, $y, 'Page {PAGE_NUM} of {PAGE_COUNT}', $font, $size);
-	}
-	
-	public function set_footer_notes($notes)
-	{
-		$this->footer_notes = $notes;
-	}
-	
-	protected function _set_footer_notes()
-	{
-		if (!isset($this->dompdf))
-			return;
-		
-		$pdf = $this->dompdf->get_canvas();
-		if (!isset($pdf))
-			return;
-		
-		$font = Font_Metrics::get_font(NULL, 'normal');
-		$size = 9;
-		$y = $pdf->get_height() - 30;
-		$x = 30;
-		$pdf->page_text($x, $y, $this->footer_notes, $font, $size);
 	}
 }

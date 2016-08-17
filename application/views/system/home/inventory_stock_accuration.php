@@ -126,7 +126,7 @@ function system_home_inventory_stock_accuration_list_load_table(table_id){
 	});
 	
 	jQuery("#" + table_id).jqGrid('setFrozenColumns');
-	jQuery("#" + table_id).setGridHeight(jqgrid_window_fixed_height(jQuery("#" + table_id), -255));
+	jQuery("#" + table_id).setGridHeight(jqgrid_window_fixed_height(jQuery("#" + table_id), -200));
 }
 
 function system_home_inventory_stock_accuration_list_get_param(){

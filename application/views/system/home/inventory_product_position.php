@@ -80,7 +80,7 @@ function system_home_inventory_product_position_list_load_table(table_id){
 	});
 	
 	jQuery("#" + table_id).jqGrid('setFrozenColumns');
-	jQuery("#" + table_id).setGridHeight(jqgrid_window_fixed_height(jQuery("#" + table_id), -225));
+	jQuery("#" + table_id).setGridHeight(jqgrid_window_fixed_height(jQuery("#" + table_id), -200));
 }
 </script>
 

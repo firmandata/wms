@@ -155,44 +155,8 @@ echo form_input(
 );?>
 						</td>
 					</tr>
-					<tr><th><label for="material_inventory_inbound_form_detail_volume">Volume</label></th>
-						<td><label for="material_inventory_inbound_form_detail_volume_length">L</label>
-<?php 
-echo form_input(
-	array(
-		'name' 		=> 'volume_length',
-		'id' 		=> 'material_inventory_inbound_form_detail_volume_length',
-		'class'		=> 'required number',
-		'style'		=> "width:60px"
-	)
-);?>
-							m,
-							<label for="material_inventory_inbound_form_detail_volume_width">W</label>
-<?php 
-echo form_input(
-	array(
-		'name' 		=> 'volume_width',
-		'id' 		=> 'material_inventory_inbound_form_detail_volume_width',
-		'class'		=> 'required number',
-		'style'		=> "width:60px"
-	)
-);?>
-							m,
-							<label for="material_inventory_inbound_form_detail_volume_height">H</label>
-<?php 
-echo form_input(
-	array(
-		'name' 		=> 'volume_height',
-		'id' 		=> 'material_inventory_inbound_form_detail_volume_height',
-		'class'		=> 'required number',
-		'style'		=> "width:60px"
-	)
-);?>
-							m
-						</td>
-					</tr>
 					<tr>
-						<th><label for="material_inventory_inbound_form_detail_condition">Condition</label></th>
+						<th><label for="material_inventory_inbound_form_detail_condition">condition</label></th>
 						<td>
 <?php 
 echo form_dropdown('condition', $product_conditions, '', 'id="material_inventory_inbound_form_detail_condition"');?>
@@ -314,7 +278,6 @@ jQuery(document).ready(function(){
 	});
 });
 
-var material_inventory_inbound_detail_ref_list_selected_id = null;
 function material_inventory_inbound_detail_ref_list_load_table(table_id){
 	jQuery('#' + table_id).jqGrid({
 		loadError: jquery_ajax_error_handler,
@@ -344,9 +307,6 @@ function material_inventory_inbound_detail_ref_list_load_table(table_id){
 			'Box',
 			'Quantity',
 			'Condition',
-			'Length',
-			'Width',
-			'Height',
 			'Order In No', 
 			'Order In Date', 
 			'Business Partner',
@@ -368,9 +328,6 @@ function material_inventory_inbound_detail_ref_list_load_table(table_id){
 			{name:'condition', index:'ird.condition', width:100,
 			 stype:'select', searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false, value:<?php echo json_encode($product_conditions);?>}
 			},
-			{name:'m_product_volume_length', index:'pro.volume_length', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
-			{name:'m_product_volume_width', index:'pro.volume_width', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
-			{name:'m_product_volume_height', index:'pro.volume_height', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
 			{name:'c_orderin_code', index:'oi.code', width:90, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			jqgrid_column_date(table_id, {name:'c_orderin_date', index:'oi.orderin_date'}),
 			{name:'c_businesspartner_name', index:'bp.name', width:180, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
@@ -380,20 +337,6 @@ function material_inventory_inbound_detail_ref_list_load_table(table_id){
 			 stype:'select', searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false, value:<?php echo json_encode($transport_modes);?>}
 			}
 		],
-		onSelectRow: function(rowid, status, e){
-			if (material_inventory_inbound_detail_ref_list_selected_id == null || material_inventory_inbound_detail_ref_list_selected_id != rowid)
-			{
-				var row_data = jQuery('#' + table_id).getRowData(rowid);
-				if (row_data)
-				{
-					jQuery('#material_inventory_inbound_form_detail_volume_length').val(row_data.m_product_volume_length);
-					jQuery('#material_inventory_inbound_form_detail_volume_width').val(row_data.m_product_volume_width);
-					jQuery('#material_inventory_inbound_form_detail_volume_height').val(row_data.m_product_volume_height);
-				}
-				
-				material_inventory_inbound_detail_ref_list_selected_id = rowid;
-			}
-		},
 		sortname: 'ird.created', 
 		sortorder: "desc"
 	});
@@ -401,13 +344,6 @@ function material_inventory_inbound_detail_ref_list_load_table(table_id){
 	jQuery("#" + table_id).jqGrid('filterToolbar', {
 		stringResult : true, 
 		searchOperators : true
-	});
-	
-	jQuery("#" + table_id).jqGrid('setGroupHeaders', {
-		useColSpanStyle: true, 
-		groupHeaders:[
-			{startColumnName: 'm_product_volume_length', numberOfColumns: 3, titleText: 'Volume'}
-		]
 	});
 	
 	jQuery("#" + table_id).jqGrid('setFrozenColumns');
@@ -447,9 +383,6 @@ function material_inventory_inbound_detail_list_load_table(table_id){
 			'Grid',
 			'Lot No',
 			'Condition',
-			'Length',
-			'Width',
-			'Height',
 			'Scan Date',
 			''
 		], 
@@ -467,9 +400,6 @@ function material_inventory_inbound_detail_list_load_table(table_id){
 			{name:'condition', index:'iid.condition', width:100,
 			 stype:'select', searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false, value:<?php echo json_encode($product_conditions);?>}
 			},
-			{name:'volume_length', index:'iid.volume_length', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
-			{name:'volume_width', index:'iid.volume_width', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
-			{name:'volume_height', index:'iid.volume_height', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
 			jqgrid_column_date(table_id, {name:'created', index:'iid.created', search:false}),
 			{name:'cmd_action', index:'cmd_action', width:26, search:false, sortable:false}
 		],
@@ -514,13 +444,6 @@ function material_inventory_inbound_detail_list_load_table(table_id){
 		multipleSearch: true, 
 		multipleGroup: true, 
 		showQuery: true
-	});
-	
-	jQuery("#" + table_id).jqGrid('setGroupHeaders', {
-		useColSpanStyle: true, 
-		groupHeaders:[
-			{startColumnName: 'volume_length', numberOfColumns: 3, titleText: 'Volume'}
-		]
 	});
 	
 	jQuery("#" + table_id).jqGrid('setFrozenColumns');

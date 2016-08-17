@@ -121,7 +121,7 @@ function material_inventory_picking_detail_full_list_load_table(table_id){
 			jqgrid_column_date(table_id, {name:'m_inventory_picklist_date', index:'ipl.picklist_date'}),
 			{name:'c_orderout_code', index:'oo.code', width:90, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			jqgrid_column_date(table_id, {name:'c_orderout_date', index:'oo.orderout_date'}),
-			jqgrid_column_date(table_id, {name:'c_orderout_request_arrive_date', index:'oo.request_arrive_date'}),
+			jqgrid_column_date(table_id, {name:'request_arrive_date', index:'oo.request_arrive_date'}),
 			{name:'c_businesspartner_name', index:'bp.name', width:180, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			{name:'c_project_name', index:'prj.name', width:150, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}}
 		],

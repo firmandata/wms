@@ -462,11 +462,7 @@ class lib_inventory_in extends Lib_general
 		$m_inventory_receivedetail = new M_inventory_receivedetail();
 		$m_inventory_receive = new M_inventory_receive();
 		$c_orderin = new C_orderin();
-		$c_orderindetail = new C_orderindetail();
 		$m_grid = new M_grid();
-		$c_project = new C_project();
-		$c_businesspartner = new C_businesspartner();
-		$m_product = new M_product();
 		$quantity_box = 0;
 		$quantity = 0;
 		
@@ -481,39 +477,7 @@ class lib_inventory_in extends Lib_general
 		{
 			$m_inventory_receivedetail = new M_inventory_receivedetail($data->m_inventory_receivedetail_id);
 			$inbounddetail_relations['m_inventory_receivedetail'] = $m_inventory_receivedetail;
-			
-			$m_inventory_receive = $m_inventory_receivedetail->m_inventory_receive->get();
-			$c_orderindetail = $m_inventory_receivedetail->c_orderindetail->get();
-			$c_orderin = $c_orderindetail->c_orderin->get();
-			
-			$m_product = $c_orderindetail->m_product->get();
-			$inbounddetail_relations['m_product'] = $m_product;
-			
-			$c_project = $c_orderin->c_project->get();
-			$inbounddetail_relations['c_project'] = $c_project;
-			
-			$c_businesspartner = $c_orderin->c_businesspartner->get();
-			$inbounddetail_relations['c_businesspartner'] = $c_businesspartner;
-			
 			unset($data->m_inventory_receivedetail_id);
-		}
-		if (property_exists($data, 'c_project_id'))
-		{
-			$c_project = new C_project($data->c_project_id);
-			$inbounddetail_relations['c_project'] = $c_project;
-			unset($data->c_project_id);
-		}
-		if (property_exists($data, 'c_businesspartner_id'))
-		{
-			$c_businesspartner = new C_businesspartner($data->c_businesspartner_id);
-			$inbounddetail_relations['c_businesspartner'] = $c_businesspartner;
-			unset($data->c_businesspartner_id);
-		}
-		if (property_exists($data, 'm_product_id'))
-		{
-			$m_product = new M_product($data->m_product_id);
-			$inbounddetail_relations['m_product'] = $m_product;
-			unset($data->m_product_id);
 		}
 		if (property_exists($data, 'm_grid_id'))
 		{
@@ -537,18 +501,11 @@ class lib_inventory_in extends Lib_general
 		}
 		
 		// -- Inventory Add --
-		if (!property_exists($data, 'volume_length'))
-		{
-			$data->volume_length = $m_product->volume_length;
-		}
-		if (!property_exists($data, 'volume_width'))
-		{
-			$data->volume_width = $m_product->volume_width;
-		}
-		if (!property_exists($data, 'volume_height'))
-		{
-			$data->volume_height = $m_product->volume_height;
-		}
+		$c_orderindetail = $m_inventory_receivedetail->c_orderindetail->get();
+		$m_inventory_receive = $m_inventory_receivedetail->m_inventory_receive->get();
+		$m_product = $c_orderindetail->m_product->get();
+		$c_orderin = $c_orderindetail->c_orderin->get();
+		$c_project = $c_orderin->c_project->get();
 		
 		// -- Validate the project --
 		$project_is_valid = $this->CI->lib_custom->project_is_valid($created_by, $c_project->id);
@@ -556,10 +513,9 @@ class lib_inventory_in extends Lib_general
 			throw new Exception("Access denied for the project.");
 		
 		$data_m_inventory = $data;
-		$data_m_inventory->c_project_id = $c_project->id;
-		$data_m_inventory->c_businesspartner_id = $c_businesspartner->id;
 		$data_m_inventory->m_product_id = $m_product->id;
 		$data_m_inventory->m_grid_id = $m_grid->id;
+		$data_m_inventory->c_project_id = $c_project->id;
 		$data_m_inventory->received_date = $m_inventory_receive->receive_date;
 		
 		$data_m_inventory_log = new stdClass();
@@ -595,18 +551,122 @@ class lib_inventory_in extends Lib_general
 		return $m_inventory_inbounddetail->id;
 	}
 	
+	public function inbounddetail_update($m_inventory_inbounddetail_id, $data, $updated_by = NULL)
+	{
+		$m_inventory_inbounddetail = new M_inventory_inbounddetail($m_inventory_inbounddetail_id);
+		$m_inventory_receivedetail = $m_inventory_inbounddetail->m_inventory_receivedetail->get();
+		$m_inventory_inbound = $m_inventory_inbounddetail->m_inventory_inbound->get();
+		$m_grid = $m_inventory_inbounddetail->m_grid->get();
+		$quantity_box = $m_inventory_inbounddetail->quantity_box;
+		$quantity = $m_inventory_inbounddetail->quantity;
+		
+		$inbounddetail_relations = array();
+		if (property_exists($data, 'm_inventory_receivedetail_id'))
+		{
+			$m_inventory_receivedetail = new M_inventory_receivedetail($data->m_inventory_receivedetail_id);
+			$inbounddetail_relations['m_inventory_receivedetail'] = $m_inventory_receivedetail;
+			unset($data->m_inventory_receivedetail_id);
+		}
+		if (property_exists($data, 'm_inventory_inbound_id'))
+		{
+			$m_inventory_inbound = new M_inventory_inbound($data->m_inventory_inbound_id);
+			$inbounddetail_relations['m_inventory_inbound'] = $m_inventory_inbound;
+			unset($data->m_inventory_inbound_id);
+		}
+		if (property_exists($data, 'm_grid_id'))
+		{
+			$m_grid = new M_grid($data->m_grid_id);
+			$inbounddetail_relations['m_grid'] = $m_grid;
+			unset($data->m_grid_id);
+		}
+		if (!$m_grid->exists())
+		{
+			$m_grid
+				->where('code', $this->CI->config->item('inventory_default_grid'))
+				->get();
+		}
+		if (property_exists($data, 'quantity_box'))
+		{
+			$quantity_box = $data->quantity_box;
+		}
+		if (property_exists($data, 'quantity'))
+		{
+			$quantity = $data->quantity;
+		}
+		
+		// -- Inventory Adjust --
+		$m_inventory = $m_inventory_inbounddetail->m_inventory->get();
+		$quantity_box_inventory = $m_inventory->quantity_box;
+		if ($quantity_box > $m_inventory->quantity_box)
+			$quantity_box_inventory += $quantity_box - $m_inventory->quantity_box;
+		elseif ($m_inventory->quantity_box > $quantity_box)
+			$quantity_box_inventory -= $m_inventory->quantity_box - $quantity_box;
+		
+		$quantity_inventory = $m_inventory->quantity;
+		if ($quantity > $m_inventory->quantity)
+			$quantity_inventory += $quantity - $m_inventory->quantity;
+		elseif ($m_inventory->quantity > $quantity)
+			$quantity_inventory -= $m_inventory->quantity - $quantity;
+		
+		// -- Inventory Update Data --
+		$c_orderindetail = $m_inventory_receivedetail->c_orderindetail->get();
+		$m_inventory_receive = $m_inventory_receivedetail->m_inventory_receive->get();
+		$m_product = $c_orderindetail->m_product->get();
+		$c_orderin = $c_orderindetail->c_orderin->get();
+		$c_project = $c_orderin->c_project->get();
+		$m_inventory = $m_inventory_inbounddetail->m_inventory->get();
+		
+		// -- Validate the project --
+		$project_is_valid = $this->CI->lib_custom->project_is_valid($updated_by, $c_project->id);
+		if (!$project_is_valid)
+			throw new Exception("Access denied for the project.");
+		
+		$data_m_inventory = $data;
+		$data_m_inventory->m_product_id = $m_product->id;
+		$data_m_inventory->m_grid_id = $m_grid->id;
+		$data_m_inventory->c_project_id = $c_project->id;
+		$data_m_inventory->received_date = $m_inventory_receive->receive_date;
+		$data_m_inventory->quantity_box = $quantity_box_inventory;
+		$data_m_inventory->quantity = $quantity_inventory;
+		
+		$data_m_inventory_log = new stdClass();
+		$data_m_inventory_log->log_type = "INBOUND";
+		$data_m_inventory_log->ref1_code = $m_inventory_inbound->code;
+		$data_m_inventory_log->ref2_code = $c_orderin->code;
+		$data_m_inventory_log->notes = 'Modify Inbound';
+		
+		$m_inventory_id = $this->CI->lib_inventory->update($m_inventory->id, $data_m_inventory, $updated_by, $data_m_inventory_log);
+		
+		// -- Inbound Detail Update --
+		$data->updated_by = $updated_by;
+		
+		$this->set_model_fields_values($m_inventory_inbounddetail, $data);
+		$m_inventory_inbounddetail_saved = $m_inventory_inbounddetail->save($inbounddetail_relations);
+		if (!$m_inventory_inbounddetail_saved)
+			throw new Exception($m_inventory_inbounddetail->error->string);
+		
+		// -- Update Status --
+		$this->receive_generate_status_inv_inbound($m_inventory_receive->id, $updated_by);
+		$this->receivedetail_generate_status_inv_inbound($m_inventory_receivedetail->id, $updated_by);
+		
+		$m_inventory = new M_inventory($m_inventory_id);
+		$this->CI->lib_inventory->verify_pallet_grid($m_inventory->pallet, $m_grid->id);
+		
+		return $m_inventory_inbounddetail_id;
+	}
+	
 	public function inbounddetail_remove($m_inventory_inbounddetail_id, $removed_by = NULL)
 	{
 		$m_inventory_inbounddetail = new M_inventory_inbounddetail($m_inventory_inbounddetail_id);
 		$m_inventory_inbound = $m_inventory_inbounddetail->m_inventory_inbound->get();
 		$m_inventory = $m_inventory_inbounddetail->m_inventory->get();
 		$m_inventory_receivedetail = $m_inventory_inbounddetail->m_inventory_receivedetail->get();
-		$c_project = $m_inventory_inbounddetail->c_project->get();
 		$m_inventory_receive = $m_inventory_receivedetail->m_inventory_receive->get();
 		$c_orderindetail = $m_inventory_receivedetail->c_orderindetail->get();
-		$c_orderin = $c_orderindetail->c_orderin->get();
 		
 		// -- Validate the project --
+		$c_orderin = $c_orderindetail->c_orderin->get();
+		$c_project = $c_orderin->c_project->get();
 		$project_is_valid = $this->CI->lib_custom->project_is_valid($removed_by, $c_project->id);
 		if (!$project_is_valid)
 			throw new Exception("Access denied for the project.");
@@ -623,7 +683,7 @@ class lib_inventory_in extends Lib_general
 		$data_m_inventory_log = new stdClass();
 		$data_m_inventory_log->log_type = "INBOUND";
 		$data_m_inventory_log->ref1_code = $m_inventory_inbound->code;
-		$data_m_inventory_log->ref2_code = $c_orderin->get()->code;
+		$data_m_inventory_log->ref2_code = $c_orderindetail->c_orderin->get()->code;
 		$data_m_inventory_log->notes = 'Remove Inbound';
 		
 		$m_inventory_id = $this->CI->lib_inventory->remove($m_inventory->id, $removed_by, $data_m_inventory_log);

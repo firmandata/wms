@@ -59,7 +59,7 @@ jQuery(function(){
 		},
 		{
 			title : "Create Product", 
-			width : 700
+			width : 600
 		});
 	});
 	
@@ -84,7 +84,7 @@ jQuery(function(){
 			},
 			{
 				title : "Edit Product", 
-				width : 700
+				width : 600
 			});
 		}
 		else
@@ -185,10 +185,6 @@ function material_product_list_load_table(table_id){
 			'Type',
 			'Netto',
 			'Minimum Stock',
-			'Price',
-			'Length',
-			'Width',
-			'Height',
 			'Barcode Length',
 			'Quantity Start',
 			'Quantity End',
@@ -220,10 +216,6 @@ function material_product_list_load_table(table_id){
 			},
 			{name:'netto', index:'pro.netto', width:100, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
 			{name:'minimum_stock', index:'pro.minimum_stock', width:100, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
-			{name:'price', index:'pro.price', width:100, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
-			{name:'volume_length', index:'pro.volume_length', width:100, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
-			{name:'volume_width', index:'pro.volume_width', width:100, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
-			{name:'volume_height', index:'pro.volume_height', width:100, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
 			{name:'c_barcode_length', index:'cpro.barcode_length', width:100, formatter:'number', formatoptions:{decimalPlaces: 0}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
 			{name:'c_quantity_start', index:'cpro.quantity_start', width:80, formatter:'number', formatoptions:{decimalPlaces: 0}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
 			{name:'c_quantity_end', index:'cpro.quantity_end', width:80, formatter:'number', formatoptions:{decimalPlaces: 0}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
@@ -263,15 +255,7 @@ function material_product_list_load_table(table_id){
 		showQuery: true
 	});
 	
-	jQuery("#" + table_id).jqGrid('setGroupHeaders', {
-		useColSpanStyle: true, 
-		groupHeaders:[
-			{startColumnName: 'volume_length', numberOfColumns: 3, titleText: 'Volume'},
-			{startColumnName: 'c_barcode_length', numberOfColumns: 12, titleText: 'Barcode Configuration'}
-		]
-	});
-	
 	jQuery("#" + table_id).jqGrid('setFrozenColumns');
-	jQuery("#" + table_id).setGridHeight(jqgrid_window_fixed_height(jQuery("#" + table_id), -184));
+	jQuery("#" + table_id).setGridHeight(jqgrid_window_fixed_height(jQuery("#" + table_id), -164));
 }
 </script>

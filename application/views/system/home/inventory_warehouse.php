@@ -43,10 +43,10 @@ foreach ($records as $record_idx=>$record)
 <table width="100%" cellpadding="0" cellspacing="0">
 	<tr>
 		<td width="50%" valign="top">
-			<div id="system_home_inventory_warehouse_graph_chart_1" style="width:100%;height:500px;display:inline-block"></div>
+			<div id="system_home_inventory_warehouse_graph_chart_1" style="width:100%;height:520px;display:inline-block"></div>
 		</td>
 		<td valign="top">
-			<div id="system_home_inventory_warehouse_graph_chart_2" style="width:100%;height:500px;display:inline-block"></div>
+			<div id="system_home_inventory_warehouse_graph_chart_2" style="width:100%;height:520px;display:inline-block"></div>
 		</td>
 	</tr>
 </table>

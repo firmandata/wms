@@ -34,7 +34,6 @@ $config['inventory_default_warehouse'] = 'WHSYS';
 $config['inventory_default_grid'] = 'WHSYS000000';
 
 $config['business_partner_types'] = array(
-	'EMPLOYEE'	=> 'Employee',
 	'SUPPLIER'	=> 'Supplier',
 	'CUSTOMER'	=> 'Customer'
 );
@@ -45,7 +44,6 @@ $config['business_partner_models'] = array(
 );
 
 $config['product_uoms'] = array(
-	'BOX'	=> 'BOX',
 	'PCS'	=> 'PCS',
 	'GR'	=> 'GR',
 	'KG'	=> 'KG',
@@ -65,13 +63,33 @@ $config['product_conditions'] = array(
 );
 
 $config['product_types'] = array(
-	'BD.05'				=> 'BD.05',
-	'BD.04'				=> 'BD.04',
-	'BD.0203'			=> 'BD.0203',
-	'BG.0104'			=> 'BG.0104',
-	'Polos'		 		=> 'Polos',
-	'KP.0203'			=> 'KP.0203'
-	);
+	'AYAM'				=> 'AYAM',
+	'BACK RIBS'			=> 'BACK RIBS',
+	'BEBEK'				=> 'BEBEK',
+	'BLADE'				=> 'BLADE',
+	'BRISKET'			=> 'BRISKET',
+	'BRISKET BONE'		=> 'BRISKET BONE',
+	'CHUCK'				=> 'CHUCK',
+	'CONRO'				=> 'CONRO',
+	'CUBEROLL'			=> 'CUBEROLL',
+	'FAT'				=> 'FAT',
+	'FEET / KAKI'		=> 'FEET / KAKI',
+	'FLANK'				=> 'FLANK',
+	'HEAD MEAT'			=> 'HEAD MEAT',
+	'HEART / JANTUNG'	=> 'HEART / JANTUNG',
+	'INSIDE'			=> 'INSIDE',
+	'KAMBING'			=> 'KAMBING',
+	'KNUCKLE'			=> 'KNUCKLE',
+	'LIPS'				=> 'LIPS',
+	'LIVER / HATI'		=> 'LIVER / HATI',
+	'LOKAL'				=> 'LOKAL',
+	'LUNGS / PARU'		=> 'LUNGS / PARU',
+	'MDM'				=> 'MDM',
+	'NECK BONE '		=> 'NECK BONE',
+	'OUTSIDE'			=> 'OUTSIDE',
+	'OXTAIL'			=> 'OXTAIL',
+	'ROUND'				=> 'ROUND'
+);
 
 $config['grid_types'] = array(
 	'RACK'	=> 'Rack',
@@ -119,13 +137,6 @@ $config['inventory_adjust_types'] = array(
 	'DEFECT'	=> 'DEFECT',
 	'STOCKTAKE'	=> 'STOCKTAKE',
 	'OTHER'		=> 'OTHER'
-);
-
-$config['inventory_invoice_calculates'] = array(
-	'BOX'		=> 'BOX',
-	'PALLET'	=> 'PALLET',
-	'VOLUME'	=> 'VOLUME',
-	'WEIGHT'	=> 'WEIGHT'
 );
 
 $config['orderout_origins'] = array(
@@ -176,22 +187,6 @@ $config['status_inventory_shipment'] = array(
 	'INCOMPLETE'			=> 'INCOMPLETE',
 	'INCOMPLETE BOX'		=> 'INCOMPLETE BOX',
 	'INCOMPLETE QUANTITY'	=> 'INCOMPLETE QUANTITY'
-);
-
-$config['currencies'] = array(
-	'IDR'	=> "IDR",
-	'USD'	=> "USD"
-);
-
-$config['depreciation_period_type'] = array(
-	'MONTHLY'	=> "MONTHLY",
-	'ANNUAL'	=> "ANNUAL",
-	'DAILY'		=> "DAILY"
-);
-
-$config['asset_types'] = array(
-	'ASSET'		=> 'ASSET',
-	'PROJECT'	=> 'PROJECT'
 );
 
 /* -- Email Preferences -- */

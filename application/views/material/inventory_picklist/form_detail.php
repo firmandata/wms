@@ -367,7 +367,7 @@ function material_inventory_picklist_detail_ref_list_load_table(table_id){
 			{name:'c_businesspartner_name', index:'bp.name', width:180, frozen:true, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			{name:'c_orderout_external_no', index:'oo.external_no', width:90, frozen:true, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			{name:'c_orderout_no_surat_jalan', index:'oo.no_surat_jalan', width:90, frozen:true, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
-			jqgrid_column_date(table_id, {name:'c_orderout_date', index:'oo.orderout_date'}),
+			jqgrid_column_date(table_id, {name:'c_orderout_orderout_date', index:'oo.orderout_date'}),
 			jqgrid_column_date(table_id, {name:'c_orderout_request_arrive_date', index:'oo.request_arrive_date'}),
 			{name:'c_project_id', index:'oo.c_project_id', hidden:true},
 			{name:'c_project_name', index:'prj.name', width:150, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
@@ -484,15 +484,10 @@ function material_inventory_picklist_detail_inventory_list_load_table(table_id){
 			'Expired Date',
 			'Expired Date',
 			'Lot No',
-			'Length',
-			'Width',
-			'Height',
 			'Condition',
 			'Receive Date',
 			'Age',
 			'Quantity Per Box',
-			'Business Partner Id',
-			'Business Partner',
 			'Project Id',
 			'Project'
 		], 
@@ -525,9 +520,6 @@ function material_inventory_picklist_detail_inventory_list_load_table(table_id){
 			 }
 			},
 			{name:'lot_no', index:'inv.lot_no', width:90, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
-			{name:'volume_length', index:'inv.volume_length', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
-			{name:'volume_width', index:'inv.volume_width', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
-			{name:'volume_height', index:'inv.volume_height', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
 			{name:'condition', index:'inv.condition', width:100,
 			 stype:'select', searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false, value:<?php echo json_encode($product_conditions);?>}
 			},
@@ -538,8 +530,6 @@ function material_inventory_picklist_detail_inventory_list_load_table(table_id){
 			},
 			{name:'inventory_age', index:'inventory_age', width:80, formatter:'number', formatoptions:{decimalPlaces: 0}, align:'right', search:false},
 			{name:'quantity_per_box', index:'inv.quantity_per_box', hidden:true},
-			{name:'c_businesspartner_id', index:'bp.id', hidden:true},
-			{name:'c_businesspartner_name', index:'bp.name', width:120, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			{name:'c_project_id', index:'prj.id', hidden:true},
 			{name:'c_project_name', index:'prj.name', width:120, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}}
 		],
@@ -574,13 +564,6 @@ function material_inventory_picklist_detail_inventory_list_load_table(table_id){
 		multipleSearch: true, 
 		multipleGroup: true, 
 		showQuery: true
-	});
-	
-	jQuery("#" + table_id).jqGrid('setGroupHeaders', {
-		useColSpanStyle: true, 
-		groupHeaders:[
-			{startColumnName: 'volume_length', numberOfColumns: 3, titleText: 'Volume'}
-		]
 	});
 	
 	jQuery("#" + table_id).jqGrid('setFrozenColumns');
@@ -626,17 +609,12 @@ function material_inventory_picklist_detail_list_load_table(table_id){
 			'Condition',
 			'Carton No',
 			'Lot No',
-			'Length',
-			'Width',
-			'Height',
 			'Packed Date',
 			'Packed Date',
 			'Expired Date',
 			'Expired Date',
 			'Receive Date',
 			'Age',
-			'Business Partner Id',
-			'Business Partner',
 			'Project Id',
 			'Project',
 			''
@@ -662,9 +640,6 @@ function material_inventory_picklist_detail_list_load_table(table_id){
 			},
 			{name:'carton_no', index:'ipld.carton_no', width:80, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			{name:'lot_no', index:'ipld.lot_no', width:90, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
-			{name:'volume_length', index:'ipld.volume_length', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
-			{name:'volume_width', index:'ipld.volume_width', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
-			{name:'volume_height', index:'ipld.volume_height', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', searchoptions:{sopt:jqgird_search_number_operators, clearSearch:false}},
 			jqgrid_column_date(table_id, {name:'packed_date', index:'ipld.packed_date'}),
 			{name:'packed_date_2', index:'ipld.packed_date', hidden:true, 
 			 formatter:function(cellvalue, options, rowObject){
@@ -683,8 +658,6 @@ function material_inventory_picklist_detail_list_load_table(table_id){
 			 }
 			},
 			{name:'inventory_age', index:'inventory_age', width:80, formatter:'number', formatoptions:{decimalPlaces: 0}, align:'right', search:false},
-			{name:'c_businesspartner_id', index:'bp.id', hidden:true},
-			{name:'c_businesspartner_name', index:'bp.name', width:120, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			{name:'c_project_id', index:'ipld.c_project_id', hidden:true},
 			{name:'c_project_name', index:'prj.name', width:120, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			{name:'cmd_action', index:'cmd_action', width:26, search:false, sortable:false}
@@ -724,13 +697,6 @@ function material_inventory_picklist_detail_list_load_table(table_id){
 		showQuery: true
 	});
 	
-	jQuery("#" + table_id).jqGrid('setGroupHeaders', {
-		useColSpanStyle: true, 
-		groupHeaders:[
-			{startColumnName: 'volume_length', numberOfColumns: 3, titleText: 'Volume'}
-		]
-	});
-	
 	jQuery("#" + table_id).jqGrid('setFrozenColumns');
 	jQuery("#" + table_id).setGridHeight(500);
 }
@@ -753,14 +719,10 @@ function material_inventory_picklist_detail_list_remove(table_id, id){
 				condition				: row_data.condition,
 				carton_no				: row_data.carton_no,
 				lot_no					: row_data.lot_no,
-				volume_length			: row_data.volume_length,
-				volume_width			: row_data.volume_width,
-				volume_height			: row_data.volume_height,
 				packed_date				: row_data.packed_date_2,
 				expired_date			: row_data.expired_date_2,
 				received_date			: row_data.received_date,
 				c_project_id			: row_data.c_project_id,
-				c_businesspartner_id	: row_data.c_businesspartner_id
 			},
 			async : false,
 			error: jquery_ajax_error_handler,
@@ -841,16 +803,11 @@ function material_inventory_picklist_detail_process_manual(){
 			barcode			: inventory_data.barcode,
 			carton_no		: inventory_data.carton_no,
 			lot_no			: inventory_data.lot_no,
-			volume_length	: inventory_data.volume_length,
-			volume_width	: inventory_data.volume_width,
-			volume_height	: inventory_data.volume_height,
 			condition		: inventory_data.condition,
 			packed_date		: inventory_data.packed_date_2,
 			expired_date	: inventory_data.expired_date_2,
 			received_date	: inventory_data.received_date,
-			quantity		: jQuery('#material_inventory_picklist_detail_inventory_list_quantity_' + value).val(),
-			c_project_id			: inventory_data.c_project_id,
-			c_businesspartner_id	: inventory_data.c_businesspartner_id
+			quantity		: jQuery('#material_inventory_picklist_detail_inventory_list_quantity_' + value).val()
 		});
 	});
 	if (records.length > 0)

@@ -14,8 +14,7 @@ class C_project extends DataMapper {
 		'cus_c_project_sys_usergroup'	=> array('cascade_delete' => FALSE),
 		'm_inventory_assemblysource'	=> array('cascade_delete' => FALSE),
 		'm_inventory_assemblytarget'	=> array('cascade_delete' => FALSE),
-		'm_inventory_picklistdetail'	=> array('cascade_delete' => FALSE),
-		'm_inventory_inbounddetail'		=> array('cascade_delete' => FALSE)
+		'm_inventory_picklistdetail'	=> array('cascade_delete' => FALSE)
 	);
 	
     var $validation = array(

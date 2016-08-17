@@ -58,7 +58,6 @@ function material_inventory_summary_list_load_table(table_id){
 			'Onhand',
 			'Pallet',
 			'Age',
-			'Business Partner',
 			'Project'
 		], 
 		colModel: [
@@ -76,7 +75,6 @@ function material_inventory_summary_list_load_table(table_id){
 			{name:'quantity_onhand', index:'quantity_onhand', width:80, formatter:'number', formatoptions:{decimalPlaces: 4}, align:'right', search:false},
 			{name:'pallet', index:'inv.pallet', width:120, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			{name:'inventory_age', index:'inventory_age', width:80, formatter:'number', formatoptions:{decimalPlaces: 0}, align:'right', search:false},
-			{name:'c_businesspartner_name', index:'bp.name', width:120, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}},
 			{name:'c_project_name', index:'prj.name', width:120, searchoptions:{sopt:jqgird_search_string_operators, clearSearch:false}}
 		],
 		pager: '#' + table_id + '_nav'
