@@ -13,7 +13,6 @@ echo form_open($form_action.(!empty($record) ? '/'.$record->id : ''),
 		<ul>
 			<li><a href="#material_product_form_tab_general">General</a></li>
 			<li><a href="#material_product_form_tab_scan_config">Barcode Configuration</a></li>
-			<li><a href="#material_product_form_tab_category">Select Category</a></li>
 		</ul>
 		<div id="material_product_form_tab_general">
 			<table>
@@ -130,20 +129,6 @@ echo form_input(
 		'id' 	=> 'material_product_form_minimum_stock',
 		'class'	=> 'required number',
 		'value'	=> (!empty($record) ? $record->minimum_stock : '0')
-	)
-);?>
-									</td>
-								</tr>
-								<tr>
-									<th><label for="material_product_form_price">Price</label></th>
-									<td>
-<?php 
-echo form_input(
-	array(
-		'name' 	=> 'price',
-		'id' 	=> 'material_product_form_price',
-		'class'	=> 'required number',
-		'value'	=> (!empty($record) ? $record->price : '0')
 	)
 );?>
 									</td>
@@ -381,10 +366,6 @@ echo form_input(
 				</tbody>
 			</table>
 		</div>
-		<div id="material_product_form_tab_category">
-			<table id="material_product_category_list_table"></table>
-			<div id="material_product_category_list_table_nav"></div>
-		</div>
 	</div>
 <?php echo form_close();?>
 
@@ -396,12 +377,8 @@ jQuery(function(){
 	
 	jQuery("#material_product_form").validate({
 		submitHandler: function(form){
-			var _data = new Object;
-			_data.m_category_ids = jQuery("#material_product_category_list_table").jqGrid('getGridParam', 'selarrrow');
-			
 			jQuery("#material_product_form").ajaxSubmit({
 				dataType: "json",
-				data: _data,
 				async : false,
 				error: jquery_ajax_error_handler,
 				beforeSend: function(jqXHR, settings){
@@ -423,121 +400,10 @@ jQuery(function(){
 	{
 		autoFocus : false
 	});
-	
-	/* -- Load Category List -- */
-	material_product_form_category_list_load_table('material_product_category_list_table', <?php echo !empty($record) ? json_encode($record->m_product_categories) : '[]';?>);
 });
 
 function material_product_form_submit(on_success){
 	material_product_on_sucess = on_success;
 	jQuery('#material_product_form').submit();
-}
-
-function material_product_form_category_list_load_table(table_id, m_product_categories){
-	jQuery('#' + table_id).jqGrid({
-		loadError: jquery_ajax_error_handler,
-		datatype: "json", 
-		viewrecords: true, 
-		rownumbers: true,
-		shrinkToFit: false,
-		pginput: false,
-		pgbuttons: false,
-		multiselect: true,
-		rowNum: 1000, 
-		jsonReader : {
-			root: "data",
-			page: "page",
-			total: "total",
-			records: "records",
-			repeatitems: false
-		},
-		width: jqgrid_window_fixed_width(table_id),
-		url: "<?php echo site_url('material/product/get_category_list_json');?>", 
-		editurl: "<?php echo site_url('material/category/jqgrid_cud');?>",
-		hidegrid: false,
-		height: 170,
-		gridComplete: function(){
-			if (m_product_categories)
-			{
-				jQuery.each(m_product_categories, function(idx, m_product_category){
-					jQuery('#' + table_id).setSelection(m_product_category.m_category_id);
-				});
-			}
-		},
-		colNames: [
-			'Id', 
-			'Code',
-			'Name'
-		], 
-		colModel: [
-			{name:'id', index:'id', key:true, hidden:true},  
-			{name:'code', index:'code', width:100, editable:true, editrules:{required:true}},
-			{name:'name', index:'name', width:335, editable:true, editrules:{required:true}}
-		],
-		pager: '#' + table_id + '_nav', 
-		sortname: 'name', 
-		sortorder: "asc"
-	});
-	
-	jQuery("#" + table_id).jqGrid('navGrid', '#' + table_id + '_nav', {
-		/* -- Button Configuration -- */
-<?php 
-if (is_authorized('material/category', 'update'))
-{?>
-		edit: true,
-<?php 
-}
-else
-{?>
-		edit: false,
-<?php 
-}?>
-<?php 
-if (is_authorized('material/category', 'insert'))
-{?>
-		add: true,
-<?php 
-}
-else
-{?>
-		add: false,
-<?php 
-}?>
-<?php 
-if (is_authorized('material/category', 'delete'))
-{?>
-		del: true,
-<?php 
-}
-else
-{?>
-		del: false,
-<?php 
-}?>
-	},
-	{
-		/* -- Edit Configuration -- */
-		afterSubmit: jqgrid_form_after_submit, 
-		beforeSubmit: jqgrid_form_before_submit,
-		errorTextFormat : jqgrid_form_error_text,
-		closeOnEscape: true,
-		bottominfo: "*) Required"
-	},
-	{
-		/* -- Add Configuration -- */
-		afterSubmit : jqgrid_form_after_submit, 
-		beforeSubmit : jqgrid_form_before_submit,
-		errorTextFormat : jqgrid_form_error_text,
-		closeOnEscape: true,
-		bottominfo: "*) Required"
-	},
-	{
-		/* -- Delete Configuration -- */
-		afterSubmit : jqgrid_form_after_submit, 
-		beforeSubmit: jqgrid_form_before_submit,
-		errorTextFormat : jqgrid_form_error_text,
-		closeOnEscape: true
-	}
-	);
 }
 </script>

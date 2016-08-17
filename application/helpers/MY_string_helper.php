@@ -23,33 +23,6 @@ if ( ! function_exists('number_format_clear'))
 }
 
 /**
- * Get spelling number to bahasa
- */
-if ( ! function_exists('number_to_spelling_bahasa'))
-{
-	function number_to_spelling_bahasa($value)
-	{
-	  $abil = array("", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas");
-	  if ($value < 12)
-		return " " . $abil[$value];
-	  elseif ($value < 20)
-		return number_to_spelling_bahasa($value - 10) . " belas";
-	  elseif ($value < 100)
-		return number_to_spelling_bahasa($value / 10) . " puluh" . number_to_spelling_bahasa($value % 10);
-	  elseif ($value < 200)
-		return " seratus" . number_to_spelling_bahasa($value - 100);
-	  elseif ($value < 1000)
-		return number_to_spelling_bahasa($value / 100) . " ratus" . number_to_spelling_bahasa($value % 100);
-	  elseif ($value < 2000)
-		return " seribu" . number_to_spelling_bahasa($value - 1000);
-	  elseif ($value < 1000000)
-		return number_to_spelling_bahasa($value / 1000) . " ribu" . number_to_spelling_bahasa($value % 1000);
-	  elseif ($value < 1000000000)
-		return number_to_spelling_bahasa($value / 1000000) . " juta" . number_to_spelling_bahasa($value % 1000000);
-	}
-}
-
-/**
  * Get code number generator
  */
 

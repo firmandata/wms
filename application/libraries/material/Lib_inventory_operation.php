@@ -2045,6 +2045,13 @@ class Lib_inventory_operation extends Lib_general
 			}
 			if ($m_inventory_invoice->invoice_calculate == 'WEIGHT')
 				$amount = $weight * $m_inventory_invoice->invoice_handling_in_price;
+			elseif ($m_inventory_invoice->invoice_calculate == 'VOLUME')
+			{
+				if ($quantities['volume_min'] > 0)
+					$amount = round($parts_num / $quantities['volume_min']) * $m_inventory_invoice->invoice_handling_in_price;
+				else
+					$amount = $parts_num * $m_inventory_invoice->invoice_handling_in_price;
+			}
 			else
 				$amount = $parts_num * $m_inventory_invoice->invoice_handling_in_price;
 		}
@@ -2062,6 +2069,13 @@ class Lib_inventory_operation extends Lib_general
 			}
 			if ($m_inventory_invoice->invoice_calculate == 'WEIGHT')
 				$amount = $weight * $m_inventory_invoice->invoice_handling_out_price;
+			elseif ($m_inventory_invoice->invoice_calculate == 'VOLUME')
+			{
+				if ($quantities['volume_min'] > 0)
+					$amount = round($parts_num / $quantities['volume_min']) * $m_inventory_invoice->invoice_handling_out_price;
+				else
+					$amount = $parts_num * $m_inventory_invoice->invoice_handling_out_price;
+			}
 			else
 				$amount = $parts_num * $m_inventory_invoice->invoice_handling_out_price;
 		}
@@ -2079,6 +2093,13 @@ class Lib_inventory_operation extends Lib_general
 			}
 			if ($m_inventory_invoice->invoice_calculate == 'WEIGHT')
 				$amount = $weight * $m_inventory_invoice->invoice_handling_storage_price;
+			elseif ($m_inventory_invoice->invoice_calculate == 'VOLUME')
+			{
+				if ($quantities['volume_min'] > 0)
+					$amount = round($parts_num / $quantities['volume_min']) * $m_inventory_invoice->invoice_handling_storage_price;
+				else
+					$amount = $parts_num * $m_inventory_invoice->invoice_handling_storage_price;
+			}
 			else
 				$amount = $parts_num * $m_inventory_invoice->invoice_handling_storage_price;
 		}
@@ -2112,6 +2133,7 @@ class Lib_inventory_operation extends Lib_general
 	{
 		$weights = array();
 		$parts_num = 0;
+		$volume_min = 0;
 		if (in_array($invoice_calculate, array('BOX', 'WEIGHT', 'PALLET')))
 		{
 			if (in_array($invoice_calculate, array('BOX', 'WEIGHT')))
@@ -2152,8 +2174,8 @@ class Lib_inventory_operation extends Lib_general
 		elseif ($invoice_calculate == 'VOLUME')
 		{
 			$table_query = $this->CI->db
-				->select("iid.volume_length, iid.volume_width, iid.volume_height")
-				->select_if_null("SUM(iid.quantity_box)", 0, 'quantity_box')
+				->select_if_null("SUM(iid.volume_length * iid.volume_width * iid.volume_height * iid.quantity_box)", 0, 'volume')
+				->select_if_null("MIN(iid.volume_length * iid.volume_width * iid.volume_height)", 0, 'volume_min')
 				->select_if_null("SUM(iid.quantity)", 0, 'quantity')
 				->select('pro.uom')
 				->from('m_inventory_inbounddetails iid')
@@ -2163,7 +2185,6 @@ class Lib_inventory_operation extends Lib_general
 				->where('iid.created <=', $period_to)
 				->group_by(
 					array(
-						'iid.volume_length', 'iid.volume_width', 'iid.volume_height',
 						'pro.uom'
 					)
 				)
@@ -2171,17 +2192,21 @@ class Lib_inventory_operation extends Lib_general
 			$records = $table_query->result();
 			foreach ($records as $record_idx=>$record)
 			{
-				$parts_num += ($record->quantity_box * ($record->volume_length * $record->volume_width * $record->volume_height) / 10);
+				$parts_num += $record->volume;
 				
 				if (!isset($weights[$record->uom]))
 					$weights[$record->uom] = 0;
 				$weights[$record->uom] += $record->quantity;
+				
+				if (($volume_min > $record->volume_min || $volume_min == 0) && $record->volume_min > 0)
+					$volume_min = $record->volume_min;
 			}
 		}
 		
 		return array(
-			'parts_num'	=> $parts_num,
-			'weights'	=> $weights
+			'parts_num'		=> $parts_num,
+			'weights'		=> $weights,
+			'volume_min'	=> $volume_min
 		);
 	}
 	
@@ -2189,6 +2214,7 @@ class Lib_inventory_operation extends Lib_general
 	{
 		$weights = array();
 		$parts_num = 0;
+		$volume_min = 0;
 		if (in_array($invoice_calculate, array('BOX', 'WEIGHT', 'PALLET')))
 		{
 			if (in_array($invoice_calculate, array('BOX', 'WEIGHT')))
@@ -2232,8 +2258,8 @@ class Lib_inventory_operation extends Lib_general
 		elseif ($invoice_calculate == 'VOLUME')
 		{
 			$table_query = $this->CI->db
-				->select("ipld.volume_length, ipld.volume_width, ipld.volume_height")
-				->select_if_null("SUM(ispd.quantity_box)", 0, 'quantity_box')
+				->select_if_null("SUM(ipld.volume_length * ipld.volume_width * ipld.volume_height * ispd.quantity_box)", 0, 'volume')
+				->select_if_null("MIN(ipld.volume_length * ipld.volume_width * ipld.volume_height)", 0, 'volume_min')
 				->select_if_null("SUM(ispd.quantity)", 0, 'quantity')
 				->select('pro.uom')
 				->from('m_inventory_shipmentdetails ispd')
@@ -2245,7 +2271,6 @@ class Lib_inventory_operation extends Lib_general
 				->where('ispd.created <=', $period_to)
 				->group_by(
 					array(
-						'ipld.volume_length', 'ipld.volume_width', 'ipld.volume_height',
 						'pro.uom'
 					)
 				)
@@ -2253,17 +2278,21 @@ class Lib_inventory_operation extends Lib_general
 			$records = $table_query->result();
 			foreach ($records as $record_idx=>$record)
 			{
-				$parts_num += ($record->quantity_box * ($record->volume_length * $record->volume_width * $record->volume_height) / 10);
+				$parts_num += $record->volume;
 				
 				if (!isset($weights[$record->uom]))
 					$weights[$record->uom] = 0;
 				$weights[$record->uom] += $record->quantity;
+				
+				if (($volume_min > $record->volume_min || $volume_min == 0) && $record->volume_min > 0)
+					$volume_min = $record->volume_min;
 			}
 		}
 		
 		return array(
-			'parts_num'	=> $parts_num,
-			'weights'	=> $weights
+			'parts_num'		=> $parts_num,
+			'weights'		=> $weights,
+			'volume_min'	=> $volume_min
 		);
 	}
 	
@@ -2273,9 +2302,12 @@ class Lib_inventory_operation extends Lib_general
 		
 		$weights = array();
 		$parts_num = 0;
+		$volume_min = 0;
 		if (in_array($invoice_calculate, array('BOX', 'WEIGHT', 'PALLET')))
 		{
 			// -- First stock --
+			$last_weight = array();
+			$last_parts_num = 0;
 			if (in_array($invoice_calculate, array('BOX', 'WEIGHT')))
 				$this->CI->db
 					->select_if_null("SUM(invl.quantity_box)", 0, 'quantity_box');
@@ -2303,13 +2335,13 @@ class Lib_inventory_operation extends Lib_general
 			{
 				$record = $table_query->first_row();
 				if ($invoice_calculate == 'BOX')
-					$parts_num += $record->quantity_box;
+					$last_parts_num += $record->quantity_box;
 				elseif ($invoice_calculate == 'PALLET')
-					$parts_num += $record->pallet;
+					$last_parts_num += $record->pallet;
 				
-				if (!isset($weights[$record->uom]))
-					$weights[$record->uom] = 0;
-				$weights[$record->uom] += $record->quantity;
+				if (!isset($last_weight[$record->uom]))
+					$last_weight[$record->uom] = 0;
+				$last_weight[$record->uom] += $record->quantity;
 			}
 			
 			// -- Change stock --
@@ -2339,40 +2371,62 @@ class Lib_inventory_operation extends Lib_general
 			$table_query = $this->CI->db
 				->get();
 			
-			if ($table_query->num_rows() > 0)
+			$records = $table_query->result();
+			
+			$period_days = date_diff_by_day($period_from, $period_to);
+			for ($period_day = 0; $period_day <= $period_days; $period_day++)
 			{
-				$records = $table_query->result();
+				$change_parts_num = 0;
+				$change_weight = array();
 				
-				$period_days = date_diff_by_day($period_from, $period_to);
-				for ($period_day = 0; $period_day <= $period_days; $period_day++)
+				$period_date = add_date($period_from, $period_day);
+				$period_date_str = date($this->CI->config->item('server_date_format'), strtotime($period_date));
+				foreach ($records as $record_idx=>$record)
 				{
-					$period_date = add_date($period_from, $period_day);
-					$period_date_str = date($this->CI->config->item('server_date_format'), strtotime($period_date));
-					foreach ($records as $record_idx=>$record)
+					$log_date_str = date($this->CI->config->item('server_date_format'), strtotime($record->create_date));
+					if ($period_date_str == $log_date_str)
 					{
-						$log_date_str = date($this->CI->config->item('server_date_format'), strtotime($record->create_date));
-						if ($period_date_str == $log_date_str)
-						{
-							if (in_array($invoice_calculate, array('BOX', 'WEIGHT')))
-								$parts_num += $record->quantity_box;
-							elseif ($invoice_calculate == 'PALLET')
-								$parts_num += $record->pallet;
-							
-							if (!isset($weights[$record->uom]))
-								$weights[$record->uom] = 0;
-							$weights[$record->uom] += $record->quantity;
-						}
+						if (in_array($invoice_calculate, array('BOX', 'WEIGHT')))
+							$change_parts_num += $record->quantity_box;
+						elseif ($invoice_calculate == 'PALLET')
+							$change_parts_num += $record->pallet;
+						
+						if (!isset($change_weight[$record->uom]))
+							$change_weight[$record->uom] = 0;
+						$change_weight[$record->uom] += $record->quantity;
 					}
 				}
+				
+				$parts_num_new = $last_parts_num + $change_parts_num;
+				$parts_num += $parts_num_new;
+				$last_parts_num = $parts_num_new;
+				
+				$weights_new = $last_weight;
+				foreach ($change_weight as $change_weight_uom=>$change_weight_value)
+				{
+					if (!isset($weights_new[$change_weight_uom]))
+						$weights_new[$change_weight_uom] = $change_weight_value;
+					else
+						$weights_new[$change_weight_uom] += $change_weight_value;
+				}
+				foreach ($weights_new as $weight_new_uom=>$weight_new_value)
+				{
+					if (!isset($weights[$weight_new_uom]))
+						$weights[$weight_new_uom] = $weight_new_value;
+					else
+						$weights[$weight_new_uom] += $weight_new_value;
+				}
+				$last_weight = $weights_new;
 			}
 		}
 		elseif ($invoice_calculate == 'VOLUME')
 		{
 			// -- First stock --
-			$first_weight = array();
+			$last_weight = array();
+			$last_parts_num = 0;
 			$table_query = $this->CI->db
-				->select("invl.volume_length, invl.volume_width, invl.volume_height")
-				->select_if_null("SUM(invl.quantity_box)", 0, 'quantity_box')
+				->select_if_null("SUM(invl.volume_length * invl.volume_width * invl.volume_height * invl.quantity_box)", 0, 'volume')
+				->select_if_null("MIN(invl.volume_length * invl.volume_width * invl.volume_height)", 0, 'volume_min')
 				->select_if_null("SUM(invl.quantity)", 0, 'quantity')
 				->select('pro.uom')
 				->from('m_inventorylogs invl')
@@ -2383,7 +2437,6 @@ class Lib_inventory_operation extends Lib_general
 				->where('invl.quantity_box <>', 0)
 				->group_by(
 					array(
-						'invl.volume_length', 'invl.volume_width', 'invl.volume_height',
 						'pro.uom'
 					)
 				)
@@ -2391,18 +2444,21 @@ class Lib_inventory_operation extends Lib_general
 			$records = $table_query->result();
 			foreach ($records as $record_idx=>$record)
 			{
-				$parts_num += ($record->quantity_box * ($record->volume_length * $record->volume_width * $record->volume_height) / 10);
+				$last_parts_num += $record->volume;
 				
-				if (!isset($weights[$record->uom]))
-					$weights[$record->uom] = 0;
-				$weights[$record->uom] += $record->quantity;
+				if (!isset($last_weight[$record->uom]))
+					$last_weight[$record->uom] = 0;
+				$last_weight[$record->uom] += $record->quantity;
+				
+				if (($volume_min > $record->volume_min || $volume_min == 0) && $record->volume_min > 0)
+					$volume_min = $record->volume_min;
 			}
 			
 			// -- Change stock --
 			$this->CI->db
-				->select("invl.volume_length, invl.volume_width, invl.volume_height")
+				->select_if_null("SUM(invl.volume_length * invl.volume_width * invl.volume_height * invl.quantity_box)", 0, 'volume')
+				->select_if_null("MIN(invl.volume_length * invl.volume_width * invl.volume_height)", 0, 'volume_min')
 				->select_cast_datetime_to_date('invl.created', 'create_date')
-				->select_if_null("SUM(invl.quantity_box)", 0, 'quantity_box')
 				->select_if_null("SUM(invl.quantity)", 0, 'quantity')
 				->select('pro.uom')
 				->from('m_inventorylogs invl')
@@ -2414,7 +2470,6 @@ class Lib_inventory_operation extends Lib_general
 				->where('invl.quantity_box <>', 0)
 				->group_by(
 					array(
-						'invl.volume_length', 'invl.volume_width', 'invl.volume_height',
 						$this->CI->db->cast_datetime_to_date('invl.created'),
 						'pro.uom'
 					)
@@ -2422,34 +2477,59 @@ class Lib_inventory_operation extends Lib_general
 			$table_query = $this->CI->db
 				->get();
 			
-			if ($table_query->num_rows() > 0)
+			$records = $table_query->result();
+			
+			$period_days = date_diff_by_day($period_from, $period_to);
+			for ($period_day = 0; $period_day <= $period_days; $period_day++)
 			{
-				$records = $table_query->result();
+				$change_parts_num = 0;
+				$change_weight = array();
 				
-				$period_days = date_diff_by_day($period_from, $period_to);
-				for ($period_day = 0; $period_day <= $period_days; $period_day++)
+				$period_date = add_date($period_from, $period_day);
+				$period_date_str = date($this->CI->config->item('server_date_format'), strtotime($period_date));
+				foreach ($records as $record_idx=>$record)
 				{
-					$period_date = add_date($period_from, $period_day);
-					$period_date_str = date($this->CI->config->item('server_date_format'), strtotime($period_date));
-					foreach ($records as $record_idx=>$record)
+					$log_date_str = date($this->CI->config->item('server_date_format'), strtotime($record->create_date));
+					if ($period_date_str == $log_date_str)
 					{
-						$log_date_str = date($this->CI->config->item('server_date_format'), strtotime($record->create_date));
-						if ($period_date_str == $log_date_str)
-						{
-							$parts_num += ($record->quantity_box * ($record->volume_length * $record->volume_width * $record->volume_height) / 10);
-							
-							if (!isset($weights[$record->uom]))
-								$weights[$record->uom] = 0;
-							$weights[$record->uom] += $record->quantity;
-						}
+						$change_parts_num += $record->volume;
+						
+						if (!isset($change_weight[$record->uom]))
+							$change_weight[$record->uom] = 0;
+						$change_weight[$record->uom] += $record->quantity;
+						
+						if (($volume_min > $record->volume_min || $volume_min == 0) && $record->volume_min > 0)
+							$volume_min = $record->volume_min;
 					}
 				}
+				
+				$parts_num_new = $last_parts_num + $change_parts_num;
+				$parts_num += $parts_num_new;
+				$last_parts_num = $parts_num_new;
+				
+				$weights_new = $last_weight;
+				foreach ($change_weight as $change_weight_uom=>$change_weight_value)
+				{
+					if (!isset($weights_new[$change_weight_uom]))
+						$weights_new[$change_weight_uom] = $change_weight_value;
+					else
+						$weights_new[$change_weight_uom] += $change_weight_value;
+				}
+				foreach ($weights_new as $weight_new_uom=>$weight_new_value)
+				{
+					if (!isset($weights[$weight_new_uom]))
+						$weights[$weight_new_uom] = $weight_new_value;
+					else
+						$weights[$weight_new_uom] += $weight_new_value;
+				}
+				$last_weight = $weights_new;
 			}
 		}
 		
 		return array(
-			'parts_num'	=> $parts_num,
-			'weights'	=> $weights
+			'parts_num'		=> $parts_num,
+			'weights'		=> $weights,
+			'volume_min'	=> $volume_min
 		);
 	}
 	

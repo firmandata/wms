@@ -84,36 +84,6 @@ if ( ! function_exists('convert_date_string_from_client'))
 	}
 }
 
-if ( ! function_exists('date_to_spelling_bahasa'))
-{
-	function date_to_spelling_bahasa($date)
-	{
-		$CI =& get_instance();
-		$CI->load->helper('string');
-		
-		$unix_time = strtotime($date);
-		$day = date('j', $unix_time);
-		$day_number = date('N', $unix_time) - 1;
-		$month_number = date('n', $unix_time) - 1;
-		$year = date('Y', $unix_time);
-		
-		$array_days = array('Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu');
-		$array_months = array('Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember');
-		
-		$spell_day_number = $array_days[$day_number];
-		$spell_day = number_to_spelling_bahasa($day);
-		$spell_month_number = $array_months[$month_number];
-		$spell_year = number_to_spelling_bahasa($year);
-		
-		return array(
-			  'day_number'	=> $spell_day_number
-			, 'day'			=> $spell_day
-			, 'month'		=> $spell_month_number
-			, 'year'		=> $spell_year
-		);
-	}
-}
-
 if ( ! function_exists('date_diff_by_day'))
 {
 	function date_diff_by_day($from, $to)

@@ -114,19 +114,4 @@ class MY_DB_sqlsrv_driver extends CI_DB_sqlsrv_driver
 	{
 		return "DATEDIFF(DAY, ".$start_field.", ".$end_field.")";
 	}
-	
-	function _getyear($field)
-	{
-		return "YEAR(".$field.")";
-	}
-	
-	function _getmonth($field)
-	{
-		return "MONTH(".$field.")";
-	}
-	
-	function _getday($field)
-	{
-		return "DAY(".$field.")";
-	}
 }

@@ -34,7 +34,6 @@ $config['inventory_default_warehouse'] = 'WHSYS';
 $config['inventory_default_grid'] = 'WHSYS000000';
 
 $config['business_partner_types'] = array(
-	'EMPLOYEE'	=> 'Employee',
 	'SUPPLIER'	=> 'Supplier',
 	'CUSTOMER'	=> 'Customer'
 );
@@ -176,22 +175,6 @@ $config['status_inventory_shipment'] = array(
 	'INCOMPLETE'			=> 'INCOMPLETE',
 	'INCOMPLETE BOX'		=> 'INCOMPLETE BOX',
 	'INCOMPLETE QUANTITY'	=> 'INCOMPLETE QUANTITY'
-);
-
-$config['currencies'] = array(
-	'IDR'	=> "IDR",
-	'USD'	=> "USD"
-);
-
-$config['depreciation_period_type'] = array(
-	'MONTHLY'	=> "MONTHLY",
-	'ANNUAL'	=> "ANNUAL",
-	'DAILY'		=> "DAILY"
-);
-
-$config['asset_types'] = array(
-	'ASSET'		=> 'ASSET',
-	'PROJECT'	=> 'PROJECT'
 );
 
 /* -- Email Preferences -- */

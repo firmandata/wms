@@ -76,19 +76,4 @@ class MY_DB_mysql_driver extends CI_DB_mysql_driver
 	{
 		return "DATEDIFF(".$end_field.", ".$start_field.")";
 	}
-	
-	function _getyear($field)
-	{
-		return "YEAR(".$field.")";
-	}
-	
-	function _getmonth($field)
-	{
-		return "MONTH(".$field.")";
-	}
-	
-	function _getday($field)
-	{
-		return "DAY(".$field.")";
-	}
 }

@@ -97,7 +97,7 @@ foreach ($days as $day)
 	});
 	
 	jQuery("#" + table_id).jqGrid('setFrozenColumns');
-	jQuery("#" + table_id).setGridHeight(185);
+	jQuery("#" + table_id).setGridHeight(200);
 }
 </script>
 

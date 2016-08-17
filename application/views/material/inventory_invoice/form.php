@@ -144,7 +144,7 @@ echo form_checkbox(
 	)
 );?>
 										</td>
-										<td><label for="material_inventory_invoice_form_invoice_handling_storage">Storage</label></td>
+										<td><label for="material_inventory_invoice_form_invoice_handling_storage">Storage (Recurring)</label></td>
 										<td>
 <?php 
 echo form_input(

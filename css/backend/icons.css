@@ -38,18 +38,6 @@
 	background: url('../../img/icons/16/menu-configuration.png') no-repeat;
 }
 
-.icon-region-16 > a {
-	background: url('../../img/icons/16/region.png') no-repeat;
-}
-
-.icon-department-16 > a {
-	background: url('../../img/icons/16/department.png') no-repeat;
-}
-
-.icon-location-16 > a {
-	background: url('../../img/icons/16/location.png') no-repeat;
-}
-
 .icon-order-16 > a {
 	background: url('../../img/icons/16/order.png') no-repeat;
 }

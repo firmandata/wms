@@ -1,7 +1,7 @@
 var jqgird_search_string_operators = ['bw','bn','eq','ne','lt','le','gt','ge','in','ni','ew','en','cn','nc'];
 var jqgird_search_date_operators = ['eq','ne','lt','le','gt','ge','in','ni'];
-var jqgird_search_datetime_operators = ['ge','gt','lt','le','eq','ne','in','ni'];
-var jqgird_search_number_operators = ['ge','gt','lt','le','eq','ne','in','ni'];
+var jqgird_search_datetime_operators = ['gt','ge','lt','le','eq','ne','in','ni'];
+var jqgird_search_number_operators = ['gt','ge','lt','le','eq','ne','in','ni'];
 var jqgrid_fixed_height = new Array;
 
 function jqgrid_window_fixed_width(id)
