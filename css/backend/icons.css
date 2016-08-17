@@ -1,0 +1,171 @@
+.menu-icon > a {
+	display: block;
+	text-decoration: none;
+	padding-top: 2px !important;
+	padding-left: 18px !important;
+}
+
+.menu-icon > a:hover {
+	background-color: #ffd700 !important;
+}
+
+.menu-icon.current > a {
+	background-color: #ffff66;
+}
+
+.menu-icon.current-page > a {
+	text-decoration: underline;
+	font-weight: bold;
+}
+
+.icon-home-16 > a {
+	background: url('../../img/icons/16/home.png') no-repeat;
+}
+
+.icon-setup-16 > a {
+	background: url('../../img/icons/16/setup.png') no-repeat;
+}
+
+.icon-user-16 > a {
+	background: url('../../img/icons/16/user.png') no-repeat;
+}
+
+.icon-access-control-16 > a {
+	background: url('../../img/icons/16/access-control.png') no-repeat;
+}
+
+.icon-menu-configuration-16 > a {
+	background: url('../../img/icons/16/menu-configuration.png') no-repeat;
+}
+
+.icon-region-16 > a {
+	background: url('../../img/icons/16/region.png') no-repeat;
+}
+
+.icon-department-16 > a {
+	background: url('../../img/icons/16/department.png') no-repeat;
+}
+
+.icon-location-16 > a {
+	background: url('../../img/icons/16/location.png') no-repeat;
+}
+
+.icon-order-16 > a {
+	background: url('../../img/icons/16/order.png') no-repeat;
+}
+
+.icon-business-partner-16 > a {
+	background: url('../../img/icons/16/business-partner.png') no-repeat;
+}
+
+.icon-order-in-16 > a {
+	background: url('../../img/icons/16/order-in.png') no-repeat;
+}
+
+.icon-order-out-16 > a {
+	background: url('../../img/icons/16/order-out.png') no-repeat;
+}
+
+.icon-project-management-16 > a {
+	background: url('../../img/icons/16/project-management.png') no-repeat;
+}
+
+.icon-project-16 > a {
+	background: url('../../img/icons/16/project.png') no-repeat;
+}
+
+.icon-production-16 > a {
+	background: url('../../img/icons/16/production.png') no-repeat;
+}
+
+.icon-product-16 > a {
+	background: url('../../img/icons/16/product.png') no-repeat;
+}
+
+.icon-warehouse-16 > a {
+	background: url('../../img/icons/16/warehouse.png') no-repeat;
+}
+
+.icon-production-in-16 > a {
+	background: url('../../img/icons/16/production-in.png') no-repeat;
+}
+
+.icon-receive-16 > a {
+	background: url('../../img/icons/16/receive.png') no-repeat;
+}
+
+.icon-inbound-16 > a {
+	background: url('../../img/icons/16/inbound.png') no-repeat;
+}
+
+.icon-inbound-live-16 > a {
+	background: url('../../img/icons/16/inbound-live.png') no-repeat;
+}
+
+.icon-inventory-16 > a {
+	background: url('../../img/icons/16/inventory.png') no-repeat;
+}
+
+.icon-putaway-16 > a {
+	background: url('../../img/icons/16/putaway.png') no-repeat;
+}
+
+.icon-move-16 > a {
+	background: url('../../img/icons/16/move.png') no-repeat;
+}
+
+.icon-adjustment-16 > a {
+	background: url('../../img/icons/16/adjustment.png') no-repeat;
+}
+
+.icon-hold-16 > a {
+	background: url('../../img/icons/16/hold.png') no-repeat;
+}
+
+.icon-assembly-16 > a {
+	background: url('../../img/icons/16/assembly.png') no-repeat;
+}
+
+.icon-log-16 > a {
+	background: url('../../img/icons/16/log.png') no-repeat;
+}
+
+.icon-production-out-16 > a {
+	background: url('../../img/icons/16/production-out.png') no-repeat;
+}
+
+.icon-picklist-16 > a {
+	background: url('../../img/icons/16/picklist.png') no-repeat;
+}
+
+.icon-picking-16 > a {
+	background: url('../../img/icons/16/picking.png') no-repeat;
+}
+
+.icon-shipment-16 > a {
+	background: url('../../img/icons/16/shipment.png') no-repeat;
+}
+
+.icon-invoice-16 > a {
+	background: url('../../img/icons/16/invoice.png') no-repeat;
+}
+
+.icon-report-16 > a {
+	background: url('../../img/icons/16/report.png') no-repeat;
+}
+
+.icon-report-in-16 > a {
+	background: url('../../img/icons/16/report-in.png') no-repeat;
+}
+
+.icon-report-out-16 > a {
+	background: url('../../img/icons/16/report-out.png') no-repeat;
+}
+
+.icon-report-product-out-16 > a {
+	background: url('../../img/icons/16/report-product-out.png') no-repeat;
+}
+
+.icon-report-stock-card-16 > a {
+	background: url('../../img/icons/16/report-stock-card.png') no-repeat;
+}

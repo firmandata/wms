@@ -1,0 +1,86 @@
+.content-left {
+	position: fixed;
+	width: 180px;
+	left: 0px;
+	top: 0px;
+	bottom: 0px;
+	background-color: #ffffff;
+	z-index: 2;
+}
+
+.content-left-header {
+	margin-bottom: 0px;
+	padding: 5px;
+}
+
+.content-left-layout {
+	padding: 2px;
+	margin-top: 0px;
+	margin-left: 0px;
+	margin-right: 2px;
+	margin-bottom: 2px;
+}
+
+.content-right {
+	margin-left: 180px;
+	z-index: 1;
+}
+
+.content-right-header {
+	margin-bottom: 0px;
+	padding-left: 5px;
+	padding-top: 1px;
+	padding-right: 5px;
+	padding-bottom: 5px;
+}
+
+.content-right-header-toolbar {
+	margin-bottom: 2px;
+	padding: 2px;
+	height: 26px;
+}
+
+.content-right-header-toolbar.toolbar-one-line {
+	height : 21px;
+}
+
+.content-right-layout {
+	padding: 2px;
+	margin-bottom: 2px;
+}
+
+.content-right-footer {
+	width: 100%;
+	margin-top: 2px;
+	height: 21px;
+}
+
+.content-right-footer-layout {
+	padding: 3px;
+}
+
+.content-loading {
+	position: absolute;
+	top: 0px;
+	z-index: 10000;
+	left: 50%;
+}
+
+.content-loading-title {
+	position: relative;
+	left: -50%;
+	
+	background-color: #ffff66;
+	padding-left: 15px;
+	padding-top: 5px;
+	padding-right: 15px;
+	padding-bottom: 5px;
+	font-size: 12px;
+	
+	-webkit-border-bottom-right-radius: 5px;
+	-webkit-border-bottom-left-radius: 5px;
+	-moz-border-radius-bottomright: 5px;
+	-moz-border-radius-bottomleft: 5px;
+	border-bottom-right-radius: 5px;
+	border-bottom-left-radius: 5px;
+}
